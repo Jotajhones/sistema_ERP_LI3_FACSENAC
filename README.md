@@ -9,7 +9,7 @@
 | 1 | João Pedro Silva de Lima | Product Owner | Tech Lead / DevOps | joao52517876@edu.df.senac.br |
 | 2 | Miguel Nunes | Desenvolvedor Back-End | — | [email] |
 | 3 | Luciano | Desenvolvedor Back-End | — | [email] |
-| 4 | Daniel | DBA / Banco de Dados | — | [email] |
+| 4 | Daniel | DBA / Banco de Dados | — | daniel52370026@edu.df.senac.br |
 | 5 | Arthur | Desenvolvedor Front-End | — | [email] |
 | 6 | Pedro Soares| Desenvolvedor Front-End | — | [pedro59153296@edu.df.senac.br] |
 | 7 | Matheus | AppSec / QA | — | [email] |
