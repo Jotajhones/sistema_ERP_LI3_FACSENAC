@@ -11,7 +11,7 @@
 | 3 | Luciano | Desenvolvedor Back-End | — | luciano58995256@edu.df.senac.br |
 | 4 | Daniel | DBA / Banco de Dados | — | [email] |
 | 5 | Arthur | Desenvolvedor Front-End | — | [email] |
-| 6 | Pedro Soares| Desenvolvedor Front-End | — | [pedro59153296@edu.df.senac.br] |
+| 6 | Pedro Soares| Desenvolvedor Front-End | — | pedro59153296@edu.df.senac.br |
 | 7 | Matheus | AppSec / QA | — | [email] |
 
 ### 1.2 Identificação
