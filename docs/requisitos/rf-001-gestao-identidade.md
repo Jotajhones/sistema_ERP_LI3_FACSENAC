@@ -11,7 +11,7 @@
 **Complexidade:** MÉDIA (estimado 5 story points)
 **Status:** EM DESENVOLVIMENTO
 **Data de Criação:** 27/08/2026
-**Última Atualização:** 27/08/2026
+**Última Atualização:** 29/08/2026
 
 **Breve Descrição:**
 Criar e implementar gestão de identidade (autenticação e autorização) para diferenciar e administrar diferentes tipos de usuários no sistema. O sistema deve permitir que um usuário qualquer devidamente cadastrado consiga com suas credenciais logar e permanecer logado, bem como verificar se as credenciais são válidas.
