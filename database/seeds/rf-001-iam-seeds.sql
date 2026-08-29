@@ -1,13 +1,13 @@
 INSERT INTO users (id, email, password_hash, user_role)
 VALUES
-    ('UUID-ADMIN', 'admin@erp.com', '$2b$12$HASH_REAL', 'ADMIN'),
-    ('UUID-GESTOR', 'gestor@erp.com', '$2b$12$HASH_REAL', 'GESTOR'),
-    ('UUID-VENDEDOR', 'vendedor@erp.com', '$2b$12$HASH_REAL', 'VENDEDOR'),
-    ('UUID-CLIENTE', 'cliente@erp.com', '$2b$12$HASH_REAL', 'CLIENTE');
+    ('11111111-1111-1111-1111-111111111111', 'admin@erp.com', '$2a$12$O2zScX68aT2PzB1c.LToR.hZ62rM4dD8pE3H/l.a.m1R13010bW.u', 'ADMIN'),
+    ('22222222-2222-2222-2222-222222222222', 'gestor@erp.com', '$2a$12$O2zScX68aT2PzB1c.LToR.hZ62rM4dD8pE3H/l.a.m1R13010bW.u', 'GESTOR'),
+    ('33333333-3333-3333-3333-333333333333', 'vendedor@erp.com', '$2a$12$O2zScX68aT2PzB1c.LToR.hZ62rM4dD8pE3H/l.a.m1R13010bW.u', 'VENDEDOR'),
+    ('44444444-4444-4444-4444-444444444444', 'cliente@erp.com', '$2a$12$O2zScX68aT2PzB1c.LToR.hZ62rM4dD8pE3H/l.a.m1R13010bW.u', 'CLIENTE');
 
-INSERT INTO pessoas (id, user_id, nome, cpf)
+INSERT INTO pessoas (user_id, nome, cpf)
 VALUES
-    ('UUID-PESSOA-ADMIN', 'UUID-ADMIN', 'Administrador Teste', '11111111111'),
-    ('UUID-PESSOA-GESTOR', 'UUID-GESTOR', 'Gestor Teste', '22222222222'),
-    ('UUID-PESSOA-VENDEDOR', 'UUID-VENDEDOR', 'Vendedor Teste', '33333333333'),
-    ('UUID-PESSOA-CLIENTE', 'UUID-CLIENTE', 'Cliente Teste', '44444444444');
+    ('11111111-1111-1111-1111-111111111111', 'Administrador Teste', '11111111111'),
+    ('22222222-2222-2222-2222-222222222222', 'Gestor Teste', '22222222222'),
+    ('33333333-3333-3333-3333-333333333333', 'Vendedor Teste', '33333333333'),
+    ('44444444-4444-4444-4444-444444444444', 'Cliente Teste', '44444444444');

@@ -2,7 +2,7 @@
 
 ---
 
-## 1. IDENTIFICACAO DO REQUISITO (2%)
+## 1. IDENTIFICAÇÃO DO REQUISITO
 
 **ID:** RF-001
 **Título:** Gestão de identidades
@@ -18,7 +18,7 @@ Criar e implementar gestão de identidade (autenticação e autorização) para 
 
 ---
 
-## 2. DESCRICAO E ATORES (10%)
+## 2. DESCRIÇÃO E ATORES
 
 **Contexto do negócio:**
 O sistema precisa que um vendedor consiga logar para criar OS e/ou fazer orçamentos para clientes. Um gestor precisa logar para gerar relatórios sobre quantas compras foram realizadas e quem está conseguindo fechar mais vendas.
@@ -28,8 +28,6 @@ O sistema precisa que um vendedor consiga logar para criar OS e/ou fazer orçame
 ### 1. User comum (vendedor) - Ator Principal
 
 * **Papel:** Acessar o sistema para criar ordens de serviço (OS) e orçamentos.
-
-
 * **Permissões:**
 * READ (Visualizar produtos e próprios orçamentos).
 * CREATE (Gerar orçamentos e OS).
@@ -39,8 +37,6 @@ O sistema precisa que um vendedor consiga logar para criar OS e/ou fazer orçame
 ### 2. Administrador (gestor) - Ator Secundário
 
 * **Papel:** Gerar relatórios financeiros e gerenciar a equipe.
-
-
 * **Permissões:**
 * CREATE, READ, UPDATE, DELETE (Acesso administrativo completo).
 
@@ -49,8 +45,6 @@ O sistema precisa que um vendedor consiga logar para criar OS e/ou fazer orçame
 ### 3. Sistema - Ator Secundário
 
 * **Papel:** Validar credenciais, checar autorização de rotas e conectar-se ao banco de dados.
-
-
 * **Permissões:**
 * Todas as operações internas requeridas pelas rotas.
 
@@ -58,7 +52,7 @@ O sistema precisa que um vendedor consiga logar para criar OS e/ou fazer orçame
 
 ---
 
-## 3. ESPECIFICACAO DE CASOS DE USO + REQUISITOS NAO-FUNCIONAIS (20%)
+## 3. ESPECIFICAÇÃO DE CASOS DE USO E REQUISITOS NÃO-FUNCIONAIS
 
 **Caso de Uso (UC-001): Realizar Login no Sistema**
 
@@ -106,9 +100,7 @@ O sistema precisa que um vendedor consiga logar para criar OS e/ou fazer orçame
 
 | ID | Regra | Descrição |
 | --- | --- | --- |
-| **RN-01** | E-mail Único | Email deve ser único no sistema; não permitir duplicatas.
-
- |
+| **RN-01** | E-mail Único | E-mail deve ser único no sistema; não permitir duplicatas. |
 | **RN-02** | Separação de Entidade | A tabela `users` deve conter o e-mail, hash de senha e role, possuindo relação 1:1 com a tabela `pessoas`. |
 | **RN-03** | Criptografia Obrigatória | Nenhuma senha pode ser armazenada em texto limpo; uso obrigatório de bcrypt no banco de dados. |
 
@@ -116,29 +108,13 @@ O sistema precisa que um vendedor consiga logar para criar OS e/ou fazer orçame
 
 | ID | Atributo | Requisito | Métrica | Justificativa |
 | --- | --- | --- | --- | --- |
-| **RNF-01** | Performance | Resposta em <2 segundos.
-
- | Tempo médio de resposta.
-
- | UX: usuário não fica esperando.
-
- |
-| **RNF-02** | Escalabilidade | Suportar 100+ usuários simultâneos.
-
- | Conexões concorrentes.
-
- | Loja pode ter múltiplas requisições simultâneas. |
-| **RNF-03** | Disponibilidade | 99% uptime em produção.
-
- | SLA medido.
-
- | Negócio depende da aplicação.
-
- |
+| **RNF-01** | Performance | Resposta em <2 segundos. | Tempo médio de resposta. | UX: usuário não fica esperando. |
+| **RNF-02** | Escalabilidade | Suportar 100+ usuários simultâneos. | Conexões concorrentes. | Loja pode ter múltiplas requisições simultâneas. |
+| **RNF-03** | Disponibilidade | 99% uptime em produção. | SLA medido. | Negócio depende da aplicação. |
 
 ---
 
-## 4. PROTOTIPO FUNCIONAL (40%)
+## 4. PROTÓTIPO FUNCIONAL
 
 **Mockup - Tela 1: Formulário Vazio (Estado Inicial)**
 
@@ -175,7 +151,7 @@ O sistema precisa que um vendedor consiga logar para criar OS e/ou fazer orçame
 
 ---
 
-## 5. ARQUITETURA E ADR (15%)
+## 5. ARQUITETURA E ADR
 
 ### Diagrama de Componentes
 
@@ -186,18 +162,31 @@ O sistema precisa que um vendedor consiga logar para criar OS e/ou fazer orçame
 
 ### ADR-001: PostgreSQL (Supabase) como Banco de Dados
 
-**Contexto:** O sistema ERP requer forte integridade relacional para lidar com tabelas separadas de autenticação e dados de negócio.
-**Decisão:** Utilizar PostgreSQL hospedado no Supabase.
-**Consequências:** Escalabilidade relacional garantida, sem a necessidade de provisionamento local de servidores por parte da equipe.
+* **Contexto:** O sistema ERP requer forte integridade relacional para lidar com tabelas separadas de autenticação e dados de negócio.
+* **Decisão:** Utilizar PostgreSQL hospedado no Supabase.
+* **Consequências:** Escalabilidade relacional garantida, sem a necessidade de provisionamento local de servidores por parte da equipe.
 
 ### ADR-002: Python com API REST para o Backend
 
-**Contexto:** Necessidade de construir uma API de forma ágil com uma equipe iniciante.
-**Decisão:** Utilizar o framework FastAPI ou Flask em Python para prover o endpoint `/auth`.
-**Consequências:** Curva de aprendizado menor para a equipe de backend responsável pela criação das rotas e integração com o banco.
+* **Contexto:** Necessidade de construir uma API de forma ágil com uma equipe iniciante.
+* **Decisão:** Utilizar o framework FastAPI ou Flask em Python para prover o endpoint `/auth`.
+* **Consequências:** Curva de aprendizado menor para a equipe de backend responsável pela criação das rotas e integração com o banco.
 
 ### ADR-003: Vanilla JS (HTML5+CSS3+JS) para o Frontend
 
-**Contexto:** A equipe front-end possui nível iniciante, tornando frameworks robustos um risco para a entrega do protótipo funcional.
-**Decisão:** Uso de JavaScript Vanilla, separando a função booleana de validação da chamada da API via `fetch()`.
-**Consequências:** Código mais simples, fácil depuração e execução direta no navegador sem necessidade de build steps.
+* **Contexto:** A equipe front-end possui nível iniciante, tornando frameworks robustos um risco para a entrega do protótipo funcional.
+* **Decisão:** Uso de JavaScript Vanilla, separando a função booleana de validação da chamada da API via `fetch()`.
+* **Consequências:** Código mais simples, fácil depuração e execução direta no navegador sem necessidade de build steps.
+
+---
+
+## 6. DADOS DE TESTE (SEEDS)
+
+Para o ambiente de desenvolvimento, o banco de dados é populado com usuários padrão para facilitar os testes de integração entre o Frontend e a API.
+
+> **Atenção (Frontend):** Todos os e-mails listados abaixo utilizam a mesma senha de acesso: `senha123`.
+
+* **ADMIN:** `admin@erp.com`
+* **GESTOR:** `gestor@erp.com`
+* **VENDEDOR:** `vendedor@erp.com`
+* **CLIENTE:** `cliente@erp.com`
