@@ -1,17 +1,58 @@
 {
   "openapi": "3.1.0",
   "info": {
-    "title": "Sistema ERP - Cadastro de Pessoas (RF-001)",
-    "description": "API para cadastro de entidades físicas (Pessoas) associadas aos usuários do ERP.",
+    "title": "RF-001 - ERP Construção",
+    "description": "API para projeto na disciplina laboratório de inovação III - para servir aplicação web ERP.",
     "version": "1.0.0"
   },
   "paths": {
+    "/auth": {
+      "post": {
+        "tags": [
+          "Autenticação"
+        ],
+        "summary": "Login",
+        "operationId": "login_auth_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AuthRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/pessoas": {
       "get": {
         "tags": [
           "Pessoas"
         ],
-        "summary": "Listagem de Pessoas",
+        "summary": "Listar Pessoas",
         "operationId": "listar_pessoas_pessoas_get",
         "responses": {
           "200": {
@@ -34,8 +75,8 @@
         "tags": [
           "Pessoas"
         ],
-        "summary": "Cadastro de Pessoa",
-        "operationId": "cadastrar_pessoa_pessoas_post",
+        "summary": "Criar Pessoa",
+        "operationId": "criar_pessoa_pessoas_post",
         "requestBody": {
           "content": {
             "application/json": {
@@ -75,8 +116,8 @@
         "tags": [
           "Pessoas"
         ],
-        "summary": "Buscar Pessoa por User ID",
-        "operationId": "buscar_pessoa_por_user_id_pessoas_user__user_id__get",
+        "summary": "Obter Pessoa",
+        "operationId": "obter_pessoa_pessoas_user__user_id__get",
         "parameters": [
           {
             "name": "user_id",
@@ -114,30 +155,16 @@
     },
     "/": {
       "get": {
-        "summary": "Root",
-        "operationId": "root__get",
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          }
-        }
-      }
-    },
-    "/health": {
-      "get": {
         "summary": "Health Check",
-        "operationId": "health_check_health_get",
+        "operationId": "health_check__get",
         "responses": {
           "200": {
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+
+                }
               }
             }
           }
@@ -147,6 +174,38 @@
   },
   "components": {
     "schemas": {
+      "AuthRequest": {
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "title": "Email"
+          },
+          "senha": {
+            "type": "string",
+            "title": "Senha"
+          }
+        },
+        "type": "object",
+        "required": [
+          "email",
+          "senha"
+        ],
+        "title": "AuthRequest"
+      },
+      "AuthResponse": {
+        "properties": {
+          "role": {
+            "type": "string",
+            "title": "Role"
+          }
+        },
+        "type": "object",
+        "required": [
+          "role"
+        ],
+        "title": "AuthResponse"
+      },
       "HTTPValidationError": {
         "properties": {
           "detail": {
@@ -241,6 +300,13 @@
           "type": {
             "type": "string",
             "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
           }
         },
         "type": "object",
