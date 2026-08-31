@@ -99,27 +99,6 @@
     cursor: default;
   }
 
-  .alerta {
-    margin-top: 14px;
-    padding: 10px;
-    border-radius: 5px;
-    font-size: 13px;
-  }
-
-  .alerta[hidden] {
-    display: none;
-  }
-
-  .alerta-erro {
-    background-color: #fdecea;
-    color: #b71c1c;
-  }
-
-  .alerta-sucesso {
-    background-color: #e8f5e9;
-    color: #1b5e20;
-  }
-
   /* celular pequeno */
   @media (max-width: 320px) {
     .login-card {
@@ -142,7 +121,7 @@
     <h1>ERP Construção</h1>
     <p>Acesso Restrito</p>
 
-    <form id="formLogin">
+    <form id="formLogin" novalidate>
       <div class="campo" id="campoEmail">
         <label for="email">E-mail</label>
         <input type="email" id="email" name="email" placeholder="seu@email.com">
@@ -157,10 +136,8 @@
 
       <button type="submit" class="btn-entrar" id="btnEntrar">ENTRAR</button>
     </form>
-
-    <div class="alerta alerta-erro" id="alertaErro" hidden></div>
-    <div class="alerta alerta-sucesso" id="alertaSucesso" hidden></div>
   </div>
 
+  <script src="app.js"></script>
 </body>
 </html>
