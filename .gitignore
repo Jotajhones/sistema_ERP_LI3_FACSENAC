@@ -1,2 +1,19 @@
+# Arquivos pessoais joão
 ajuda.pdf
 ajuda.md
+guia-git.md
+legado/
+
+
+# Environment variables
+.env
+*.env
+
+# Python
+*__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+*.venv/
+*venv/
+

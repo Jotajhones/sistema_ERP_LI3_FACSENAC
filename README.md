@@ -8,10 +8,10 @@
 |:---:|:---|:---|:---|:---|
 | 1 | João Pedro Silva de Lima | Product Owner | Tech Lead / DevOps | joao52517876@edu.df.senac.br |
 | 2 | Miguel Nunes | Desenvolvedor Back-End | — | [email] |
-| 3 | Luciano | Desenvolvedor Back-End | — | [email] |
+| 3 | Luciano | Desenvolvedor Back-End | — | luciano58995256@edu.df.senac.br |
 | 4 | Daniel | DBA / Banco de Dados | — | [email] |
 | 5 | Arthur | Desenvolvedor Front-End | — | [email] |
-| 6 | Pedro Soares| Desenvolvedor Front-End | — | [pedro59153296@edu.df.senac.br] |
+| 6 | Pedro Soares| Desenvolvedor Front-End | — | pedro59153296@edu.df.senac.br |
 | 7 | Matheus | AppSec / QA | — | [email] |
 
 ### 1.2 Identificação
@@ -25,5 +25,5 @@
 - **BRANCH_PRINCIPAL:** main
 - **LINK_APLICACAO_DEPLOY:** [A ADICIONAR]
 - **LINK_BANCO_DADOS:** [A ADICIONAR - Supabase]
-- **LINK_API_SWAGGER:** [A ADICIONAR]
+- **LINK_API_SWAGGER:** http://localhost:8000/docs
 - **LINK_DEMONSTRAÇÃO:** [A ADICIONAR]
