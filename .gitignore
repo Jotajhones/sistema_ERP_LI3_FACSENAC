@@ -16,4 +16,5 @@ legado/
 .pytest_cache/
 *.venv/
 *venv/
+bcrypt
 

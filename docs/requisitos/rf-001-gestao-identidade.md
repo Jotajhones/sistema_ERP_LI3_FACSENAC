@@ -178,13 +178,65 @@ O sistema precisa que um vendedor consiga logar para criar OS e/ou fazer orçame
 * **Decisão:** Uso de JavaScript Vanilla, separando a função booleana de validação da chamada da API via `fetch()`.
 * **Consequências:** Código mais simples, fácil depuração e execução direta no navegador sem necessidade de build steps.
 
+## 6. VALIDAÇÃO DE SEGURANÇA OWASP (10%)
+
+### A02:2021 — Cryptographic Failures (Falhas Criptográficas)
+
+**Vulnerabilidade:**
+Armazenamento de credenciais (senhas) em texto limpo no banco de dados, permitindo que qualquer vazamento exponha o acesso administrativo e comercial do sistema[cite: 3].
+
+**Implementação:**
+O backend em FastAPI resolve esta falha utilizando a biblioteca de hash adaptativo **Bcrypt** por meio de um núcleo criptográfico centralizado (`security.py`)[cite: 3]. A implementação garante que a senha em texto limpo exista apenas de forma efêmera na memória durante o request, sendo convertida e armazenada exclusivamente como hash[cite: 3].
+
+Foram adotadas três defesas principais:
+1. **Cost Factor Explícito:** Fixado no nível 12 (mínimo recomendado pelo OWASP) para garantir alto custo computacional contra força bruta[cite: 3].
+2. **Salt Dinâmico:** Gerado aleatoriamente a cada cadastro (`bcrypt.gensalt()`), anulando ataques de *rainbow table*[cite: 3]. Dois usuários com a mesma senha possuirão hashes completamente diferentes no banco[cite: 3].
+3. **Mitigação de Timing Attacks:** O método `fake_verify()` queima intencionalmente o mesmo tempo de processamento de uma verificação real caso o e-mail não exista no banco, impedindo que invasores enumerem contas válidas com base no tempo de resposta[cite: 3].
+
+**Código-fonte (Proteção Aplicada no `security.py`):**
+```python
+import bcrypt
+
+BCRYPT_COST = 12
+MAX_PASSWORD_BYTES = 72
+# Hash descartável para nivelar o tempo de resposta (Timing Attack)
+_DUMMY_HASH = bcrypt.hashpw(b"dummy", bcrypt.gensalt(BCRYPT_COST))
+
+def hash_password(senha_pura: str) -> str:
+    # Geração com salt único
+    return bcrypt.hashpw(senha_pura.encode('utf-8'), bcrypt.gensalt(BCRYPT_COST)).decode('utf-8')
+
+def verify_password(tentativa: str, hash_banco: str) -> bool:
+    # Comparação segura em tempo constante
+    return bcrypt.checkpw(tentativa.encode('utf-8'), hash_banco.encode('utf-8'))
+
+```
+
+**Teste de Segurança Documentado:**
+Foi executada uma bateria de testes isolados comprovando a eficácia da mitigação:
+
+* **Teste de Persistência:** A simulação de um cadastro via `POST /users` retorna status `201 Created` contendo apenas `{ id, email, user_role }`, garantindo que o `password_hash` nunca retorna na resposta da API.
+
+
+* **Teste de Autenticação Constante:** Tentativas de login (`POST /auth`) com senhas incorretas ou e-mails inexistentes retornam exatamente o mesmo status HTTP (`401 Unauthorized`) na mesma fração de tempo.
+
+
+* **Comprovação de Banco:** Consultas diretas ao PostgreSQL comprovam o formato seguro com 60 caracteres (Ex: `$2b$12$X/6c/3bwEOyYC2...`).
+
 ---
 
-## 6. DADOS DE TESTE (SEEDS)
+## 7. DOCUMENTAÇÃO API (SWAGGER/OPENAPI) (3%)
 
-Para o ambiente de desenvolvimento, o banco de dados é populado com usuários padrão para facilitar os testes de integração entre o Frontend e a API.
+O contrato da API REST foi documentado seguindo a especificação OpenAPI 3.0.
 
-> **Atenção (Frontend):** Todos os e-mails listados abaixo utilizam a mesma senha de acesso: `senha123`.
+* **Documentação Dinâmica (Swagger UI):** Disponível interativamente na rota `/docs` do backend FastAPI.
+* **Contrato Estático:** O arquivo físico oficial está armazenado no repositório no caminho `docs/api/swagger.json`, contendo todos os schemas de requisição e resposta para os endpoints de Autenticação (`/auth`) e Cadastro (`/users`).
+
+---
+
+## 8. DADOS DE TESTE (SEEDS)
+
+Para o ambiente de desenvolvimento, o banco de dados é populado com usuários padrão.
 
 * **ADMIN:** `admin@erp.com`
 * **GESTOR:** `gestor@erp.com`
