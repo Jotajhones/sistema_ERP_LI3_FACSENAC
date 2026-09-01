@@ -8,11 +8,11 @@ O Frontend precisa saber onde a API do Backend está rodando. Como não usamos N
 
 1. Crie um arquivo chamado `env.js` nesta mesma pasta (`login/`).
 2. Adicione o seguinte código para apontar para a sua API local:
-   ```javascript
+
+```javascript
    window.APP_CONFIG = {
      API_URL: "http://localhost:8000"
    };
-
 ```
 
 *(Atenção: O arquivo `env.js` NUNCA deve conter chaves secretas do banco de dados).*
@@ -24,8 +24,6 @@ Por ser Vanilla JS puro, não há necessidade de rodar processos no terminal.
 1. Certifique-se de que o Backend do RF-001 esteja rodando.
 2. Abra o arquivo `index.html` diretamente no seu navegador.
 * *Dica: Se estiver usando o VS Code, utilize a extensão **Live Server** para facilitar o desenvolvimento e auto-reload.*
-
-
 
 ## Testes
 
