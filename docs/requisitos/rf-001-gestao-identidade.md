@@ -178,7 +178,7 @@ O sistema precisa que um vendedor consiga logar para criar OS e/ou fazer orçame
 * **Decisão:** Uso de JavaScript Vanilla, separando a função booleana de validação da chamada da API via `fetch()`.
 * **Consequências:** Código mais simples, fácil depuração e execução direta no navegador sem necessidade de build steps.
 
-## 6. VALIDAÇÃO DE SEGURANÇA OWASP (10%)
+## 6. VALIDAÇÃO DE SEGURANÇA OWASP
 
 ### A02:2021 — Cryptographic Failures (Falhas Criptográficas)
 
@@ -225,7 +225,7 @@ Foi executada uma bateria de testes isolados comprovando a eficácia da mitigaç
 
 ---
 
-## 7. DOCUMENTAÇÃO API (SWAGGER/OPENAPI) (3%)
+## 7. DOCUMENTAÇÃO API (SWAGGER/OPENAPI)
 
 O contrato da API REST foi documentado seguindo a especificação OpenAPI 3.0.
 
