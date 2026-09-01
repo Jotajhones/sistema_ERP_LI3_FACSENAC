@@ -3,6 +3,7 @@ ajuda.pdf
 ajuda.md
 guia-git.md
 legado/
+rf001.pdf
 
 
 # Environment variables
@@ -16,4 +17,5 @@ legado/
 .pytest_cache/
 *.venv/
 *venv/
+bcrypt
 
