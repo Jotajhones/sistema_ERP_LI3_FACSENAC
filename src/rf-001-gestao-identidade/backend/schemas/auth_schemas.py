@@ -6,3 +6,4 @@ class AuthRequest(BaseModel):
 
 class AuthResponse(BaseModel):
     role: str
+    token: str

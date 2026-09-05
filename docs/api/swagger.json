@@ -1,7 +1,7 @@
 {
   "openapi": "3.1.0",
   "info": {
-    "title": "RF-001 - ERP Construção",
+    "title": "API - ERP Construção - RF-001",
     "description": "API para projeto na disciplina laboratório de inovação III - para servir aplicação web ERP.",
     "version": "1.0.0"
   },
@@ -162,9 +162,7 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {
-
-                }
+                "schema": {}
               }
             }
           }
@@ -198,11 +196,16 @@
           "role": {
             "type": "string",
             "title": "Role"
+          },
+          "token": {
+            "type": "string",
+            "title": "Token"
           }
         },
         "type": "object",
         "required": [
-          "role"
+          "role",
+          "token"
         ],
         "title": "AuthResponse"
       },
@@ -300,13 +303,6 @@
           "type": {
             "type": "string",
             "title": "Error Type"
-          },
-          "input": {
-            "title": "Input"
-          },
-          "ctx": {
-            "type": "object",
-            "title": "Context"
           }
         },
         "type": "object",

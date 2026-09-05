@@ -1,6 +1,7 @@
+import uuid
 import bcrypt
 from fastapi import HTTPException, status
-from repositories.auth_repository import get_user_by_email
+from repositories.auth_repository import get_user_by_email, create_session
 from schemas.auth_schemas import AuthRequest, AuthResponse
 
 _DUMMY_HASH = bcrypt.hashpw(b"dummy-password", bcrypt.gensalt())
@@ -27,4 +28,10 @@ def autenticar_usuario(payload: AuthRequest) -> AuthResponse:
             detail="E-mail ou senha inválidos"
         )
 
-    return AuthResponse(role=usuario["user_role"])
+    token = str(uuid.uuid4())
+    create_session(str(usuario["id"]), token)
+
+    return AuthResponse(
+        role=usuario["user_role"],
+        token=token
+    )
