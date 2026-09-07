@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from routers import auth_router, pessoas_router
+from routers import auth_router, pessoas_router, produtos_router
 
 app = FastAPI(
     title="API - ERP Construção - RF-001",
@@ -18,6 +18,7 @@ app.add_middleware(
 
 app.include_router(auth_router.router)
 app.include_router(pessoas_router.router)
+app.include_router(produtos_router.router)
 
 @app.get("/")
 def health_check():

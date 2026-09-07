@@ -6,54 +6,14 @@
     "version": "1.0.0"
   },
   "paths": {
-    "/auth": {
-      "post": {
-        "tags": [
-          "Autenticação"
-        ],
-        "summary": "Login",
-        "operationId": "login_auth_post",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/AuthRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AuthResponse"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/pessoas": {
+    "/produtos": {
       "get": {
         "tags": [
-          "Pessoas"
+          "Produtos"
         ],
-        "summary": "Listar Pessoas",
-        "operationId": "listar_pessoas_pessoas_get",
+        "summary": "Listar Produtos",
+        "description": "Lista os produtos ativos (ativo == true) — produtos deletados logicamente não aparecem.",
+        "operationId": "listar_produtos_produtos_get",
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -61,10 +21,10 @@
               "application/json": {
                 "schema": {
                   "items": {
-                    "$ref": "#/components/schemas/PessoaResponse"
+                    "$ref": "#/components/schemas/ProdutoResponse"
                   },
                   "type": "array",
-                  "title": "Response Listar Pessoas Pessoas Get"
+                  "title": "Response Listar Produtos Produtos Get"
                 }
               }
             }
@@ -73,15 +33,16 @@
       },
       "post": {
         "tags": [
-          "Pessoas"
+          "Produtos"
         ],
-        "summary": "Criar Pessoa",
-        "operationId": "criar_pessoa_pessoas_post",
+        "summary": "Criar Produto",
+        "description": "Cria um novo produto e grava o usuário autenticado em criado_por.",
+        "operationId": "criar_produto_produtos_post",
         "requestBody": {
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/PessoaCreate"
+                "$ref": "#/components/schemas/ProdutoCreate"
               }
             }
           },
@@ -93,7 +54,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/PessoaResponse"
+                  "$ref": "#/components/schemas/ProdutoResponse"
                 }
               }
             }
@@ -111,21 +72,23 @@
         }
       }
     },
-    "/pessoas/user/{user_id}": {
+    "/produtos/{produto_id}": {
       "get": {
         "tags": [
-          "Pessoas"
+          "Produtos"
         ],
-        "summary": "Obter Pessoa",
-        "operationId": "obter_pessoa_pessoas_user__user_id__get",
+        "summary": "Buscar Produto",
+        "description": "Busca um produto ativo específico pelo id. 404 se não existir ou estiver inativo.",
+        "operationId": "buscar_produto_produtos__produto_id__get",
         "parameters": [
           {
-            "name": "user_id",
+            "name": "produto_id",
             "in": "path",
             "required": true,
             "schema": {
               "type": "string",
-              "title": "User Id"
+              "format": "uuid",
+              "title": "Produto Id"
             }
           }
         ],
@@ -135,7 +98,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/PessoaResponse"
+                  "$ref": "#/components/schemas/ProdutoResponse"
                 }
               }
             }
@@ -151,18 +114,96 @@
             }
           }
         }
-      }
-    },
-    "/": {
-      "get": {
-        "summary": "Health Check",
-        "operationId": "health_check__get",
+      },
+      "put": {
+        "tags": [
+          "Produtos"
+        ],
+        "summary": "Atualizar Produto",
+        "description": "Atualiza um produto ativo e grava o usuário autenticado em atualizado_por.",
+        "operationId": "atualizar_produto_produtos__produto_id__put",
+        "parameters": [
+          {
+            "name": "produto_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Produto Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProdutoUpdate"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/ProdutoResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Produtos"
+        ],
+        "summary": "Deletar Produto",
+        "description": "Deleção lógica: NÃO remove a linha do banco (sem DROP/DELETE).\n\nApenas seta ativo = false e grava o usuário autenticado em deletado_por.",
+        "operationId": "deletar_produto_produtos__produto_id__delete",
+        "parameters": [
+          {
+            "name": "produto_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Produto Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProdutoResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
               }
             }
           }
@@ -172,43 +213,6 @@
   },
   "components": {
     "schemas": {
-      "AuthRequest": {
-        "properties": {
-          "email": {
-            "type": "string",
-            "format": "email",
-            "title": "Email"
-          },
-          "senha": {
-            "type": "string",
-            "title": "Senha"
-          }
-        },
-        "type": "object",
-        "required": [
-          "email",
-          "senha"
-        ],
-        "title": "AuthRequest"
-      },
-      "AuthResponse": {
-        "properties": {
-          "role": {
-            "type": "string",
-            "title": "Role"
-          },
-          "token": {
-            "type": "string",
-            "title": "Token"
-          }
-        },
-        "type": "object",
-        "required": [
-          "role",
-          "token"
-        ],
-        "title": "AuthResponse"
-      },
       "HTTPValidationError": {
         "properties": {
           "detail": {
@@ -222,63 +226,305 @@
         "type": "object",
         "title": "HTTPValidationError"
       },
-      "PessoaCreate": {
+      "ProdutoCreate": {
         "properties": {
-          "user_id": {
-            "type": "string",
-            "format": "uuid",
-            "title": "User Id"
-          },
           "nome": {
             "type": "string",
-            "maxLength": 150,
-            "minLength": 3,
-            "title": "Nome"
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Nome",
+            "description": "Nome do produto"
           },
-          "cpf": {
-            "type": "string",
-            "maxLength": 14,
-            "minLength": 11,
-            "title": "Cpf"
+          "descricao": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Descricao",
+            "description": "Descrição detalhada do produto"
+          },
+          "preco": {
+            "type": "number",
+            "exclusiveMinimum": 0.0,
+            "title": "Preco",
+            "description": "Preço unitário do produto"
+          },
+          "unidade_medida": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 20
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Unidade Medida",
+            "description": "Ex.: 'un', 'kg', 'm', 'm2', 'm3', 'saco'"
+          },
+          "quantidade_estoque": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Quantidade Estoque",
+            "description": "Quantidade disponível em estoque",
+            "default": 0
+          },
+          "categoria": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 100
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Categoria",
+            "description": "Categoria do produto"
           }
         },
         "type": "object",
         "required": [
-          "user_id",
           "nome",
-          "cpf"
+          "preco"
         ],
-        "title": "PessoaCreate"
+        "title": "ProdutoCreate",
+        "description": "Payload esperado no POST /produtos."
       },
-      "PessoaResponse": {
+      "ProdutoResponse": {
         "properties": {
+          "nome": {
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Nome",
+            "description": "Nome do produto"
+          },
+          "descricao": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Descricao",
+            "description": "Descrição detalhada do produto"
+          },
+          "preco": {
+            "type": "number",
+            "exclusiveMinimum": 0.0,
+            "title": "Preco",
+            "description": "Preço unitário do produto"
+          },
+          "unidade_medida": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 20
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Unidade Medida",
+            "description": "Ex.: 'un', 'kg', 'm', 'm2', 'm3', 'saco'"
+          },
+          "quantidade_estoque": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Quantidade Estoque",
+            "description": "Quantidade disponível em estoque",
+            "default": 0
+          },
+          "categoria": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 100
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Categoria",
+            "description": "Categoria do produto"
+          },
           "id": {
             "type": "string",
             "format": "uuid",
             "title": "Id"
           },
-          "user_id": {
-            "type": "string",
-            "format": "uuid",
-            "title": "User Id"
+          "ativo": {
+            "type": "boolean",
+            "title": "Ativo"
           },
-          "nome": {
-            "type": "string",
-            "title": "Nome"
+          "criado_por": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Criado Por"
           },
-          "cpf": {
-            "type": "string",
-            "title": "Cpf"
+          "atualizado_por": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Atualizado Por"
+          },
+          "deletado_por": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Deletado Por"
+          },
+          "criado_em": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Criado Em"
+          },
+          "atualizado_em": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Atualizado Em"
+          },
+          "deletado_em": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Deletado Em"
           }
         },
         "type": "object",
         "required": [
-          "id",
-          "user_id",
           "nome",
-          "cpf"
+          "preco",
+          "id",
+          "ativo"
         ],
-        "title": "PessoaResponse"
+        "title": "ProdutoResponse",
+        "description": "Formato devolvido pela API em todas as rotas de produtos."
+      },
+      "ProdutoUpdate": {
+        "properties": {
+          "nome": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 255,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nome"
+          },
+          "descricao": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Descricao"
+          },
+          "preco": {
+            "anyOf": [
+              {
+                "type": "number",
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Preco"
+          },
+          "unidade_medida": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 20
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Unidade Medida"
+          },
+          "quantidade_estoque": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Quantidade Estoque"
+          },
+          "categoria": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 100
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Categoria"
+          }
+        },
+        "type": "object",
+        "title": "ProdutoUpdate",
+        "description": "Payload esperado no PUT /produtos/{id}.\n\nTodos os campos são opcionais para permitir atualização parcial\n(o cliente envia só o que quer alterar)."
       },
       "ValidationError": {
         "properties": {
@@ -303,6 +549,13 @@
           "type": {
             "type": "string",
             "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
           }
         },
         "type": "object",
