@@ -98,6 +98,12 @@ Para que a loja possa operar e gerar orçamentos, os vendedores precisam visuali
 * 6a.2. O Backend retorna HTTP 401 Unauthorized.
 * 6a.3. O Frontend intercepta o erro 401, limpa o LocalStorage e redireciona o usuário para `index.html`.
 
+### Fluxo Alternativo A3: Tentativa de Acesso por Vendedor (RBAC Bypass)
+* 4a.1. O usuário (Vendedor) força a exibição do botão via console do navegador ou tenta chamar o POST pelo Postman.
+* 4a.2. O Backend intercepta a requisição via `exigir_role(["ADMIN", "GESTOR"])`.
+* 4a.3. O Backend retorna HTTP 403 Forbidden.
+* 4a.4. A operação é negada e a segurança do banco mantida.
+
 ### Regras de Negócio
 
 | ID | Regra | Descrição |
@@ -107,6 +113,7 @@ Para que a loja possa operar e gerar orçamentos, os vendedores precisam visuali
 | **RN-06** | Deleção Lógica | Produtos nunca recebem `DELETE` físico. A inativação ocorre marcando o campo `ativo = false`. |
 | **RN-07** | Rastreabilidade Base | Toda inserção ou alteração na tabela de produtos deve registrar o `user_id` logado (Auditoria). |
 | **RN-08** | Limpeza de Sessão | Se um usuário for apagado, sua sessão deve ser invalidada automaticamente (`ON DELETE CASCADE`). |
+| **RN-09** | Restrição de Papel (RBAC) | Apenas usuários com `user_role` de GESTOR/ADMIN podem executar operações de mutação (POST/PUT/DELETE) no catálogo. |
 
 ### Requisitos Não-Funcionais (RNF)
 
@@ -187,26 +194,39 @@ Para que a loja possa operar e gerar orçamentos, os vendedores precisam visuali
 ```
 
 ### ADR-005: Sessões Opacas (UUID) para Autenticação
-
-* **Contexto:** Necessidade de proteger as rotas da API sem sobrecarregar a equipe com implementações complexas de JWT ou lidar com chaves criptográficas no Frontend.
-
-
-* **Decisão:** Utilizar Tokens Opacos baseados em UUIDv4 armazenados em uma tabela `sessoes`.
-* **Consequências:** Implementação simplificada e segura no backend, permitindo invalidação imediata de sessão no banco de dados.
+* **Status:** ACEITO
+* **Contexto:** Proteger as rotas da API de forma segura.
+* **Decisão:** Utilizar Tokens Opacos baseados em UUIDv4 armazenados na tabela `sessoes`.
+* **Alternativas:** JWT (mais complexo para invalidação imediata), Cookies (problemas com CORS).
+* **Consequências:** Implementação simples e invalidação de sessão instantânea no banco.
 
 ### ADR-006: Deleção Lógica (Soft Delete)
-
-* **Contexto:** Sistemas ERP exigem alta rastreabilidade para auditoria financeira. A exclusão de um produto pode quebrar ordens de serviço passadas.
-* **Decisão:** Adicionar um campo `ativo BOOLEAN DEFAULT TRUE`. Exclusões apenas atualizam este campo para falso e registram o `deletado_por`.
-* **Consequências:** Integridade referencial mantida a longo prazo; as rotas de GET precisam aplicar filtros explícitos (`ativo == true`).
+* **Status:** ACEITO
+* **Contexto:** Sistemas ERP exigem rastreabilidade e integridade referencial.
+* **Decisão:** Adicionar campo `ativo BOOLEAN DEFAULT TRUE` e atualizar para `false` na exclusão.
+* **Alternativas:** `DELETE CASCADE` físico (perigoso para histórico de vendas).
+* **Consequências:** Integridade mantida. Rotas GET precisam aplicar filtros explícitos.
 
 ### ADR-007: RBAC Client-Side com Vanilla JS
+* **Status:** ACEITO
+* **Contexto:** Evitar que vendedores tentem executar ações administrativas na UI.
+* **Decisão:** Controlar o display via JS lendo o `user_role` do LocalStorage.
+* **Alternativas:** Renderização server-side.
+* **Consequências:** UX mais limpa.
 
-* **Contexto:** Usuários com restrições (vendedores) não devem tentar executar ações administrativas.
-* **Decisão:** Controlar a renderização da interface via JavaScript, verificando a `user_role` armazenada na autenticação.
-* **Consequências:** UX mais limpa; no entanto, a segurança real depende estritamente do bloqueio da rota no backend, já que o frontend pode ser manipulado no navegador.
+### ADR-008: Validação Mista (Front e Back)
+* **Status:** ACEITO
+* **Contexto:** Garantir integridade de preços e nomes.
+* **Decisão:** Validar no Vanilla JS e travar no banco com `CHECK (valor_venda >= 0)`.
+* **Alternativas:** Validar apenas no Frontend.
+* **Consequências:** Segurança absoluta contra bypass.
 
----
+### Tecnologias Escolhidas
+| Camada | Tecnologia | Versão | Justificativa |
+|--------|-----------|--------|---------------|
+| Frontend | HTML5/CSS3/Vanilla JS | ES2015+ | Requisito do laboratório e leveza. |
+| Backend | FastAPI (Python) | 0.100+ | Alta performance e documentação Swagger nativa. |
+| Banco de Dados| Supabase (PostgreSQL)| 15+ | RLS nativo e persistência robusta. |
 
 ## 7. DOCUMENTAÇÃO API (SWAGGER/OPENAPI)
 
@@ -224,3 +244,165 @@ O contrato da API REST continua integrado à especificação OpenAPI 3.0 do sist
 
 ---
 
+## 8. VALIDAÇÃO DE SEGURANÇA OWASP
+
+### Controle escolhido: A03:2021 — Injection
+
+**Por que A03 e não A01 (Broken Access Control)?**
+A tarefa de segurança permite escolher entre A03 (Injection) e A01 (Broken Access Control/RBAC). Optamos por A03 porque:
+1. É um controle *aplicável e demonstrável hoje*: o padrão de código que o motiva já existe em produção (ver "Vulnerabilidade" abaixo).
+2. Uma implementação real de A01 exigiria RBAC de verdade — hoje o `POST /auth` do RF-001 devolve apenas `{ role }`, sem nenhum token/sessão (JWT ou equivalente). Fazer RBAC funcionar exigiria projetar e construir essa infraestrutura de autenticação do zero, o que está fora do escopo "alterar apenas o necessário" desta entrega. Isso está registrado como próximo passo na seção 5.
+
+### 8.1 Vulnerabilidade
+
+**Onde:** o projeto não executa SQL diretamente — não há `psycopg2` nem ORM em uso (apesar de `psycopg2-binary` ainda constar em `requirements.txt` do RF-001, como resíduo). Todo acesso ao banco é feito por chamadas HTTP à API REST do Supabase (PostgREST), onde cada filtro é expresso na *query string* da URL no formato `coluna=operador.valor` (ex.: `email=eq.fulano@exemplo.com`).
+
+Antes desta correção, três funções de repositório montavam essa query string concatenando a entrada do usuário diretamente com f-string, sem qualquer codificação:
+
+```python
+# auth_repository.py (ANTES)
+url = f"/rest/v1/users?email=eq.{email}&select=id,email,password_hash,user_role"
+
+# pessoas_repository.py (ANTES)
+url = f"/rest/v1/pessoas?cpf=eq.{cpf}&select=*"
+```
+
+**Impacto:** caracteres com significado especial em uma query string HTTP — `&`, `=`, `,`, `*`, `#` — presentes no valor de entrada deixam de ser tratados como parte do valor e passam a ser interpretados como novos parâmetros/operadores da consulta ao PostgREST. Isso é uma instância de A03:2021 (Injection): entrada não confiável altera a estrutura de um comando/consulta, e não apenas seu conteúdo.
+
+Ponto importante: esse ataque **não depende de burlar a validação de formato do Pydantic**. O campo `email` do RF-001 é `EmailStr`, mas `&`, `=`, `*` e `%` são caracteres válidos na parte local de um endereço de e-mail pela RFC 5322 — ou seja, um payload como `vendedor@erp.com&select=*,password_hash` é um e-mail *sintaticamente válido* e chega intacto até o repositório.
+
+**Prova de conceito (antes da correção), payload no campo e-mail do `POST /auth`:**
+
+```
+Entrada:  vendedor@erp.com&select=*,password_hash
+
+URL enviada ao Supabase:
+/rest/v1/users?email=eq.vendedor@erp.com&select=*,password_hash&select=id,email,password_hash,user_role
+
+Parâmetros que o servidor interpreta:
+{'email': ['eq.vendedor@erp.com'],
+ 'select': ['*,password_hash', 'id,email,password_hash,user_role']}
+```
+
+O parâmetro `email` continua correto (o `&` delimita o fim do valor), mas o atacante consegue **injetar um segundo `select`**, inteiramente sob seu controle — o que abre espaço para tentativas de sobrescrever quais colunas são retornadas (ex.: forçar a exposição de `password_hash`, ou, no catálogo de produtos, de `custo_unitario`), além de poder injetar outros parâmetros do PostgREST (`limit`, `order`, `or=(...)`) para poluir ou tentar contornar filtros da consulta original.
+
+A mesma classe de risco se repetia em `pessoas_repository.py` (`get_user_by_id`, `get_pessoa_by_user_id`, `get_pessoa_by_cpf`) e afetaria igualmente qualquer rota nova de produtos que seguisse o mesmo padrão — por isso a rota `GET /produtos/busca?termo=`, que recebe texto livre do usuário, foi escolhida como o exemplo central desta entrega.
+
+### 8.2 Implementação
+
+A mitigação foi centralizada em uma função utilitária, `build_safe_query()` (`postgrest_utils.py`, duplicada nos dois back-ends por eles serem módulos independentes/implantáveis separadamente, no mesmo espírito de `config.py`/`database.py`):
+
+```python
+from urllib.parse import urlencode, quote
+
+def build_safe_query(filters: dict) -> str:
+    return urlencode(
+        {str(chave): str(valor) for chave, valor in filters.items()},
+        quote_via=quote,
+        safe="",
+    )
+```
+
+Ela aplica *percent-encoding* a cada valor antes de montar a query string. Isso equivale, para uma API REST baseada em query string, ao que uma consulta parametrizada (*prepared statement*) faz para SQL puro: separa estruturalmente "código" (chaves/operadores da consulta, escritos pelo desenvolvedor) de "dado" (entrada do usuário). Um `&` digitado pelo usuário vira `%26` na URL; o servidor só decodifica esse valor de volta para `&` **depois** de já ter isolado o parâmetro ao qual ele pertence — portanto, nunca é interpretado como um novo delimitador.
+
+**Aplicada retroativamente** (RF-001):
+
+```python
+# auth_repository.py (DEPOIS)
+query = build_safe_query({
+    "email": f"eq.{email}",
+    "select": "id,email,password_hash,user_role",
+})
+url = f"/rest/v1/users?{query}"
+```
+
+```python
+# pessoas_repository.py (DEPOIS) — mesmo padrão em get_user_by_id,
+# get_pessoa_by_user_id e get_pessoa_by_cpf
+query = build_safe_query({"cpf": f"eq.{cpf}", "select": "*"})
+url = f"/rest/v1/pessoas?{query}"
+```
+
+**Aplicada desde o início** (RF-002, `produtos_repository.py`), com destaque para a rota de busca:
+
+```python
+def search_produtos_by_nome(termo: str) -> List[Dict[str, Any]]:
+    # Um '*' digitado pelo usuário não pode virar um coringa adicional do
+    # operador ilike — só os dois adicionados pelo próprio código valem.
+    termo_sem_coringa = termo.replace("*", "")
+
+    query = build_safe_query({
+        "select": PUBLIC_COLUMNS,      # nunca inclui custo_unitario
+        "ativo": "eq.true",
+        "nome": f"ilike.*{termo_sem_coringa}*",
+    })
+    url = f"/rest/v1/produtos?{query}"
+    ...
+```
+
+Duas camadas de defesa, portanto: (1) *encoding* estrutural — impede que o valor escape do parâmetro `nome`; (2) remoção do caractere `*` da entrada do usuário — impede que ele amplie, por conta própria, o único operador com significado especial que a própria rota usa de propósito (o coringa do `ilike`), mesmo depois de decodificado no servidor.
+
+### 8.3 Teste / Evidência
+
+Os testes rodam com biblioteca padrão do Python apenas (`urllib.parse`), sem depender de `httpx`/`pydantic`/`fastapi` instalados nem de conexão real com o Supabase: eles importam a função `build_safe_query` **de verdade** (o mesmo módulo usado pelos repositórios em produção) e reproduzem a lógica exata de montagem de URL de cada função, comparando o padrão antigo com o corrigido.
+
+* `src/rf-001-gestao-identidade/backend/tests/test_a03_injection.py`
+* `src/rf-002/backend/tests/test_a03_injection.py`
+
+**Execução real — RF-001** (`python3 tests/test_a03_injection.py`, a partir de `src/rf-001-gestao-identidade/backend/`):
+
+```
+==============================================================================
+Teste de Segurança - OWASP A03:2021 Injection (RF-001)
+==============================================================================
+[PASSOU] test_email_antigo_e_vulneravel_a_injecao
+[PASSOU] test_email_corrigido_contem_payload_malicioso
+[PASSOU] test_cpf_antigo_e_vulneravel_a_injecao
+[PASSOU] test_cpf_corrigido_contem_payload_malicioso
+------------------------------------------------------------------------------
+Exemplo comparativo (payload: 'vendedor@erp.com&select=*,password_hash'):
+  URL antiga (vulnerável):
+    /rest/v1/users?email=eq.vendedor@erp.com&select=*,password_hash&select=id,email,password_hash,user_role
+    -> parâmetros interpretados: {'email': ['eq.vendedor@erp.com'], 'select': ['*,password_hash', 'id,email,password_hash,user_role']}
+  URL nova (corrigida):
+    /rest/v1/users?email=eq.vendedor%40erp.com%26select%3D%2A%2Cpassword_hash&select=id%2Cemail%2Cpassword_hash%2Cuser_role
+    -> parâmetros interpretados: {'email': ['eq.vendedor@erp.com&select=*,password_hash'], 'select': ['id,email,password_hash,user_role']}
+------------------------------------------------------------------------------
+RESULTADO: todos os 4 testes passaram.
+```
+
+**Execução real — RF-002** (`python3 tests/test_a03_injection.py`, a partir de `src/rf-002/backend/`):
+
+```
+==============================================================================
+Teste de Segurança - OWASP A03:2021 Injection (RF-002 / produtos)
+==============================================================================
+[PASSOU] test_versao_antiga_seria_vulneravel_a_injecao
+[PASSOU] test_busca_produtos_corrigida_contem_payload_malicioso
+[PASSOU] test_usuario_nao_amplia_o_coringa_ilike
+------------------------------------------------------------------------------
+Exemplo comparativo (termo de busca: 'Cimento&select=*,custo_unitario'):
+  Se a rota usasse o padrão antigo (hipotético/vulnerável):
+    /rest/v1/produtos?select=id,nome,descricao,categoria,preco_venda,estoque,ativo&ativo=eq.true&nome=ilike.*Cimento&select=*,custo_unitario*
+    -> parâmetros interpretados: {'select': ['id,nome,descricao,categoria,preco_venda,estoque,ativo', '*,custo_unitario*'], 'ativo': ['eq.true'], 'nome': ['ilike.*Cimento']}
+  Implementação real desta rota (corrigida):
+    /rest/v1/produtos?select=id%2Cnome%2Cdescricao%2Ccategoria%2Cpreco_venda%2Cestoque%2Cativo&ativo=eq.true&nome=ilike.%2ACimento%26select%3D%2Ccusto_unitario%2A
+    -> parâmetros interpretados: {'select': ['id,nome,descricao,categoria,preco_venda,estoque,ativo'], 'ativo': ['eq.true'], 'nome': ['ilike.*Cimento&select=,custo_unitario*']}
+------------------------------------------------------------------------------
+RESULTADO: todos os 3 testes passaram.
+```
+
+**Leitura da evidência:**
+* Na versão antiga, o payload injeta um segundo parâmetro `select` (RF-001) ou `select`/`ativo` adicionais (RF-002) — a estrutura da consulta foi alterada pelo atacante.
+* Na versão corrigida, o mesmo payload é recuperado **byte a byte** como valor do parâmetro `email`/`cpf`/`nome`, e o conjunto de parâmetros da consulta permanece exatamente o pretendido pelo código (`{email, select}`, `{cpf, select}` ou `{select, ativo, nome}`) — nenhum parâmetro extra é criado, e `select`/`ativo` continuam com o valor definido pelo desenvolvedor, não pelo atacante.
+* O teste de coringa (RF-002) comprova adicionalmente que um `*` digitado pelo usuário nunca vira um terceiro coringa do `ilike` — o valor final sempre contém exatamente os dois asteriscos adicionados pelo código.
+
+---
+
+## 9. OBSERVAÇÕES E PRÓXIMOS PASSOS
+
+* **A01:2021 – Broken Access Control não foi implementado nesta entrega.** Hoje não existe nenhum mecanismo de sessão/token no sistema: `POST /auth` (RF-001) devolve apenas `{ role }`, sem JWT ou cookie de sessão, então nenhuma rota — nem as do RF-001, nem as novas de produtos — tem como verificar de forma confiável quem está fazendo a requisição. Implementar RBAC de verdade (ex.: impedir que um Vendedor chame `POST /produtos`) exigiria primeiro construir essa infraestrutura de autenticação (emissão e validação de token, middleware de autorização por rota), o que está fora do escopo desta entrega ("alterar apenas o necessário para a funcionalidade da validação"). Fica registrado como **próximo passo prioritário**, inclusive por ser pré-requisito de qualquer controle de A01 futuro.
+* O frontend do catálogo de produtos (`src/rf-002/frontend/`) e o detalhamento completo de casos de uso/protótipo de tela ficam para uma próxima iteração deste documento.
+* O `psycopg2-binary` listado em `src/rf-001-gestao-identidade/backend/requirements.txt` não é utilizado em nenhum lugar do código (o acesso ao banco é 100% via PostgREST/`httpx`); manter ou remover essa dependência é uma decisão de limpeza técnica, não de segurança, e não foi alterada nesta entrega.
+
+---

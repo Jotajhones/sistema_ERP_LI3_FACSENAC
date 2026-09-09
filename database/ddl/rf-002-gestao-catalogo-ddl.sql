@@ -3,7 +3,7 @@ CREATE TABLE produtos (
     nome VARCHAR(150) NOT NULL,
     descricao TEXT,
     valor_venda NUMERIC(10,2) NOT NULL,
-    sku VARCHAR(100) NOT NULL UNIQUE,
+    sku VARCHAR(100) NOT NULL,
     ativo BOOLEAN NOT NULL DEFAULT TRUE,
     criado_por UUID,
     atualizado_por UUID,
@@ -22,6 +22,8 @@ CREATE TABLE produtos (
         FOREIGN KEY (deletado_por)
         REFERENCES users(id)
 );
+
+CREATE UNIQUE INDEX uq_produtos_sku_ativo ON produtos (sku) WHERE ativo = TRUE;
 
 CREATE TABLE sessoes (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),

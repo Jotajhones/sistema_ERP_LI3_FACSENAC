@@ -6,13 +6,160 @@
     "version": "1.0.0"
   },
   "paths": {
+    "/auth": {
+      "post": {
+        "tags": [
+          "Autenticação"
+        ],
+        "summary": "Login",
+        "operationId": "login_auth_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AuthRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pessoas": {
+      "get": {
+        "tags": [
+          "Pessoas"
+        ],
+        "summary": "Listar Pessoas",
+        "operationId": "listar_pessoas_pessoas_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/PessoaResponse"
+                  },
+                  "type": "array",
+                  "title": "Response Listar Pessoas Pessoas Get"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Pessoas"
+        ],
+        "summary": "Criar Pessoa",
+        "operationId": "criar_pessoa_pessoas_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PessoaCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PessoaResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pessoas/user/{user_id}": {
+      "get": {
+        "tags": [
+          "Pessoas"
+        ],
+        "summary": "Obter Pessoa",
+        "operationId": "obter_pessoa_pessoas_user__user_id__get",
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "User Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PessoaResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/produtos": {
       "get": {
         "tags": [
           "Produtos"
         ],
         "summary": "Listar Produtos",
-        "description": "Lista os produtos ativos (ativo == true) — produtos deletados logicamente não aparecem.",
+        "description": "Lista produtos ativos (ativo == true).",
         "operationId": "listar_produtos_produtos_get",
         "responses": {
           "200": {
@@ -36,7 +183,7 @@
           "Produtos"
         ],
         "summary": "Criar Produto",
-        "description": "Cria um novo produto e grava o usuário autenticado em criado_por.",
+        "description": "Cria um produto registrando o ID do usuário em criado_por.",
         "operationId": "criar_produto_produtos_post",
         "requestBody": {
           "content": {
@@ -69,7 +216,12 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
       }
     },
     "/produtos/{produto_id}": {
@@ -78,7 +230,7 @@
           "Produtos"
         ],
         "summary": "Buscar Produto",
-        "description": "Busca um produto ativo específico pelo id. 404 se não existir ou estiver inativo.",
+        "description": "Busca produto por ID.",
         "operationId": "buscar_produto_produtos__produto_id__get",
         "parameters": [
           {
@@ -120,8 +272,13 @@
           "Produtos"
         ],
         "summary": "Atualizar Produto",
-        "description": "Atualiza um produto ativo e grava o usuário autenticado em atualizado_por.",
+        "description": "Atualiza produto registrando o ID do usuário em atualizado_por.",
         "operationId": "atualizar_produto_produtos__produto_id__put",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
         "parameters": [
           {
             "name": "produto_id",
@@ -172,8 +329,13 @@
           "Produtos"
         ],
         "summary": "Deletar Produto",
-        "description": "Deleção lógica: NÃO remove a linha do banco (sem DROP/DELETE).\n\nApenas seta ativo = false e grava o usuário autenticado em deletado_por.",
+        "description": "Deleção lógica: seta ativo = false e grava deletado_por.",
         "operationId": "deletar_produto_produtos__produto_id__delete",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
         "parameters": [
           {
             "name": "produto_id",
@@ -209,10 +371,65 @@
           }
         }
       }
+    },
+    "/": {
+      "get": {
+        "summary": "Health Check",
+        "operationId": "health_check__get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
     "schemas": {
+      "AuthRequest": {
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "title": "Email"
+          },
+          "senha": {
+            "type": "string",
+            "title": "Senha"
+          }
+        },
+        "type": "object",
+        "required": [
+          "email",
+          "senha"
+        ],
+        "title": "AuthRequest"
+      },
+      "AuthResponse": {
+        "properties": {
+          "role": {
+            "type": "string",
+            "title": "Role"
+          },
+          "token": {
+            "type": "string",
+            "title": "Token"
+          }
+        },
+        "type": "object",
+        "required": [
+          "role",
+          "token"
+        ],
+        "title": "AuthResponse"
+      },
       "HTTPValidationError": {
         "properties": {
           "detail": {
@@ -226,11 +443,69 @@
         "type": "object",
         "title": "HTTPValidationError"
       },
+      "PessoaCreate": {
+        "properties": {
+          "user_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "User Id"
+          },
+          "nome": {
+            "type": "string",
+            "maxLength": 150,
+            "minLength": 3,
+            "title": "Nome"
+          },
+          "cpf": {
+            "type": "string",
+            "maxLength": 14,
+            "minLength": 11,
+            "title": "Cpf"
+          }
+        },
+        "type": "object",
+        "required": [
+          "user_id",
+          "nome",
+          "cpf"
+        ],
+        "title": "PessoaCreate"
+      },
+      "PessoaResponse": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "user_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "User Id"
+          },
+          "nome": {
+            "type": "string",
+            "title": "Nome"
+          },
+          "cpf": {
+            "type": "string",
+            "title": "Cpf"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "user_id",
+          "nome",
+          "cpf"
+        ],
+        "title": "PessoaResponse"
+      },
       "ProdutoCreate": {
         "properties": {
           "nome": {
             "type": "string",
-            "maxLength": 255,
+            "maxLength": 150,
             "minLength": 1,
             "title": "Nome",
             "description": "Nome do produto"
@@ -245,61 +520,35 @@
               }
             ],
             "title": "Descricao",
-            "description": "Descrição detalhada do produto"
+            "description": "Descrição detalhada"
           },
-          "preco": {
+          "valor_venda": {
             "type": "number",
-            "exclusiveMinimum": 0.0,
-            "title": "Preco",
-            "description": "Preço unitário do produto"
+            "minimum": 0,
+            "title": "Valor Venda",
+            "description": "Preço de venda (maior ou igual a 0)"
           },
-          "unidade_medida": {
-            "anyOf": [
-              {
-                "type": "string",
-                "maxLength": 20
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Unidade Medida",
-            "description": "Ex.: 'un', 'kg', 'm', 'm2', 'm3', 'saco'"
-          },
-          "quantidade_estoque": {
-            "type": "integer",
-            "minimum": 0.0,
-            "title": "Quantidade Estoque",
-            "description": "Quantidade disponível em estoque",
-            "default": 0
-          },
-          "categoria": {
-            "anyOf": [
-              {
-                "type": "string",
-                "maxLength": 100
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Categoria",
-            "description": "Categoria do produto"
+          "sku": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 1,
+            "title": "Sku",
+            "description": "Código SKU único"
           }
         },
         "type": "object",
         "required": [
           "nome",
-          "preco"
+          "valor_venda",
+          "sku"
         ],
-        "title": "ProdutoCreate",
-        "description": "Payload esperado no POST /produtos."
+        "title": "ProdutoCreate"
       },
       "ProdutoResponse": {
         "properties": {
           "nome": {
             "type": "string",
-            "maxLength": 255,
+            "maxLength": 150,
             "minLength": 1,
             "title": "Nome",
             "description": "Nome do produto"
@@ -314,46 +563,20 @@
               }
             ],
             "title": "Descricao",
-            "description": "Descrição detalhada do produto"
+            "description": "Descrição detalhada"
           },
-          "preco": {
+          "valor_venda": {
             "type": "number",
-            "exclusiveMinimum": 0.0,
-            "title": "Preco",
-            "description": "Preço unitário do produto"
+            "minimum": 0,
+            "title": "Valor Venda",
+            "description": "Preço de venda (maior ou igual a 0)"
           },
-          "unidade_medida": {
-            "anyOf": [
-              {
-                "type": "string",
-                "maxLength": 20
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Unidade Medida",
-            "description": "Ex.: 'un', 'kg', 'm', 'm2', 'm3', 'saco'"
-          },
-          "quantidade_estoque": {
-            "type": "integer",
-            "minimum": 0.0,
-            "title": "Quantidade Estoque",
-            "description": "Quantidade disponível em estoque",
-            "default": 0
-          },
-          "categoria": {
-            "anyOf": [
-              {
-                "type": "string",
-                "maxLength": 100
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Categoria",
-            "description": "Categoria do produto"
+          "sku": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 1,
+            "title": "Sku",
+            "description": "Código SKU único"
           },
           "id": {
             "type": "string",
@@ -400,52 +623,28 @@
             ],
             "title": "Deletado Por"
           },
-          "criado_em": {
-            "anyOf": [
-              {
-                "type": "string",
-                "format": "date-time"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Criado Em"
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
           },
-          "atualizado_em": {
-            "anyOf": [
-              {
-                "type": "string",
-                "format": "date-time"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Atualizado Em"
-          },
-          "deletado_em": {
-            "anyOf": [
-              {
-                "type": "string",
-                "format": "date-time"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Deletado Em"
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At"
           }
         },
         "type": "object",
         "required": [
           "nome",
-          "preco",
+          "valor_venda",
+          "sku",
           "id",
-          "ativo"
+          "ativo",
+          "created_at",
+          "updated_at"
         ],
-        "title": "ProdutoResponse",
-        "description": "Formato devolvido pela API em todas as rotas de produtos."
+        "title": "ProdutoResponse"
       },
       "ProdutoUpdate": {
         "properties": {
@@ -453,7 +652,7 @@
             "anyOf": [
               {
                 "type": "string",
-                "maxLength": 255,
+                "maxLength": 150,
                 "minLength": 1
               },
               {
@@ -473,58 +672,34 @@
             ],
             "title": "Descricao"
           },
-          "preco": {
+          "valor_venda": {
             "anyOf": [
               {
                 "type": "number",
-                "exclusiveMinimum": 0.0
+                "minimum": 0
               },
               {
                 "type": "null"
               }
             ],
-            "title": "Preco"
+            "title": "Valor Venda"
           },
-          "unidade_medida": {
+          "sku": {
             "anyOf": [
               {
                 "type": "string",
-                "maxLength": 20
+                "maxLength": 100,
+                "minLength": 1
               },
               {
                 "type": "null"
               }
             ],
-            "title": "Unidade Medida"
-          },
-          "quantidade_estoque": {
-            "anyOf": [
-              {
-                "type": "integer",
-                "minimum": 0.0
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Quantidade Estoque"
-          },
-          "categoria": {
-            "anyOf": [
-              {
-                "type": "string",
-                "maxLength": 100
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Categoria"
+            "title": "Sku"
           }
         },
         "type": "object",
-        "title": "ProdutoUpdate",
-        "description": "Payload esperado no PUT /produtos/{id}.\n\nTodos os campos são opcionais para permitir atualização parcial\n(o cliente envia só o que quer alterar)."
+        "title": "ProdutoUpdate"
       },
       "ValidationError": {
         "properties": {
@@ -565,6 +740,12 @@
           "type"
         ],
         "title": "ValidationError"
+      }
+    },
+    "securitySchemes": {
+      "HTTPBearer": {
+        "type": "http",
+        "scheme": "bearer"
       }
     }
   }
