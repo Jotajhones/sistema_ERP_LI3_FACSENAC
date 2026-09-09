@@ -1,0 +1,65 @@
+/* src/rf-002-catalogo-produtos/frontend/css/header.css */
+
+.erp-header {
+    background-color: var(--color-primary-dark);
+    color: var(--color-surface);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 var(--spacing-lg);
+    height: 64px;
+    box-shadow: var(--shadow-md);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.erp-header-brand {
+    font-size: 1.25rem;
+    font-weight: bold;
+    letter-spacing: 1px;
+}
+
+.erp-header-nav {
+    display: flex;
+    gap: var(--spacing-lg);
+}
+
+.erp-nav-link {
+    color: var(--color-surface);
+    text-decoration: none;
+    font-weight: 500;
+    padding: var(--spacing-sm) 0;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+}
+
+.erp-nav-link:hover {
+    color: var(--color-primary-light);
+}
+
+.erp-nav-link.active {
+    border-bottom-color: var(--color-primary-light);
+}
+
+.erp-header-user {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+}
+
+.btn-logout {
+    background-color: transparent;
+    color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    padding: 6px 12px;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    font-size: 0.875rem;
+    transition: background-color 0.2s;
+}
+
+.btn-logout:hover {
+    background-color: var(--color-error);
+    border-color: var(--color-error);
+}

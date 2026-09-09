@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catálogo de Produtos - ERP</title>
+    <link rel="stylesheet" href="../styles/global.css">
+    <link rel="stylesheet" href="../header/header.css">
+    <link rel="stylesheet" href="./ordemServico.css">
+</head>
+
+<body>
+
+    <div id="app-header"></div>
+
+    <main class="erp-container">
+
+        <div class="action-bar">
+            <h2>Catálogo de Produtos</h2>
+            <div class="action-controls">
+                <input type="text" id="searchInput" class="erp-input" placeholder="Buscar por nome ou SKU...">
+                <button class="btn-primary" id="btnNovoProduto">+ Novo Produto</button>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <table class="erp-table">
+                <thead>
+                    <tr>
+                        <th width="15%">SKU</th>
+                        <th width="30%">Produto</th>
+                        <th width="15%" class="text-right">Valor Venda</th>
+                        <th width="15%" class="text-center">Status</th>
+                        <th width="15%" class="text-center">Cadastrado em</th>
+                        <th width="10%" class="text-center">Ações</th>
+                    </tr>
+                </thead>
+                <tbody id="tabelaProdutosBody">
+                    <tr>
+                        <td colspan="6" class="text-center" style="padding: 2rem;">Carregando produtos...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+    </main>
+
+    <script src="../scripts/env.js"></script>
+    <script type="module" src="./app.js"></script>
+</body>
+
+</html>

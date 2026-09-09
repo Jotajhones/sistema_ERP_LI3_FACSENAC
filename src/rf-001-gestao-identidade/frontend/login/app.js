@@ -1,4 +1,3 @@
-
 document.addEventListener("DOMContentLoaded", () => {
 
   const API_URL = `${window.APP_CONFIG.API_URL}/auth`;
@@ -11,7 +10,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const msgEmail = document.getElementById("mensagemEmail");
   const msgSenha = document.getElementById("mensagemSenha");
   const btnEntrar = document.getElementById("btnEntrar");
-
 
   formLogin.addEventListener("submit", async (evento) => {
     evento.preventDefault();
@@ -51,11 +49,9 @@ document.addEventListener("DOMContentLoaded", () => {
     return formularioValido;
   }
 
-
   async function fazerLogin() {
     const email = inputEmail.value.trim();
     const senha = inputSenha.value;
-
 
     btnEntrar.className = "btn-entrar carregando";
     btnEntrar.disabled = true;
@@ -82,8 +78,8 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       const dados = await resposta.json();
-      alert(`Login realizado com sucesso! Perfil: ${dados.role}`); // Template literals
-      limparCampos();
+
+      iniciarSessao(dados);
 
     } catch (erro) {
       alert("Erro de rede ao conectar com o servidor. Tente novamente.");
@@ -93,6 +89,20 @@ document.addEventListener("DOMContentLoaded", () => {
       btnEntrar.disabled = false;
       btnEntrar.textContent = "ENTRAR";
     }
+  }
+
+
+  function iniciarSessao(dados) {
+    if (!dados.token || !dados.role) {
+      console.error("Payload de autenticação incompleto:", dados);
+      alert("Erro crítico: Dados de sessão ausentes.");
+      return;
+    }
+
+    localStorage.setItem('authToken', dados.token);
+    localStorage.setItem('userRole', dados.role);
+
+    window.location.href = '../../../rf-002-catalogo-produtos/frontend/ordemServico/ordemServico.html';
   }
 
   function limparCampos() {

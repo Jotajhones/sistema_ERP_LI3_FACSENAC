@@ -1,10 +1,13 @@
 # Arquivos pessoais joão
-ajuda.pdf
-ajuda.md
-guia-git.md
+ajuda.*
+guia-git.*
 legado/
-rf001.pdf
-
+rf00*
+back*
+backlog*
+backlog.md
+rf002.*
+relatorio*
 
 # Environment variables
 .env

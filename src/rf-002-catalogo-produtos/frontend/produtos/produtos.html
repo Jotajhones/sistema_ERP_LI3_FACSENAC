@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Novo Produto - ERP</title>
+
+    <link rel="stylesheet" href="../styles/global.css">
+    <link rel="stylesheet" href="../header/header.css">
+    <link rel="stylesheet" href="./produtos.css">
+</head>
+
+<body>
+
+    <div id="app-header"></div>
+
+    <main class="erp-container">
+        <div class="form-container">
+            <h2 style="margin-bottom: 1.5rem;">Cadastrar Novo Produto</h2>
+
+            <form id="formProduto">
+                <div class="form-group">
+                    <label for="nome">Nome do Produto *</label>
+                    <input type="text" id="nome" class="form-control" placeholder="Ex: Cimento CP II">
+                    <div id="erroNome" class="error-message">O nome não pode estar vazio.</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="sku">Código SKU *</label>
+                    <input type="text" id="sku" class="form-control" placeholder="Ex: CIM-001">
+                </div>
+
+                <div class="form-group">
+                    <label for="valor_venda">Valor de Venda (R$) *</label>
+                    <input type="number" id="valor_venda" class="form-control" step="0.01" placeholder="0.00">
+                    <div id="erroValor" class="error-message">O valor não pode ser negativo.</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="descricao">Descrição</label>
+                    <textarea id="descricao" class="form-control" rows="3"
+                        placeholder="Detalhes opcionais..."></textarea>
+                </div>
+
+                <div style="display: flex; gap: 10px; margin-top: 2rem;">
+                    <button type="button" id="btnCancelar" class="btn-submit"
+                        style="background-color: var(--color-text-muted);">Cancelar</button>
+                    <button type="submit" id="btnSalvar" class="btn-submit" disabled>Salvar Produto</button>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <script src="../scripts/env.js"></script>
+    <script type="module" src="app.js"></script>
+</body>
+
+</html>
