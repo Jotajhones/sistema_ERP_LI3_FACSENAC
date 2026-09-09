@@ -26,4 +26,4 @@
 - **LINK_APLICACAO_DEPLOY:** [https://sistema-erp-li3-facsenac.onrender.com/](https://sistema-erp-li3-facsenac.onrender.com/)
 - **LINK_BANCO_DADOS:** [https://qlfjdnljfmicjkrbrwih.supabase.co/rest/v1/](https://qlfjdnljfmicjkrbrwih.supabase.co/rest/v1/)
 - **LINK_API_SWAGGER:** [https://sistema-erp-li3-facsenac.onrender.com/docs](https://sistema-erp-li3-facsenac.onrender.com/docs)
-- **LINK_DEMONSTRAÇÃO:** [https://jotajhones.github.io/sistema_ERP_LI3_FACSENAC/](https://jotajhones.github.io/sistema_ERP_LI3_FACSENAC/)
+- **LINK_DEMONSTRAÇÃO:** [https://sistema-erp-li-3-facsenac.vercel.app/](https://sistema-erp-li-3-facsenac.vercel.app/)
