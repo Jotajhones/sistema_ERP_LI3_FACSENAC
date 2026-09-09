@@ -1,4 +1,4 @@
-import { erpFetch } from "../scripts/authInterceptor.js";
+import { erpFetch } from "../../scripts/authInterceptor.js";
 
 let form, inputNome, inputSku, inputValor, inputDescricao, btnSalvar, erroNome, erroValor,btnCancelar;
 
@@ -12,7 +12,7 @@ export function initFormProduto() {
 
     erroNome = document.getElementById('erroNome');
     erroValor = document.getElementById('erroValor');
-    btnCancelar - document.getElementsById('btnCancelar');
+    btnCancelar = document.getElementById('btnCancelar');
 
     if (!form) return;
 
@@ -33,7 +33,7 @@ export function initFormProduto() {
 
     if (btnCancelar) {
         btnCancelar.addEventListener('click', () => {
-            window.location.href = '../dashboard/dashboard.html';
+            window.location.href = '../ordemServico/ordemServico.html';
         });
     }
     

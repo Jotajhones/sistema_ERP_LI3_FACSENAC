@@ -14,10 +14,10 @@ export function renderHeader(activeRoute = 'produtos') {
             </div>
             
             <nav class="erp-header-nav">
-                <a href="../../frontend/ordemServico/ordemServico.html" class="erp-nav-link ${activeRoute === 'ordemServico' ? 'active' : ''}">
+                <a href="../ordemServico/ordemServico.html" class="erp-nav-link ${activeRoute === 'ordemServico' ? 'active' : ''}">
                     Orçamento
                 </a>
-                <a href="../../frontend/produtos/produtos.html" class="erp-nav-link ${activeRoute === 'produtos' ? 'active' : ''}">
+                <a href="../produtos/produtos.html" class="erp-nav-link ${activeRoute === 'produtos' ? 'active' : ''}">
                     Produtos
                 </a>
             </nav>
@@ -43,6 +43,6 @@ export function renderHeader(activeRoute = 'produtos') {
         localStorage.removeItem('authToken');
         localStorage.removeItem('userRole');
         
-        window.location.href = '../../../rf-001-gestao-identidade/frontend/login/index.html';
+        window.location.href = '../../index.html';
     });
 }

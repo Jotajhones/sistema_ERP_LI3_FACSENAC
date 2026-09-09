@@ -102,7 +102,7 @@ document.addEventListener("DOMContentLoaded", () => {
     localStorage.setItem('authToken', dados.token);
     localStorage.setItem('userRole', dados.role);
 
-    window.location.href = '../../../rf-002-catalogo-produtos/frontend/ordemServico/ordemServico.html';
+    window.location.href = './src/features/ordemServico/ordemServico.html';
   }
 
   function limparCampos() {

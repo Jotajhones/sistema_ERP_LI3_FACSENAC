@@ -1,29 +1,40 @@
-# 1. Sistema ERP - Loja de Materiais de Construção
+# Documentação da Branch: `frontend`
 
-## 1. METADADOS DO PROJETO E DA EQUIPE
+## 1. Contexto e Razão de Existir
 
-### 1.1 Composição da Equipe
+A branch `frontend` foi criada para resolver definitivamente os problemas estruturais de caminhos e rotas que ocorriam no deploy (tanto na Vercel quanto no GitHub Pages).
 
-| ID | Nome Completo | Papel Primário | Papel Secundário | E-mail / Contato |
-|:---:|:---|:---|:---|:---|
-| 1 | João Pedro de Lima | Product Owner | Tech Lead / DevOps | joao52517876@edu.df.senac.br |
-| 2 | Miguel Nunes | Desenvolvedor Back-End | — | miguel59970766@edu.df.senac.br |
-| 3 | Luciano Santos | Desenvolvedor Back-End | — | luciano58995256@edu.df.senac.br |
-| 4 | Daniel Silva | DBA / Banco de Dados | — | daniel52370026@edu.df.senac.br |
-| 5 | Arthur Andrade | Desenvolvedor Front-End | — | arthur59275206@edu.df.senac.br |
-| 6 | Pedro Soares| Desenvolvedor Front-End | — | pedro59153296@edu.df.senac.br |
-| 7 | Matheus Chagas | AppSec / QA | — | matheus57119256@edu.df.senac.br |
+Anteriormente, o repositório mantinha uma estrutura mista e fragmentada de monorepo, onde o código de backend, pastas legadas e o frontend ficavam espalhados por subdiretórios profundos (como `src/rf-002-catalogo-produtos/frontend`). Isso causava falhas recorrentes de **Erro 404** em produção, pois os redirecionamentos pós-login (`../../../`) ultrapassavam o escopo da raiz publicada pelos servidores estáticos, embora funcionassem perfeitamente localmente via *Live Server*.
 
-### 1.2 Identificação
+## 2. O Problema Resolvido
 
-- **NOME_DO_PROJETO:** Sistema ERP - Loja de Construção
-- **DESCRICAO_BREVE:** Sistema B2B de gestão, controle de orçamentos e auditoria de vendas voltado para gestores e vendedores de lojas de materiais de construção.
+* **Caminhos absolutos/relativos quebrados:** Os saltos de pastas (`../../`) quebravam no ambiente de nuvem porque o servidor estático enxerga apenas a pasta raiz configurada para o deploy.
+* **Isolamento de ambiente:** Misturar arquivos de backend Python e documentações na mesma árvore publicada de front-end dificultava a configuração de domínios e builds limpos.
 
-### 1.3 Localização dos Artefatos
+## 3. Nova Estrutura Organizada
 
-- **LINK_REPOSITORIO_GITHUB:** [https://github.com/Jotajhones/sistema_ERP_LI3_FACSENAC](https://github.com/Jotajhones/sistema_ERP_LI3_FACSENAC)
-- **BRANCH_PRINCIPAL:** main
-- **LINK_APLICACAO_DEPLOY:** [https://sistema-erp-li3-facsenac.onrender.com/](https://sistema-erp-li3-facsenac.onrender.com/)
-- **LINK_BANCO_DADOS:** [https://qlfjdnljfmicjkrbrwih.supabase.co/rest/v1/](https://qlfjdnljfmicjkrbrwih.supabase.co/rest/v1/)
-- **LINK_API_SWAGGER:** [https://sistema-erp-li3-facsenac.onrender.com/docs](https://sistema-erp-li3-facsenac.onrender.com/docs)
-- **LINK_DEMONSTRAÇÃO:** [https://sistema-erp-li-3-facsenac.vercel.app/](https://sistema-erp-li-3-facsenac.vercel.app/)
+Nesta branch, a raiz do repositório foi totalmente reestruturada para conter exclusivamente a aplicação frontend modularizada, limpa e padronizada:
+
+```text
+.
+├── index.html                  <-- Ponto de entrada principal (Tela de Login)
+├── README.md                   <-- Documentação da branch
+└── src
+    ├── features
+    │   ├── header              <-- Componente compartilhado de navegação
+    │   ├── login               <-- Lógica e controladores de acesso
+    │   ├── ordemServico        <-- Listagem, listagem de estoque e operações do catálogo
+    │   └── produtos            <-- Formulários de cadastro e validação de itens
+    ├── scripts
+    │   ├── authInterceptor.js  <-- Interceptor HTTP global para Bearer Token
+    │   └── env.js              <-- Configuração de variáveis de ambiente da API
+    └── styles
+        └── global.css          <-- Estilos globais e variáveis de layout
+
+```
+
+## 4. Vantagens desta Abordagem
+
+1. **Deploy Simplificado:** Tanto na Vercel quanto em outros serviços de hospedagem estática, basta apontar o projeto para a raiz da branch (sem precisar configurar diretórios customizados ou subpastas complexas).
+2. **Rotas Limpas:** O uso de caminhos relativos consistentes (`./` e `../`) garante que a navegação entre a tela de login, o catálogo e as ordens de serviço funcione idêntica tanto localmente quanto em produção.
+3. **Escalabilidade:** Facilita a adição de novas *features* nas próximas sprints sem quebrar a árvore de arquivos.

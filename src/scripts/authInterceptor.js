@@ -5,7 +5,7 @@ export async function erpFetch(endpoint, options = {}) {
     const token = localStorage.getItem('authToken');
 
     if (!token) {
-        window.location.href = '../../../rf-001-gestao-identidade/frontend/login/index.html';
+        window.location.href = '../../index.html';
         return;
     }
 
@@ -25,7 +25,7 @@ export async function erpFetch(endpoint, options = {}) {
             localStorage.removeItem('authToken');
             localStorage.removeItem('userRole');
             alert("Sessão expirada. Por favor, faça login novamente.");
-            window.location.href = '../../../rf-001-gestao-identidade/frontend/login/index.html';
+            window.location.href = '../../index.html';
             throw new Error("Não autorizado");
         }
 

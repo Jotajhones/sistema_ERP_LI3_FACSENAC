@@ -1,4 +1,4 @@
-import { erpFetch } from "../scripts/authInterceptor.js";
+import { erpFetch } from "../../scripts/authInterceptor.js";
 
 export function initDashboard() {
   const tbody = document.getElementById('tabelaProdutosBody');
