@@ -12,7 +12,7 @@ export function initFormProduto() {
 
     erroNome = document.getElementById('erroNome');
     erroValor = document.getElementById('erroValor');
-    btnCancelar - document.getElementsById('btnCancelar');
+    btnCancelar = document.getElementsById('btnCancelar');
 
     if (!form) return;
 
