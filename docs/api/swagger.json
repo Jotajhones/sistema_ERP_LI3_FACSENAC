@@ -47,6 +47,30 @@
         }
       }
     },
+    "/auth/logout": {
+      "post": {
+        "tags": [
+          "Autenticação"
+        ],
+        "summary": "Logout",
+        "operationId": "logout_auth_logout_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
     "/pessoas": {
       "get": {
         "tags": [
@@ -159,7 +183,7 @@
           "Produtos"
         ],
         "summary": "Listar Produtos",
-        "description": "Lista produtos ativos (ativo == true).",
+        "description": "Lista produtos ativos (ativo == true). Requer login, qualquer role.",
         "operationId": "listar_produtos_produtos_get",
         "responses": {
           "200": {
@@ -176,14 +200,19 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
       },
       "post": {
         "tags": [
           "Produtos"
         ],
         "summary": "Criar Produto",
-        "description": "Cria um produto registrando o ID do usuário em criado_por.",
+        "description": "Cria um produto registrando o ID do usuário em criado_por. Restrito a ADMIN/GESTOR.",
         "operationId": "criar_produto_produtos_post",
         "requestBody": {
           "content": {
@@ -230,8 +259,13 @@
           "Produtos"
         ],
         "summary": "Buscar Produto",
-        "description": "Busca produto por ID.",
+        "description": "Busca produto por ID. Requer login, qualquer role.",
         "operationId": "buscar_produto_produtos__produto_id__get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
         "parameters": [
           {
             "name": "produto_id",
@@ -272,7 +306,7 @@
           "Produtos"
         ],
         "summary": "Atualizar Produto",
-        "description": "Atualiza produto registrando o ID do usuário em atualizado_por.",
+        "description": "Atualiza produto registrando o ID do usuário em atualizado_por. Restrito a ADMIN/GESTOR.",
         "operationId": "atualizar_produto_produtos__produto_id__put",
         "security": [
           {
@@ -329,7 +363,7 @@
           "Produtos"
         ],
         "summary": "Deletar Produto",
-        "description": "Deleção lógica: seta ativo = false e grava deletado_por.",
+        "description": "Deleção lógica: seta ativo = false e grava deletado_por. Restrito a ADMIN/GESTOR.",
         "operationId": "deletar_produto_produtos__produto_id__delete",
         "security": [
           {
@@ -381,9 +415,7 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {
-
-                }
+                "schema": {}
               }
             }
           }
@@ -524,7 +556,7 @@
           },
           "valor_venda": {
             "type": "number",
-            "minimum": 0,
+            "minimum": 0.0,
             "title": "Valor Venda",
             "description": "Preço de venda (maior ou igual a 0)"
           },
@@ -567,7 +599,7 @@
           },
           "valor_venda": {
             "type": "number",
-            "minimum": 0,
+            "minimum": 0.0,
             "title": "Valor Venda",
             "description": "Preço de venda (maior ou igual a 0)"
           },
@@ -676,7 +708,7 @@
             "anyOf": [
               {
                 "type": "number",
-                "minimum": 0
+                "minimum": 0.0
               },
               {
                 "type": "null"
@@ -724,13 +756,6 @@
           "type": {
             "type": "string",
             "title": "Error Type"
-          },
-          "input": {
-            "title": "Input"
-          },
-          "ctx": {
-            "type": "object",
-            "title": "Context"
           }
         },
         "type": "object",

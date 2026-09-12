@@ -1,7 +1,11 @@
 import uuid
 import bcrypt
 from fastapi import HTTPException, status
-from repositories.auth_repository import get_user_by_email, create_session
+from repositories.auth_repository import (
+    get_user_by_email,
+    create_session,
+    delete_session
+)
 from schemas.auth_schemas import AuthRequest, AuthResponse
 
 # Hash de custo 12 para uniformizar com o padrão de segurança
@@ -36,3 +40,7 @@ def autenticar_usuario(payload: AuthRequest) -> AuthResponse:
         role=usuario["user_role"],
         token=token
     )
+
+def encerrar_sessao(token: str) -> dict:
+    delete_session(token)
+    return {"detail": "Sessão encerrada com sucesso"}
