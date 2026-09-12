@@ -2,7 +2,6 @@ from typing import List, Optional, Dict, Any
 from uuid import UUID
 from database import get_supabase_client
 from urllib.parse import urlencode, quote
-from typing import List, Dict, Any
 
 TABELA = "produtos"
 
@@ -51,7 +50,6 @@ def search_produtos_fulltext(termo: str) -> List[Dict[str, Any]]:
         return []
 
     filtros = {
-
         "select": "id,sku,nome,descricao,valor_venda,quantidade_estoque,unidade_medida,ativo,created_at,updated_at",
         "ativo": "eq.true",
         "or": f"(nome.ilike.*{termo_limpo}*,descricao.ilike.*{termo_limpo}*,sku.ilike.*{termo_limpo}*)"
@@ -72,3 +70,14 @@ def search_produtos_fulltext(termo: str) -> List[Dict[str, Any]]:
             
     return []
 
+def registrar_entrada_estoque(produto_id: UUID, novo_saldo: float, usuario_id: str) -> Optional[Dict[str, Any]]:
+    payload = {
+        "quantidade_estoque": novo_saldo,
+        "atualizado_por": usuario_id
+    }
+    return update_produto(produto_id, payload)
+
+obter_produtos_ativos = get_produtos_ativos
+obter_produto_por_id = get_produto_por_id
+criar_produto = create_produto
+atualizar_produto = update_produto

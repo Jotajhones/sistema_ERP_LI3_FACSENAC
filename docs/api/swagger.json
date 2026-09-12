@@ -52,8 +52,8 @@
         "tags": [
           "Autenticação"
         ],
-        "summary": "Logout",
-        "operationId": "logout_auth_logout_post",
+        "summary": "Encerrar Sessao Usuario",
+        "operationId": "encerrar_sessao_usuario_auth_logout_post",
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -406,6 +406,120 @@
         }
       }
     },
+    "/produtos/{produto_id}/recebimento": {
+      "patch": {
+        "tags": [
+          "Produtos"
+        ],
+        "summary": "Registrar Recebimento Estoque",
+        "operationId": "registrar_recebimento_estoque_produtos__produto_id__recebimento_patch",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "produto_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Produto Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EstoqueRecebimento"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecebimentoResposta"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Produtos"
+        ],
+        "summary": "Registrar Recebimento Estoque",
+        "operationId": "registrar_recebimento_estoque_produtos__produto_id__recebimento_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "produto_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Produto Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EstoqueRecebimento"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecebimentoResposta"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/": {
       "get": {
         "summary": "Health Check",
@@ -461,6 +575,34 @@
           "token"
         ],
         "title": "AuthResponse"
+      },
+      "EstoqueRecebimento": {
+        "properties": {
+          "quantidade_recebida": {
+            "type": "number",
+            "exclusiveMinimum": 0.0,
+            "title": "Quantidade Recebida",
+            "description": "Quantidade recebida para incremento de estoque"
+          },
+          "observacao": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 255
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Observacao",
+            "description": "Observação ou identificador do lote"
+          }
+        },
+        "type": "object",
+        "required": [
+          "quantidade_recebida"
+        ],
+        "title": "EstoqueRecebimento"
       },
       "HTTPValidationError": {
         "properties": {
@@ -566,6 +708,21 @@
             "minLength": 1,
             "title": "Sku",
             "description": "Código SKU único"
+          },
+          "quantidade_estoque": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Quantidade Estoque",
+            "description": "Quantidade em estoque",
+            "default": 0.0
+          },
+          "unidade_medida": {
+            "type": "string",
+            "maxLength": 20,
+            "minLength": 1,
+            "title": "Unidade Medida",
+            "description": "Unidade de medida",
+            "default": "UN"
           }
         },
         "type": "object",
@@ -609,6 +766,21 @@
             "minLength": 1,
             "title": "Sku",
             "description": "Código SKU único"
+          },
+          "quantidade_estoque": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Quantidade Estoque",
+            "description": "Quantidade em estoque",
+            "default": 0.0
+          },
+          "unidade_medida": {
+            "type": "string",
+            "maxLength": 20,
+            "minLength": 1,
+            "title": "Unidade Medida",
+            "description": "Unidade de medida",
+            "default": "UN"
           },
           "id": {
             "type": "string",
@@ -728,10 +900,69 @@
               }
             ],
             "title": "Sku"
+          },
+          "quantidade_estoque": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Quantidade Estoque"
+          },
+          "unidade_medida": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 20,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Unidade Medida"
           }
         },
         "type": "object",
         "title": "ProdutoUpdate"
+      },
+      "RecebimentoResposta": {
+        "properties": {
+          "mensagem": {
+            "type": "string",
+            "title": "Mensagem"
+          },
+          "produto_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Produto Id"
+          },
+          "saldo_anterior": {
+            "type": "number",
+            "title": "Saldo Anterior"
+          },
+          "quantidade_recebida": {
+            "type": "number",
+            "title": "Quantidade Recebida"
+          },
+          "novo_saldo": {
+            "type": "number",
+            "title": "Novo Saldo"
+          }
+        },
+        "type": "object",
+        "required": [
+          "mensagem",
+          "produto_id",
+          "saldo_anterior",
+          "quantidade_recebida",
+          "novo_saldo"
+        ],
+        "title": "RecebimentoResposta"
       },
       "ValidationError": {
         "properties": {

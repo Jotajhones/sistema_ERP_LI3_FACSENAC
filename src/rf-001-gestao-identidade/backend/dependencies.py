@@ -121,3 +121,8 @@ def require_role(allowed_roles: list[str]) -> Callable:
         return user_id
 
     return role_checker
+
+
+obter_usuario_atual = get_current_user
+obter_papel_usuario = get_user_role
+exigir_papeis = require_role

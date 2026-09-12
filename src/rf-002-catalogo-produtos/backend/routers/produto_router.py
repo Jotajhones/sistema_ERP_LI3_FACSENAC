@@ -11,7 +11,13 @@ if _BACKEND_RF001 not in sys.path:
 from typing import List
 from uuid import UUID
 from fastapi import APIRouter, Depends, status
-from schemas.produto_schema import ProdutoCreate, ProdutoResponse, ProdutoUpdate
+from schemas.produto_schema import (
+    ProdutoCreate,
+    ProdutoResponse,
+    ProdutoUpdate,
+    EstoqueRecebimento,
+    RecebimentoResposta
+)
 from services import produto_service
 from dependencies import get_current_user, require_role
 
@@ -56,3 +62,12 @@ def deletar_produto(
 ):
     """Deleção lógica: seta ativo = false e grava deletado_por. Restrito a ADMIN/GESTOR."""
     return produto_service.deletar_produto_logicamente(produto_id, usuario_id)
+
+@router.post("/{produto_id}/recebimento", response_model=RecebimentoResposta, status_code=status.HTTP_200_OK)
+@router.patch("/{produto_id}/recebimento", response_model=RecebimentoResposta, status_code=status.HTTP_200_OK)
+def registrar_recebimento_estoque(
+    produto_id: UUID,
+    dados_recebimento: EstoqueRecebimento,
+    usuario_id: str = Depends(require_role(["ADMIN", "GESTOR"]))
+):
+    return produto_service.dar_entrada_estoque(produto_id, dados_recebimento, usuario_id)

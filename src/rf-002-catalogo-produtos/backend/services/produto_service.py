@@ -2,7 +2,12 @@ from uuid import UUID
 from typing import List
 from fastapi import HTTPException, status
 from repositories import produto_repository
-from schemas.produto_schema import ProdutoCreate, ProdutoUpdate
+from schemas.produto_schema import (
+    ProdutoCreate,
+    ProdutoUpdate,
+    EstoqueRecebimento,
+    RecebimentoResposta
+)
 
 def listar_produtos_ativos() -> List[dict]:
     return produto_repository.get_produtos_ativos()
@@ -66,3 +71,30 @@ def buscar_produtos_por_termo(termo: str) -> List[dict]:
         return []
         
     return produto_repository.search_produtos_fulltext(termo)
+
+def dar_entrada_estoque(produto_id: UUID, dados_recebimento: EstoqueRecebimento, usuario_id: str) -> dict:
+    produto = produto_repository.get_produto_por_id(produto_id)
+    if not produto or not produto.get("ativo", True):
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Produto não encontrado ou inativo."
+        )
+
+    saldo_anterior = float(produto.get("quantidade_estoque") or 0.0)
+    quantidade_recebida = float(dados_recebimento.quantidade_recebida)
+    novo_saldo = round(saldo_anterior + quantidade_recebida, 3)
+
+    atualizado = produto_repository.registrar_entrada_estoque(produto_id, novo_saldo, usuario_id)
+    if not atualizado:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Erro ao atualizar o saldo de estoque do produto."
+        )
+
+    return {
+        "mensagem": "Recebimento de lote registrado com sucesso",
+        "produto_id": produto_id,
+        "saldo_anterior": saldo_anterior,
+        "quantidade_recebida": quantidade_recebida,
+        "novo_saldo": novo_saldo
+    }
