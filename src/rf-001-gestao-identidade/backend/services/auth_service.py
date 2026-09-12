@@ -4,7 +4,7 @@ from fastapi import HTTPException, status
 from repositories.auth_repository import (
     get_user_by_email,
     create_session,
-    delete_session
+    excluir_sessao
 )
 from schemas.auth_schemas import AuthRequest, AuthResponse
 
@@ -42,5 +42,5 @@ def autenticar_usuario(payload: AuthRequest) -> AuthResponse:
     )
 
 def encerrar_sessao(token: str) -> dict:
-    delete_session(token)
+    excluir_sessao(token)
     return {"detail": "Sessão encerrada com sucesso"}

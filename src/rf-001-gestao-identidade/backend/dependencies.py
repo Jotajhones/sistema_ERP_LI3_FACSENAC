@@ -31,16 +31,16 @@ def get_current_user(
     return str(sessao["user_id"])
 
 
-def get_current_token(
-    credentials: HTTPAuthorizationCredentials = Depends(security)
+def obter_token_atual(
+    credenciais: HTTPAuthorizationCredentials = Depends(security)
 ) -> str:
-    if not credentials or not credentials.credentials:
+    if not credenciais or not credenciais.credentials:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Token de autenticacao ausente ou invalido"
         )
 
-    token = credentials.credentials
+    token = credenciais.credentials
     sessao = get_session_by_token(token)
 
     if not sessao:
@@ -50,6 +50,8 @@ def get_current_token(
         )
 
     return token
+
+get_current_token = obter_token_atual
 
 
 def get_user_role(user_id: str) -> str:

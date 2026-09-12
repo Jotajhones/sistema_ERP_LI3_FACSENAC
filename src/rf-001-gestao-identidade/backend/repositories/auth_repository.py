@@ -58,7 +58,7 @@ def get_session_by_token(token_str: str) -> Optional[Dict[str, Any]]:
             
     return None
 
-def delete_session(token_str: str) -> bool:
+def excluir_sessao(token_str: str) -> bool:
     """Remove a sessão do banco de dados pelo token UUID."""
     try:
         token_uuid = str(uuid.UUID(token_str))
@@ -69,3 +69,5 @@ def delete_session(token_str: str) -> bool:
     with get_supabase_client() as client:
         response = client.delete(url)
         return response.status_code in (200, 204)
+
+delete_session = excluir_sessao
