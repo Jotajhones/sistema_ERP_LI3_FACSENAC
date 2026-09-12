@@ -60,3 +60,9 @@ def deletar_produto_logicamente(produto_id: UUID, usuario_id: str) -> dict:
             detail="Produto não encontrado ou já inativado."
         )
     return resultado
+
+def buscar_produtos_por_termo(termo: str) -> List[dict]:
+    if not termo or len(termo.strip()) < 3:
+        return []
+        
+    return produto_repository.search_produtos_fulltext(termo)

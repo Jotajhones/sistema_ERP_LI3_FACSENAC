@@ -30,6 +30,11 @@ def listar_produtos(usuario_id: str = Depends(get_current_user)):
     """Lista produtos ativos (ativo == true). Requer login, qualquer role."""
     return produto_service.listar_produtos_ativos()
 
+@router.get("/busca", response_model=List[ProdutoResponse])
+def buscar_produto_por_nome(termo: str, usuario_id: str = Depends(get_current_user)):
+    """Busca produtos ativos por nome (case insensitive). Requer login."""
+    return produto_service.buscar_produtos_por_termo(termo)
+
 @router.get("/{produto_id}", response_model=ProdutoResponse)
 def buscar_produto(produto_id: UUID, usuario_id: str = Depends(get_current_user)):
     """Busca produto por ID. Requer login, qualquer role."""
