@@ -71,3 +71,32 @@ def excluir_sessao(token_str: str) -> bool:
         return response.status_code in (200, 204)
 
 delete_session = excluir_sessao
+
+def obter_usuario_por_id(user_id: str) -> Optional[Dict[str, Any]]:
+    """Busca um usuário no banco pelo identificador UUID."""
+    url = f"/rest/v1/users?id=eq.{user_id}&select=id,email,password_hash,user_role,ativo"
+    with get_supabase_client() as client:
+        response = client.get(url)
+        if response.status_code == 200:
+            dados = response.json()
+            return dados[0] if dados else None
+
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Erro ao consultar serviço de dados de usuários."
+        )
+
+def atualizar_senha_usuario(user_id: str, novo_password_hash: str) -> bool:
+    """Atualiza o hash da senha do usuário no banco."""
+    url = f"/rest/v1/users?id=eq.{user_id}"
+    payload = {"password_hash": novo_password_hash}
+    headers = {"Prefer": "return=representation"}
+    with get_supabase_client() as client:
+        response = client.patch(url, json=payload, headers=headers)
+        if response.status_code in (200, 204):
+            return True
+
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Não foi possível atualizar a senha no banco de dados."
+        )
