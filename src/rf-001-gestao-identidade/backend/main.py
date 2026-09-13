@@ -54,13 +54,42 @@ app = FastAPI(
     version="1.0.0"
 )
 
+origens_permitidas = [
+    "http://localhost",
+    "http://localhost:3000",
+    "http://localhost:5500",
+    "http://localhost:8000",
+    "http://127.0.0.1:5500",
+    "http://127.0.0.1:8000",
+    "https://jotajhones.github.io",
+    "https://sistema-erp-li3-facsenac.onrender.com",
+    "https://erp-construcao.vercel.app"
+]
+
+
+origens_extras = os.getenv("CORS_ORIGENS_EXTRAS", "")
+if origens_extras:
+    for origem in origens_extras.split(","):
+        origem_limpa = origem.strip()
+        if origem_limpa and origem_limpa not in origens_permitidas:
+            origens_permitidas.append(origem_limpa)
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"], 
+    allow_origins=origens_permitidas,
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allow_headers=["Authorization", "Content-Type", "Accept"],
 )
+
+@app.middleware("http")
+async def aplicar_cabecalhos_seguranca(requisicao, proximo):
+    resposta = await proximo(requisicao)
+    resposta.headers["X-Content-Type-Options"] = "nosniff"
+    resposta.headers["X-Frame-Options"] = "DENY"
+    resposta.headers["X-XSS-Protection"] = "1; mode=block"
+    return resposta
+
 
 app.include_router(auth_router.router)
 app.include_router(pessoas_router.router)
