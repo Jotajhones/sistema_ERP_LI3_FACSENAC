@@ -7,12 +7,12 @@
 | ID | Nome Completo | Papel Primário | Papel Secundário | E-mail / Contato |
 |:---:|:---|:---|:---|:---|
 | 1 | João Pedro de Lima | Product Owner | Tech Lead / DevOps | joao52517876@edu.df.senac.br |
-| 2 | Miguel Nunes | Desenvolvedor Back-End | — | miguel59970766@edu.df.senac.br |
-| 3 | Luciano Santos | Desenvolvedor Back-End | — | luciano58995256@edu.df.senac.br |
-| 4 | Daniel Silva | DBA / Banco de Dados | — | daniel52370026@edu.df.senac.br |
-| 5 | Arthur Andrade | Desenvolvedor Front-End | — | arthur59275206@edu.df.senac.br |
-| 6 | Pedro Soares| Desenvolvedor Front-End | — | pedro59153296@edu.df.senac.br |
-| 7 | Matheus Chagas | AppSec / QA | — | matheus57119256@edu.df.senac.br |
+| 2 | Miguel Nunes | Desenvolvedor Back-End | Full Stack | miguel59970766@edu.df.senac.br |
+| 3 | Luciano Santos | Desenvolvedor Back-End | Full Stack  | luciano58995256@edu.df.senac.br |
+| 4 | Daniel Silva | DBA / Banco de Dados | Full Stack  | daniel52370026@edu.df.senac.br |
+| 5 | Arthur Andrade | Desenvolvedor Front-End | Full Stack  | arthur59275206@edu.df.senac.br |
+| 6 | Pedro Soares| Desenvolvedor Front-End | Full Stack  | pedro59153296@edu.df.senac.br |
+| 7 | Matheus Chagas | AppSec / QA | Full Stack | matheus57119256@edu.df.senac.br |
 
 ### 1.2 Identificação
 
