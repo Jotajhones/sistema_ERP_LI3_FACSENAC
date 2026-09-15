@@ -1,7 +1,7 @@
-
+import { erpFetch } from "../scripts/authInterceptor.js";
 export function renderHeader(activeRoute = 'produtos') {
     const headerContainer = document.getElementById('app-header');
-    
+
     if (!headerContainer) {
         console.error('Contêiner #app-header não encontrado na página.');
         return;
@@ -38,11 +38,29 @@ export function renderHeader(activeRoute = 'produtos') {
         document.getElementById('header-user-role').textContent = userRole.toUpperCase();
     }
 
-    document.getElementById('btn-logout').addEventListener('click', () => {
+    document.getElementById('btn-logout').addEventListener('click', async () => {
 
-        localStorage.removeItem('authToken');
-        localStorage.removeItem('userRole');
-        
-        window.location.href = '../../../rf-001-gestao-identidade/frontend/login/index.html';
+        const token = localStorage.getItem('authToken');
+
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 2000);
+
+        try {
+            if (token) {
+                await erpFetch('/auth/logout', {
+                    method: 'POST',
+                    signal: controller.signal
+                });
+            }
+        } catch (error) {
+            console.error('Erro ao encerrar sessão no servidor:', error);
+        } finally {
+            clearTimeout(timeout);
+
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('userRole');
+
+            window.location.href = '../../../rf-001-gestao-identidade/frontend/login/index.html';
+        }
     });
 }

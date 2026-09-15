@@ -34,16 +34,12 @@ O fluxo de uma loja de materiais de construção exige agilidade no balcão e se
 * READ (Catálogo de produtos, clientes próprios).
 * UPDATE / DELETE (Bloqueado visualmente no front e via injeção de dependência no back).
 
-
-
 ### 2. GESTOR / ADMIN (Ator Secundário)
 
 * **Papel:** Administrador da loja.
 * **Responsabilidade:** Cadastrar produtos, atualizar preços, registrar entrada de lotes no estoque e inativar itens.
 * **Permissões:**
 * CREATE, READ, UPDATE, DELETE em todas as entidades.
-
-
 
 ### 3. CLIENTE (Ator Passivo)
 
@@ -55,8 +51,6 @@ O fluxo de uma loja de materiais de construção exige agilidade no balcão e se
 * **Responsabilidade:** Validar as permissões de rota (AuthZ), executar o cadastro silencioso em background e destruir fisicamente o token de sessão na tabela `sessoes` durante o logout.
 * **Permissões:**
 * Todas as operações requeridas internamente.
-
-
 
 ---
 
@@ -109,17 +103,9 @@ O fluxo de uma loja de materiais de construção exige agilidade no balcão e se
 ### Fluxo Alternativo A3: Recebimento de Lote de Estoque (Apenas Gestor)
 
 * 1. Gestor clica no botão "Receber Lote" (botão invisível para vendedores via `rbac.js`).
-
-
 * 2. Gestor informa a `quantidade_recebida` (ex: 150 sacos de cimento).
-
-
 * 3. Sistema dispara `PATCH /produtos/{id}/recebimento`.
-
-
 * 4. API valida a role do token no banco (AuthZ).
-
-
 * 5. API soma a quantidade ao estoque atual e registra auditoria.
 
 
@@ -307,4 +293,3 @@ Foi executado um teste de invasão (Simulação de Origem Incorreta) utilizando 
 
 1. Ao enviar um `GET /produtos` com o cabeçalho HTTP `Origin: [https://site-hacker.com.br](https://site-hacker.com.br)`, o servidor rejeita o pre-flight (OPTIONS), bloqueando a visualização e a mutação dos dados com a resposta de restrição CORS no header.
 2. Comprovou-se que apenas as chamadas disparadas pelo frontend oficial (`[https://erp-construcao.vercel.app](https://erp-construcao.vercel.app)`) são aceitas.
-

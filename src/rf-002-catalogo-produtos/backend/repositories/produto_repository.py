@@ -1,6 +1,7 @@
 from typing import List, Optional, Dict, Any
 from uuid import UUID
 from database import get_supabase_client
+from urllib.parse import urlencode, quote
 
 TABELA = "produtos"
 
@@ -41,3 +42,42 @@ def update_produto(produto_id: UUID, payload: Dict[str, Any]) -> Optional[Dict[s
             dados = resp.json()
             return dados[0] if isinstance(dados, list) and dados else dados
         return None
+    
+def search_produtos_fulltext(termo: str) -> List[Dict[str, Any]]:
+    termo_limpo = termo.strip()
+    
+    if not termo_limpo or len(termo_limpo) < 3:
+        return []
+
+    filtros = {
+        "select": "id,sku,nome,descricao,valor_venda,quantidade_estoque,unidade_medida,ativo,created_at,updated_at",
+        "ativo": "eq.true",
+        "or": f"(nome.ilike.*{termo_limpo}*,descricao.ilike.*{termo_limpo}*,sku.ilike.*{termo_limpo}*)"
+    }
+    
+    query = urlencode(
+        {str(k): str(v) for k, v in filtros.items()},
+        quote_via=quote,
+        safe=""
+    )
+    
+    url = f"/rest/v1/{TABELA}?{query}"
+    
+    with get_supabase_client() as client:
+        resp = client.get(url)
+        if resp.status_code == 200:
+            return resp.json()
+            
+    return []
+
+def registrar_entrada_estoque(produto_id: UUID, novo_saldo: float, usuario_id: str) -> Optional[Dict[str, Any]]:
+    payload = {
+        "quantidade_estoque": novo_saldo,
+        "atualizado_por": usuario_id
+    }
+    return update_produto(produto_id, payload)
+
+obter_produtos_ativos = get_produtos_ativos
+obter_produto_por_id = get_produto_por_id
+criar_produto = create_produto
+atualizar_produto = update_produto

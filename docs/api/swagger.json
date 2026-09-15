@@ -47,6 +47,120 @@
         }
       }
     },
+    "/auth/logout": {
+      "post": {
+        "tags": [
+          "Autenticação"
+        ],
+        "summary": "Encerrar Sessao Usuario",
+        "operationId": "encerrar_sessao_usuario_auth_logout_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/auth/senha": {
+      "put": {
+        "tags": [
+          "Autenticação"
+        ],
+        "summary": "Alterar Propria Senha",
+        "operationId": "alterar_propria_senha_auth_senha_put",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AlterarSenhaRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MensagemResposta"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
+      "patch": {
+        "tags": [
+          "Autenticação"
+        ],
+        "summary": "Alterar Propria Senha",
+        "operationId": "alterar_propria_senha_auth_senha_patch",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AlterarSenhaRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MensagemResposta"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
     "/pessoas": {
       "get": {
         "tags": [
@@ -153,13 +267,61 @@
         }
       }
     },
+    "/pessoas/{cpf}": {
+      "get": {
+        "tags": [
+          "Pessoas"
+        ],
+        "summary": "Buscar Pessoa Por Cpf",
+        "description": "Busca os dados de uma pessoa utilizando o CPF para pré-preenchimento no orçamento.",
+        "operationId": "buscar_pessoa_por_cpf_pessoas__cpf__get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "cpf",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Cpf"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PessoaResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/produtos": {
       "get": {
         "tags": [
           "Produtos"
         ],
         "summary": "Listar Produtos",
-        "description": "Lista produtos ativos (ativo == true).",
+        "description": "Lista produtos ativos (ativo == true). Requer login, qualquer role.",
         "operationId": "listar_produtos_produtos_get",
         "responses": {
           "200": {
@@ -176,14 +338,19 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
       },
       "post": {
         "tags": [
           "Produtos"
         ],
         "summary": "Criar Produto",
-        "description": "Cria um produto registrando o ID do usuário em criado_por.",
+        "description": "Cria um produto registrando o ID do usuário em criado_por. Restrito a ADMIN/GESTOR.",
         "operationId": "criar_produto_produtos_post",
         "requestBody": {
           "content": {
@@ -224,14 +391,71 @@
         ]
       }
     },
+    "/produtos/busca": {
+      "get": {
+        "tags": [
+          "Produtos"
+        ],
+        "summary": "Buscar Produto Por Nome",
+        "description": "Busca produtos ativos por nome (case insensitive). Requer login.",
+        "operationId": "buscar_produto_por_nome_produtos_busca_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "termo",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Termo"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ProdutoResponse"
+                  },
+                  "title": "Response Buscar Produto Por Nome Produtos Busca Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/produtos/{produto_id}": {
       "get": {
         "tags": [
           "Produtos"
         ],
         "summary": "Buscar Produto",
-        "description": "Busca produto por ID.",
+        "description": "Busca produto por ID. Requer login, qualquer role.",
         "operationId": "buscar_produto_produtos__produto_id__get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
         "parameters": [
           {
             "name": "produto_id",
@@ -272,7 +496,7 @@
           "Produtos"
         ],
         "summary": "Atualizar Produto",
-        "description": "Atualiza produto registrando o ID do usuário em atualizado_por.",
+        "description": "Atualiza produto registrando o ID do usuário em atualizado_por. Restrito a ADMIN/GESTOR.",
         "operationId": "atualizar_produto_produtos__produto_id__put",
         "security": [
           {
@@ -329,7 +553,7 @@
           "Produtos"
         ],
         "summary": "Deletar Produto",
-        "description": "Deleção lógica: seta ativo = false e grava deletado_por.",
+        "description": "Deleção lógica: seta ativo = false e grava deletado_por. Restrito a ADMIN/GESTOR.",
         "operationId": "deletar_produto_produtos__produto_id__delete",
         "security": [
           {
@@ -372,6 +596,120 @@
         }
       }
     },
+    "/produtos/{produto_id}/recebimento": {
+      "patch": {
+        "tags": [
+          "Produtos"
+        ],
+        "summary": "Registrar Recebimento Estoque",
+        "operationId": "registrar_recebimento_estoque_produtos__produto_id__recebimento_patch",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "produto_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Produto Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EstoqueRecebimento"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecebimentoResposta"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Produtos"
+        ],
+        "summary": "Registrar Recebimento Estoque",
+        "operationId": "registrar_recebimento_estoque_produtos__produto_id__recebimento_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "produto_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Produto Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EstoqueRecebimento"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecebimentoResposta"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/": {
       "get": {
         "summary": "Health Check",
@@ -381,9 +719,7 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {
-
-                }
+                "schema": {}
               }
             }
           }
@@ -393,6 +729,29 @@
   },
   "components": {
     "schemas": {
+      "AlterarSenhaRequest": {
+        "properties": {
+          "senha_atual": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Senha Atual",
+            "description": "Senha atual do usuário autenticado"
+          },
+          "nova_senha": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 6,
+            "title": "Nova Senha",
+            "description": "Nova senha de acesso"
+          }
+        },
+        "type": "object",
+        "required": [
+          "senha_atual",
+          "nova_senha"
+        ],
+        "title": "AlterarSenhaRequest"
+      },
       "AuthRequest": {
         "properties": {
           "email": {
@@ -430,6 +789,34 @@
         ],
         "title": "AuthResponse"
       },
+      "EstoqueRecebimento": {
+        "properties": {
+          "quantidade_recebida": {
+            "type": "number",
+            "exclusiveMinimum": 0.0,
+            "title": "Quantidade Recebida",
+            "description": "Quantidade recebida para incremento de estoque"
+          },
+          "observacao": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 255
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Observacao",
+            "description": "Observação ou identificador do lote"
+          }
+        },
+        "type": "object",
+        "required": [
+          "quantidade_recebida"
+        ],
+        "title": "EstoqueRecebimento"
+      },
       "HTTPValidationError": {
         "properties": {
           "detail": {
@@ -443,31 +830,58 @@
         "type": "object",
         "title": "HTTPValidationError"
       },
-      "PessoaCreate": {
+      "MensagemResposta": {
         "properties": {
-          "user_id": {
+          "mensagem": {
             "type": "string",
-            "format": "uuid",
-            "title": "User Id"
-          },
-          "nome": {
-            "type": "string",
-            "maxLength": 150,
-            "minLength": 3,
-            "title": "Nome"
-          },
-          "cpf": {
-            "type": "string",
-            "maxLength": 14,
-            "minLength": 11,
-            "title": "Cpf"
+            "title": "Mensagem"
           }
         },
         "type": "object",
         "required": [
-          "user_id",
-          "nome",
-          "cpf"
+          "mensagem"
+        ],
+        "title": "MensagemResposta"
+      },
+      "PessoaCreate": {
+        "properties": {
+          "nome": {
+            "type": "string",
+            "maxLength": 150,
+            "minLength": 3,
+            "title": "Nome",
+            "description": "Nome do cliente"
+          },
+          "cpf": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 14
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cpf",
+            "description": "CPF opcional para orçamentos"
+          },
+          "user_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "User Id",
+            "description": "ID do usuário (nulo para clientes de balcão)"
+          }
+        },
+        "type": "object",
+        "required": [
+          "nome"
         ],
         "title": "PessoaCreate"
       },
@@ -478,26 +892,45 @@
             "format": "uuid",
             "title": "Id"
           },
-          "user_id": {
-            "type": "string",
-            "format": "uuid",
-            "title": "User Id"
-          },
           "nome": {
             "type": "string",
             "title": "Nome"
           },
           "cpf": {
-            "type": "string",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Cpf"
+          },
+          "user_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "User Id"
+          },
+          "ativo": {
+            "type": "boolean",
+            "title": "Ativo"
           }
         },
         "type": "object",
         "required": [
           "id",
-          "user_id",
           "nome",
-          "cpf"
+          "cpf",
+          "user_id",
+          "ativo"
         ],
         "title": "PessoaResponse"
       },
@@ -524,7 +957,7 @@
           },
           "valor_venda": {
             "type": "number",
-            "minimum": 0,
+            "minimum": 0.0,
             "title": "Valor Venda",
             "description": "Preço de venda (maior ou igual a 0)"
           },
@@ -534,6 +967,20 @@
             "minLength": 1,
             "title": "Sku",
             "description": "Código SKU único"
+          },
+          "quantidade_estoque": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Quantidade Estoque",
+            "description": "Quantidade em estoque",
+            "default": 0.0
+          },
+          "unidade_medida": {
+            "type": "string",
+            "maxLength": 20,
+            "title": "Unidade Medida",
+            "description": "Unidade de medida (ex: UN, M3, PALETE)",
+            "default": "UN"
           }
         },
         "type": "object",
@@ -567,7 +1014,7 @@
           },
           "valor_venda": {
             "type": "number",
-            "minimum": 0,
+            "minimum": 0.0,
             "title": "Valor Venda",
             "description": "Preço de venda (maior ou igual a 0)"
           },
@@ -577,6 +1024,20 @@
             "minLength": 1,
             "title": "Sku",
             "description": "Código SKU único"
+          },
+          "quantidade_estoque": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Quantidade Estoque",
+            "description": "Quantidade em estoque",
+            "default": 0.0
+          },
+          "unidade_medida": {
+            "type": "string",
+            "maxLength": 20,
+            "title": "Unidade Medida",
+            "description": "Unidade de medida (ex: UN, M3, PALETE)",
+            "default": "UN"
           },
           "id": {
             "type": "string",
@@ -676,7 +1137,7 @@
             "anyOf": [
               {
                 "type": "number",
-                "minimum": 0
+                "minimum": 0.0
               },
               {
                 "type": "null"
@@ -696,10 +1157,68 @@
               }
             ],
             "title": "Sku"
+          },
+          "quantidade_estoque": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Quantidade Estoque"
+          },
+          "unidade_medida": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 20
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Unidade Medida"
           }
         },
         "type": "object",
         "title": "ProdutoUpdate"
+      },
+      "RecebimentoResposta": {
+        "properties": {
+          "mensagem": {
+            "type": "string",
+            "title": "Mensagem"
+          },
+          "produto_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Produto Id"
+          },
+          "saldo_anterior": {
+            "type": "number",
+            "title": "Saldo Anterior"
+          },
+          "quantidade_recebida": {
+            "type": "number",
+            "title": "Quantidade Recebida"
+          },
+          "novo_saldo": {
+            "type": "number",
+            "title": "Novo Saldo"
+          }
+        },
+        "type": "object",
+        "required": [
+          "mensagem",
+          "produto_id",
+          "saldo_anterior",
+          "quantidade_recebida",
+          "novo_saldo"
+        ],
+        "title": "RecebimentoResposta"
       },
       "ValidationError": {
         "properties": {
@@ -724,13 +1243,6 @@
           "type": {
             "type": "string",
             "title": "Error Type"
-          },
-          "input": {
-            "title": "Input"
-          },
-          "ctx": {
-            "type": "object",
-            "title": "Context"
           }
         },
         "type": "object",

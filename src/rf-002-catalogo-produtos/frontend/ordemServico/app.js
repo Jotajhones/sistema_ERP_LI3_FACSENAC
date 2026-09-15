@@ -1,14 +1,9 @@
-import { initDashboard } from "./ordemServico.js";
+import { initOrcamento } from "../../../rf-003-gestao-orcamento/frontend/scripts/ordemServico.js";
+import { aplicarControleDeAcesso } from "../../../rf-003-gestao-orcamento/frontend/scripts/rbac.js";
 import { renderHeader } from "../header/header.js";
 
 document.addEventListener("DOMContentLoaded", () => {
     renderHeader('ordemServico');
-    initDashboard();
-
-    const btnNovo = document.getElementById('btnNovoProduto');
-    if (btnNovo) {
-        btnNovo.addEventListener('click', () => {
-            window.location.href = '../produtos/produtos.html';
-        });
-    }
+    initOrcamento();
+    aplicarControleDeAcesso();
 });

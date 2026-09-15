@@ -1,53 +1,80 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Catálogo de Produtos - ERP</title>
+    <title>Novo Orçamento - ERP</title>
     <link rel="stylesheet" href="../styles/global.css">
     <link rel="stylesheet" href="../header/header.css">
     <link rel="stylesheet" href="./ordemServico.css">
 </head>
-
 <body>
-
     <div id="app-header"></div>
 
     <main class="erp-container">
-
         <div class="action-bar">
-            <h2>Catálogo de Produtos</h2>
-            <div class="action-controls">
-                <input type="text" id="searchInput" class="erp-input" placeholder="Buscar por nome ou SKU...">
-                <button class="btn-primary" id="btnNovoProduto">+ Novo Produto</button>
-            </div>
+            <h2>Novo Orçamento</h2>
         </div>
 
-        <div class="table-container">
-            <table class="erp-table">
-                <thead>
-                    <tr>
-                        <th width="15%">SKU</th>
-                        <th width="30%">Produto</th>
-                        <th width="15%" class="text-right">Valor Venda</th>
-                        <th width="15%" class="text-center">Status</th>
-                        <th width="15%" class="text-center">Cadastrado em</th>
-                        <th width="10%" class="text-center">Ações</th>
-                    </tr>
-                </thead>
-                <tbody id="tabelaProdutosBody">
-                    <tr>
-                        <td colspan="6" class="text-center" style="padding: 2rem;">Carregando produtos...</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
+        <div class="form-container">
+            <form id="formOrcamento">
+                <input type="hidden" id="clienteId" name="clienteId">
+                
+                <div class="form-group">
+                    <label for="cpfCliente">CPF do Cliente (Opcional):</label>
+                    <div class="input-group">
+                        <input type="text" id="cpfCliente" class="erp-input" placeholder="00000000000" maxlength="11">
+                        <button type="button" id="btnBuscarCpf" class="btn-secondary">Buscar</button>
+                    </div>
+                    <span id="cpfFeedback" class="feedback-msg"></span>
+                </div>
 
+                <div class="form-group">
+                    <label for="nomeCliente">Nome do Cliente:</label>
+                    <input type="text" id="nomeCliente" class="erp-input" placeholder="Informe o CPF ou deixe em branco para orçamento anônimo" disabled>
+                </div>
+
+                <div class="form-group">
+                    <h3 style="margin-top: 1rem; margin-bottom: 0.5rem; color: var(--color-text-dark);">Adicionar Produtos</h3>
+                    
+                    <div class="input-group" style="position: relative;">
+                        <input type="text" id="inputBuscaProduto" class="erp-input" placeholder="Buscar produto por nome ou SKU (mín. 3 letras)..." autocomplete="off">
+                        <div id="dropdownResultados" class="search-dropdown"></div>
+                    </div>
+
+                    <div class="table-container" style="margin-top: 1rem; overflow: visible;">
+                        <table class="erp-table cart-table">
+                            <thead>
+                                <tr>
+                                    <th>Produto</th>
+                                    <th class="text-center" width="15%">Qtd</th>
+                                    <th class="text-right" width="20%">Preço Unit.</th>
+                                    <th class="text-right" width="20%">Subtotal</th>
+                                    <th class="text-center" width="10%">Ação</th>
+                                </tr>
+                            </thead>
+                            <tbody id="carrinhoBody">
+                                <tr><td colspan="5" class="text-center" style="padding: 2rem; color: var(--color-text-muted);">Nenhum produto adicionado.</td></tr>
+                            </tbody>
+                            <tfoot>
+                                <tr style="background-color: var(--color-bg-app);">
+                                    <td colspan="3" class="text-right" style="font-weight: 600; padding: 1rem;">Total do Orçamento:</td>
+                                    <td class="text-right" id="totalOrcamento" style="font-weight: 700; font-size: 1.2rem; color: var(--color-primary); padding: 1rem;">R$ 0,00</td>
+                                    <td></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="action-controls" style="margin-top: 1.5rem; justify-content: flex-end;">
+                    <button type="submit" class="btn-primary" id="btnSalvarOrcamento">Salvar Orçamento</button>
+                </div>
+            </form>
+        </div>
     </main>
 
     <script src="../scripts/env.js"></script>
     <script type="module" src="./app.js"></script>
 </body>
-
 </html>

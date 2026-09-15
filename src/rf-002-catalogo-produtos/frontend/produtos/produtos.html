@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="../styles/global.css">
     <link rel="stylesheet" href="../header/header.css">
     <link rel="stylesheet" href="./produtos.css">
+    <link rel="stylesheet" href="../../../rf-003-gestao-orcamento/frontend/styles/tableProdutos.css">
 </head>
 
 <body>
@@ -26,9 +27,22 @@
                     <div id="erroNome" class="error-message">O nome não pode estar vazio.</div>
                 </div>
 
-                <div class="form-group">
-                    <label for="sku">Código SKU *</label>
-                    <input type="text" id="sku" class="form-control" placeholder="Ex: CIM-001">
+                <div style="display: flex; gap: 1rem;">
+                    <div class="form-group" style="flex: 1;">
+                        <label for="sku">Código SKU *</label>
+                        <input type="text" id="sku" class="form-control" placeholder="Ex: CIM-001">
+                    </div>
+
+                    <div class="form-group" style="flex: 1;">
+                        <label for="unidade_medida">Unidade de Medida *</label>
+                        <select id="unidade_medida" class="form-control">
+                            <option value="UN">Unidade (UN)</option>
+                            <option value="M3">Metro Cúbico (M³)</option>
+                            <option value="KG">Quilograma (KG)</option>
+                            <option value="SC">Saco (SC)</option>
+                            <option value="L">Litro (L)</option>
+                        </select>
+                    </div>
                 </div>
 
                 <div class="form-group">
@@ -46,9 +60,36 @@
                 <div style="display: flex; gap: 10px; margin-top: 2rem;">
                     <button type="button" id="btnCancelar" class="btn-submit"
                         style="background-color: var(--color-text-muted);">Cancelar</button>
-                    <button type="submit" id="btnSalvar" class="btn-submit" disabled>Salvar Produto</button>
+                    <button type="submit" id="btnSalvar" class="btn-submit" data-role="admin-only" disabled>Salvar Produto</button>
                 </div>
             </form>
+        </div>
+
+        <div class="table-container" style="margin-top: 4rem;">
+            <div class="action-bar" style="padding: 1.5rem 1.5rem 0 1.5rem; margin-bottom: 0;">
+                <h3 style="color: var(--color-text-main);">Produtos Cadastrados</h3>
+                <input type="text" id="searchInput" class="erp-input" placeholder="Buscar por nome ou SKU...">
+            </div>
+
+            <table class="erp-table">
+                <thead>
+                    <tr>
+                        <th width="15%">SKU</th>
+                        <th width="30%">Produto</th>
+                        <th width="10%" class="text-center">UN</th>
+                        <th width="10%" class="text-right">Estoque</th>
+                        <th width="15%" class="text-right">Valor Venda</th>
+                        <th width="10%" class="text-center">Status</th>
+                        <th width="10%" class="text-center">Ações</th>
+                    </tr>
+                </thead>
+                <tbody id="tabelaProdutosBody">
+                    <tr>
+                        <td colspan="7" class="text-center" style="padding: 2rem; color: var(--color-text-muted);">
+                            Carregando produtos...</td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
     </main>
 
