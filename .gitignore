@@ -8,6 +8,9 @@ rf001.*
 rf002.*
 relatorio*
 
+# arquivos miguel
+AGENTS.*
+
 # Environment variables
 .env
 *.env
