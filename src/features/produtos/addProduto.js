@@ -1,12 +1,13 @@
 import { erpFetch } from "../../scripts/authInterceptor.js";
 
-let form, inputNome, inputSku, inputValor, inputDescricao, btnSalvar, erroNome, erroValor,btnCancelar;
+let form, inputNome, inputSku, inputValor, inputUnidade, inputDescricao, btnSalvar, erroNome, erroValor, btnCancelar;
 
 export function initFormProduto() {
     form = document.getElementById('formProduto');
     inputNome = document.getElementById('nome');
     inputSku = document.getElementById('sku');
     inputValor = document.getElementById('valor_venda');
+    inputUnidade = document.getElementById('unidade_medida');
     inputDescricao = document.getElementById('descricao');
     btnSalvar = document.getElementById('btnSalvar');
 
@@ -33,10 +34,9 @@ export function initFormProduto() {
 
     if (btnCancelar) {
         btnCancelar.addEventListener('click', () => {
-            window.location.href = '../ordemServico/ordemServico.html';
+            window.location.href = '../dashboard/dashboard.html';
         });
     }
-    
 }
 
 export function validarFormulario(mostrarErros = false) {
@@ -46,11 +46,9 @@ export function validarFormulario(mostrarErros = false) {
     const isSkuValido = inputSku.value.trim().length > 0;
 
     if (mostrarErros) {
-
         erroNome.style.display = isNomeValido ? 'none' : 'block';
         erroValor.style.display = isValorValido ? 'none' : 'block';
     } else {
-
         if (isNomeValido) erroNome.style.display = 'none';
         if (isValorValido) erroValor.style.display = 'none';
     }
@@ -64,14 +62,14 @@ export function validarFormulario(mostrarErros = false) {
 export async function addProduto(e) {
     e.preventDefault();
 
-    if (!validarFormulario(true)) {
-        return;
-    }
+    if (!validarFormulario(true)) return;
 
     const payload = {
         nome: inputNome.value.trim(),
         sku: inputSku.value.trim(),
         valor_venda: parseFloat(inputValor.value),
+        unidade_medida: inputUnidade.value,
+        quantidade_estoque: 0, 
         descricao: inputDescricao.value.trim() || null
     };
 
@@ -87,10 +85,10 @@ export async function addProduto(e) {
         if (response.ok) {
             alert("Produto cadastrado com sucesso!");
             form.reset();
-            window.location.href = '../ordemServico/ordemServico.html';
+            window.location.reload(); 
         } else {
             const errorData = await response.json();
-            alert(`Erro ao cadastrar: ${errorData.detail || "Verifique os dados e o SKU."}`);
+            alert(`Erro ao cadastrar: ${errorData.detail || "Verifique os dados."}`);
         }
     } catch (error) {
         alert("Erro de conexão. Não foi possível comunicar com o servidor.");
