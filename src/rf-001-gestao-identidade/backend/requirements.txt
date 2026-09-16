@@ -3,4 +3,5 @@ uvicorn
 httpx
 pydantic
 pydantic[email]
-python-dotenv bcrypt
+python-dotenv
+bcrypt
