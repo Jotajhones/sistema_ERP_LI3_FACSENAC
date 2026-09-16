@@ -59,7 +59,9 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+
+                }
               }
             }
           }
@@ -719,7 +721,9 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+
+                }
               }
             }
           }
@@ -793,7 +797,7 @@
         "properties": {
           "quantidade_recebida": {
             "type": "number",
-            "exclusiveMinimum": 0.0,
+            "exclusiveMinimum": 0,
             "title": "Quantidade Recebida",
             "description": "Quantidade recebida para incremento de estoque"
           },
@@ -957,7 +961,7 @@
           },
           "valor_venda": {
             "type": "number",
-            "minimum": 0.0,
+            "minimum": 0,
             "title": "Valor Venda",
             "description": "Preço de venda (maior ou igual a 0)"
           },
@@ -970,10 +974,10 @@
           },
           "quantidade_estoque": {
             "type": "number",
-            "minimum": 0.0,
+            "minimum": 0,
             "title": "Quantidade Estoque",
             "description": "Quantidade em estoque",
-            "default": 0.0
+            "default": 0
           },
           "unidade_medida": {
             "type": "string",
@@ -1014,7 +1018,7 @@
           },
           "valor_venda": {
             "type": "number",
-            "minimum": 0.0,
+            "minimum": 0,
             "title": "Valor Venda",
             "description": "Preço de venda (maior ou igual a 0)"
           },
@@ -1027,10 +1031,10 @@
           },
           "quantidade_estoque": {
             "type": "number",
-            "minimum": 0.0,
+            "minimum": 0,
             "title": "Quantidade Estoque",
             "description": "Quantidade em estoque",
-            "default": 0.0
+            "default": 0
           },
           "unidade_medida": {
             "type": "string",
@@ -1137,7 +1141,7 @@
             "anyOf": [
               {
                 "type": "number",
-                "minimum": 0.0
+                "minimum": 0
               },
               {
                 "type": "null"
@@ -1162,7 +1166,7 @@
             "anyOf": [
               {
                 "type": "number",
-                "minimum": 0.0
+                "minimum": 0
               },
               {
                 "type": "null"
@@ -1243,6 +1247,13 @@
           "type": {
             "type": "string",
             "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
           }
         },
         "type": "object",
