@@ -1,4 +1,5 @@
-import { erpFetch } from "../scripts/authInterceptor.js";
+import { erpFetch } from "../../scripts/authInterceptor.js";
+
 export function renderHeader(activeRoute = 'produtos') {
     const headerContainer = document.getElementById('app-header');
 

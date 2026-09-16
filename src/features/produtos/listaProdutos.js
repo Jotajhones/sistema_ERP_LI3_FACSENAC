@@ -1,5 +1,5 @@
 import { erpFetch } from "../../scripts/authInterceptor.js";
-import { aplicarControleDeAcesso, validarAcessibilidadeRota } from "./rbac.js";
+import { aplicarControleDeAcesso, validarAcessibilidadeRota } from "../../scripts/rbac.js";
 
 export function initProdutosList() {
     if (!validarAcessibilidadeRota()) return;
