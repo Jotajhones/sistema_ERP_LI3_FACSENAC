@@ -63,7 +63,8 @@ origens_permitidas = [
     "http://127.0.0.1:8000",
     "https://jotajhones.github.io",
     "https://sistema-erp-li3-facsenac.onrender.com",
-    "https://erp-construcao.vercel.app"
+    "https://erp-construcao.vercel.app",
+    "https://sistema-erp-li-3-facsenac.vercel.app/"
 ]
 
 
