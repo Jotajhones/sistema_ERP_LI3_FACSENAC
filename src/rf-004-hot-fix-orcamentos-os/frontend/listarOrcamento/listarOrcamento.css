@@ -1,0 +1,125 @@
+/* Herda a base do global.css, apenas ajustes específicos para esta tela */
+.erp-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: var(--spacing-lg);
+}
+
+.action-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-lg);
+}
+
+.table-container {
+    background-color: var(--color-surface);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+    border: 1px solid var(--color-border);
+}
+
+.erp-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+}
+
+.erp-table th, .erp-table td {
+    padding: 12px var(--spacing-md);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.erp-table th {
+    background-color: var(--color-bg-app);
+    color: var(--color-text-muted);
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    font-weight: 600;
+}
+
+.erp-table tbody tr:hover {
+    background-color: var(--color-bg-app);
+}
+
+/* Efeito Hover Cinza-Azulado nas linhas da tabela */
+.erp-table.hover-blue tbody tr {
+    transition: background-color 0.2s;
+}
+
+.erp-table.hover-blue tbody tr:hover {
+    background-color: #eef2f6 !important; 
+}
+
+/* Badges Visuais */
+.badge {
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.badge.pendente {
+    background-color: var(--color-warning);
+    color: #fff;
+}
+
+.badge.convertido {
+    background-color: var(--color-success-bg);
+    color: var(--color-success);
+}
+
+.text-right { text-align: right; }
+.text-center { text-align: center; }
+
+.btn-icon {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: var(--color-text-muted);
+    padding: 6px;
+    font-size: 1.2rem;
+    transition: 0.2s;
+}
+
+.btn-icon:hover { color: var(--color-primary); }
+
+.btn-primary {
+    background-color: var(--color-primary);
+    color: var(--color-surface);
+    border: none;
+    padding: 10px 16px;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    font-weight: 500;
+}
+
+/* Filtros no topo da tabela */
+.filter-group {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.btn-filter {
+    background-color: var(--color-surface);
+    color: var(--color-text-main);
+    border: 1px solid var(--color-border);
+    padding: 8px 16px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 0.85rem;
+    transition: all 0.2s;
+}
+
+.btn-filter:hover {
+    background-color: var(--color-bg-app);
+}
+
+.btn-filter.active {
+    background-color: var(--color-primary);
+    color: white;
+    border-color: var(--color-primary);
+}

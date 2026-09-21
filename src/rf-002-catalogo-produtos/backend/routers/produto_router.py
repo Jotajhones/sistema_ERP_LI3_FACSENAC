@@ -1,16 +1,16 @@
 import os
 import sys
+
 _BACKEND_RF002 = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 _BACKEND_RF001 = os.path.abspath(
     os.path.join(_BACKEND_RF002, "..", "..", "rf-001-gestao-identidade", "backend")
 )
-
 if _BACKEND_RF001 not in sys.path:
     sys.path.append(_BACKEND_RF001)
 
-from typing import List
+from typing import List, Optional
 from uuid import UUID
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, status, HTTPException
 from schemas.produto_schema import (
     ProdutoCreate,
     ProdutoResponse,
@@ -19,55 +19,70 @@ from schemas.produto_schema import (
     RecebimentoResposta
 )
 from services import produto_service
-from dependencies import get_current_user, require_role
+from dependencies import get_current_user, require_role 
 
 router = APIRouter(prefix="/produtos", tags=["Produtos"])
 
-@router.post("", response_model=ProdutoResponse, status_code=status.HTTP_201_CREATED)
-def criar_produto(
+@router.post("/", response_model=ProdutoResponse, status_code=status.HTTP_201_CREATED)
+async def criar_produto(
     produto: ProdutoCreate,
     usuario_id: str = Depends(require_role(["ADMIN", "GESTOR"]))
 ):
-    """Cria um produto registrando o ID do usuário em criado_por. Restrito a ADMIN/GESTOR."""
-    return produto_service.criar_produto(produto, usuario_id)
+    return await produto_service.criar_produto(produto, usuario_id)
 
-@router.get("", response_model=List[ProdutoResponse])
-def listar_produtos(usuario_id: str = Depends(get_current_user)):
-    """Lista produtos ativos (ativo == true). Requer login, qualquer role."""
-    return produto_service.listar_produtos_ativos()
+@router.get("/", response_model=List[ProdutoResponse])
+async def listar_produtos(
+    termo: Optional[str] = None, 
+    ativo_only: bool = True,
+    usuario_id: str = Depends(get_current_user) # Qualquer logado pode ver
+):
+    """
+    Lista produtos. No frontend, passe ?ativo_only=false para ver o catálogo completo, 
+    incluindo itens inativos/zerados para orçamentos sob encomenda.
+    """
+    return await produto_service.buscar_produtos(termo, ativo_only)
 
 @router.get("/busca", response_model=List[ProdutoResponse])
-def buscar_produto_por_nome(termo: str, usuario_id: str = Depends(get_current_user)):
-    """Busca produtos ativos por nome (case insensitive). Requer login."""
-    return produto_service.buscar_produtos_por_termo(termo)
+async def buscar_produtos_autocomplete(
+    termo: Optional[str] = None,
+    ativo_only: bool = True,
+    usuario_id: str = Depends(get_current_user)
+):
+    """Rota usada pelo autocomplete no balcão de orçamentos."""
+    return await produto_service.buscar_produtos(termo, ativo_only)
 
 @router.get("/{produto_id}", response_model=ProdutoResponse)
-def buscar_produto(produto_id: UUID, usuario_id: str = Depends(get_current_user)):
-    """Busca produto por ID. Requer login, qualquer role."""
-    return produto_service.buscar_produto_ativo_por_id(produto_id)
+async def buscar_produto(
+    produto_id: UUID, 
+    usuario_id: str = Depends(get_current_user)
+):
+    produto = await produto_service.obter_produto_por_id(str(produto_id))
+    if not produto:
+        raise HTTPException(status_code=404, detail="Produto não encontrado")
+    return produto
 
 @router.put("/{produto_id}", response_model=ProdutoResponse)
-def atualizar_produto(
+async def atualizar_produto(
     produto_id: UUID,
     produto: ProdutoUpdate,
     usuario_id: str = Depends(require_role(["ADMIN", "GESTOR"]))
 ):
-    """Atualiza produto registrando o ID do usuário em atualizado_por. Restrito a ADMIN/GESTOR."""
-    return produto_service.atualizar_produto(produto_id, produto, usuario_id)
+    produto_atualizado = await produto_service.atualizar_produto(str(produto_id), produto, usuario_id)
+    if not produto_atualizado:
+        raise HTTPException(status_code=404, detail="Produto não encontrado ou erro ao atualizar")
+    return produto_atualizado
 
 @router.delete("/{produto_id}", response_model=ProdutoResponse)
-def deletar_produto(
+async def deletar_produto(
     produto_id: UUID,
     usuario_id: str = Depends(require_role(["ADMIN", "GESTOR"]))
 ):
-    """Deleção lógica: seta ativo = false e grava deletado_por. Restrito a ADMIN/GESTOR."""
-    return produto_service.deletar_produto_logicamente(produto_id, usuario_id)
+    return await produto_service.deletar_produto_logicamente(str(produto_id), usuario_id)
 
-@router.post("/{produto_id}/recebimento", response_model=RecebimentoResposta, status_code=status.HTTP_200_OK)
-@router.patch("/{produto_id}/recebimento", response_model=RecebimentoResposta, status_code=status.HTTP_200_OK)
-def registrar_recebimento_estoque(
+@router.post("/{produto_id}/recebimento", response_model=RecebimentoResposta)
+async def registrar_recebimento_estoque(
     produto_id: UUID,
     dados_recebimento: EstoqueRecebimento,
     usuario_id: str = Depends(require_role(["ADMIN", "GESTOR"]))
 ):
-    return produto_service.dar_entrada_estoque(produto_id, dados_recebimento, usuario_id)
+    return await produto_service.dar_entrada_estoque(str(produto_id), dados_recebimento, usuario_id)

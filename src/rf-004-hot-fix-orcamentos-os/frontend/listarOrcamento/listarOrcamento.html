@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Histórico de Orçamentos - ERP</title>
+
+    <link rel="stylesheet" href="../../../rf-002-catalogo-produtos/frontend/styles/global.css">
+    <link rel="stylesheet" href="../../../rf-002-catalogo-produtos/frontend/header/header.css">
+    <link rel="stylesheet" href="./listarOrcamento.css">
+</head>
+
+<body>
+    <div id="app-header"></div>
+
+    <main class="erp-container">
+
+        <div class="action-bar"
+            style="margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center;">
+            <h2>Histórico de Orçamentos</h2>
+            <a href="../../../rf-002-catalogo-produtos/frontend/ordemServico/ordemServico.html" class="btn-primary"
+                style="text-decoration: none;">+ Novo Orçamento</a>
+        </div>
+
+        <div class="table-container">
+
+            <div class="action-bar" style="padding: 1.5rem 1.5rem 1rem 1.5rem; margin-bottom: 0;">
+                <div class="filter-group">
+                    <button id="btnFiltroPendentes" class="btn-filter active">Apenas Pendentes</button>
+                    <button id="btnFiltroTodos" class="btn-filter">Mostrar Todos</button>
+                </div>
+            </div>
+
+            <table class="erp-table hover-blue">
+                <thead>
+                    <tr>
+                        <th width="15%">Data</th>
+                        <th width="15%">ID Orçamento</th>
+                        <th width="30%">Cliente</th>
+                        <th width="15%" class="text-right">Total (R$)</th>
+                        <th width="15%" class="text-center">Status</th>
+                        <th width="10%" class="text-center">Ações</th>
+                    </tr>
+                </thead>
+                <tbody id="tabelaOrcamentosBody">
+                    <tr>
+                        <td colspan="6" class="text-center" style="padding: 2rem; color: var(--color-text-muted);">
+                            Carregando orçamentos...
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    <script src="../../../rf-002-catalogo-produtos/frontend/scripts/env.js"></script>
+    <script type="module" src="./app.js"></script>
+</body>
+
+</html>

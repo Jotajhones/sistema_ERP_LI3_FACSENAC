@@ -1,95 +1,94 @@
 from uuid import UUID
-from typing import List
 from fastapi import HTTPException, status
-from repositories import produto_repository
-from schemas.produto_schema import (
-    ProdutoCreate,
-    ProdutoUpdate,
-    EstoqueRecebimento,
-    RecebimentoResposta
-)
+from urllib.parse import urlencode, quote
+from database import get_supabase_client
 
-def listar_produtos_ativos() -> List[dict]:
-    return produto_repository.get_produtos_ativos()
-
-def buscar_produto_ativo_por_id(produto_id: UUID) -> dict:
-    produto = produto_repository.get_produto_por_id(produto_id)
-    if not produto:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, 
-            detail="Produto não encontrado ou inativo."
-        )
-    return produto
-
-def criar_produto(produto: ProdutoCreate, usuario_id: str) -> dict:
-    payload = produto.model_dump()
-    payload["ativo"] = True
-    payload["criado_por"] = usuario_id
-
-    resultado = produto_repository.create_produto(payload)
-    if not resultado:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Erro ao cadastrar produto. Verifique se o SKU já está em uso."
-        )
-    return resultado
-
-def atualizar_produto(produto_id: UUID, produto: ProdutoUpdate, usuario_id: str) -> dict:
-    campos_alterados = produto.model_dump(exclude_unset=True)
-    if not campos_alterados:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, 
-            detail="Nenhum campo fornecido para atualização."
-        )
-
-    campos_alterados["atualizado_por"] = usuario_id
-
-    resultado = produto_repository.update_produto(produto_id, campos_alterados)
-    if not resultado:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, 
-            detail="Produto não encontrado para atualização."
-        )
-    return resultado
-
-def deletar_produto_logicamente(produto_id: UUID, usuario_id: str) -> dict:
-    payload = {
-        "ativo": False,
-        "deletado_por": usuario_id
-    }
-
-    resultado = produto_repository.update_produto(produto_id, payload)
-    if not resultado:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, 
-            detail="Produto não encontrado ou já inativado."
-        )
-    return resultado
-
-def buscar_produtos_por_termo(termo: str) -> List[dict]:
-    if not termo or len(termo.strip()) < 3:
-        return []
+async def criar_produto(produto_data, usuario_id: str):
+    data = produto_data.model_dump()
+    data["criado_por"] = usuario_id 
+    
+    headers = {"Prefer": "return=representation"}
+    
+    with get_supabase_client() as client:
+        resp = client.post("/rest/v1/produtos", json=data, headers=headers)
+        if resp.status_code not in (200, 201):
+            raise HTTPException(status_code=400, detail=f"Erro no banco: {resp.text}")
         
-    return produto_repository.search_produtos_fulltext(termo)
+        dados = resp.json()
+        return dados[0] if isinstance(dados, list) and dados else dados
 
-def dar_entrada_estoque(produto_id: UUID, dados_recebimento: EstoqueRecebimento, usuario_id: str) -> dict:
-    produto = produto_repository.get_produto_por_id(produto_id)
-    if not produto or not produto.get("ativo", True):
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Produto não encontrado ou inativo."
+async def buscar_produtos(termo: str = None, ativo_only: bool = True):
+    filtros = {"select": "*", "order": "nome.asc"}
+    
+    if ativo_only:
+        filtros["ativo"] = "eq.true"
+        
+    if termo:
+        termo_limpo = termo.strip()
+        filtros["or"] = f"(nome.ilike.*{termo_limpo}*,descricao.ilike.*{termo_limpo}*)"
+        
+    query = urlencode({str(k): str(v) for k, v in filtros.items()}, quote_via=quote, safe=".*()")
+    
+    with get_supabase_client() as client:
+        resp = client.get(f"/rest/v1/produtos?{query}")
+        if resp.status_code == 200:
+            return resp.json()
+        return []
+
+async def obter_produto_por_id(produto_id: str):
+    with get_supabase_client() as client:
+        resp = client.get("/rest/v1/produtos", params={"id": f"eq.{produto_id}"})
+        if resp.status_code == 200:
+            dados = resp.json()
+            return dados[0] if dados else None
+        return None
+
+async def atualizar_produto(produto_id: str, produto_data, usuario_id: str):
+    data = produto_data.model_dump(exclude_unset=True) 
+    if not data:
+        return await obter_produto_por_id(produto_id)
+        
+    data["atualizado_por"] = usuario_id 
+    headers = {"Prefer": "return=representation"}
+    
+    with get_supabase_client() as client:
+        resp = client.patch(
+            "/rest/v1/produtos", 
+            params={"id": f"eq.{produto_id}"}, 
+            json=data, 
+            headers=headers
         )
+        if resp.status_code in (200, 204):
+            dados = resp.json()
+            return dados[0] if isinstance(dados, list) and dados else dados
+        return None
+
+async def deletar_produto_logicamente(produto_id: str, usuario_id: str):
+
+    headers = {"Prefer": "return=representation"}
+    payload = {"ativo": False, "atualizado_por": usuario_id}
+    
+    with get_supabase_client() as client:
+        resp = client.patch("/rest/v1/produtos", params={"id": f"eq.{produto_id}"}, json=payload, headers=headers)
+        if resp.status_code in (200, 204):
+            dados = resp.json()
+            return dados[0] if isinstance(dados, list) and dados else dados
+        raise HTTPException(status_code=404, detail="Produto não encontrado")
+
+async def dar_entrada_estoque(produto_id: str, dados_recebimento, usuario_id: str):
+    produto = await obter_produto_por_id(produto_id)
+    if not produto:
+        raise HTTPException(status_code=404, detail="Produto não encontrado.")
 
     saldo_anterior = float(produto.get("quantidade_estoque") or 0.0)
     quantidade_recebida = float(dados_recebimento.quantidade_recebida)
     novo_saldo = round(saldo_anterior + quantidade_recebida, 3)
 
-    atualizado = produto_repository.registrar_entrada_estoque(produto_id, novo_saldo, usuario_id)
-    if not atualizado:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Erro ao atualizar o saldo de estoque do produto."
-        )
+    headers = {"Prefer": "return=representation"}
+    payload = {"quantidade_estoque": novo_saldo, "atualizado_por": usuario_id}
+    
+    with get_supabase_client() as client:
+        client.patch("/rest/v1/produtos", params={"id": f"eq.{produto_id}"}, json=payload, headers=headers)
 
     return {
         "mensagem": "Recebimento de lote registrado com sucesso",

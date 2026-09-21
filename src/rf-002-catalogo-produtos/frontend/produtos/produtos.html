@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Novo Produto - ERP</title>
+    <title>Catálogo de Produtos - ERP</title>
 
     <link rel="stylesheet" href="../styles/global.css">
     <link rel="stylesheet" href="../header/header.css">
@@ -17,61 +17,27 @@
     <div id="app-header"></div>
 
     <main class="erp-container">
-        <div class="form-container">
-            <h2 style="margin-bottom: 1.5rem;">Cadastrar Novo Produto</h2>
-
-            <form id="formProduto">
-                <div class="form-group">
-                    <label for="nome">Nome do Produto *</label>
-                    <input type="text" id="nome" class="form-control" placeholder="Ex: Cimento CP II">
-                    <div id="erroNome" class="error-message">O nome não pode estar vazio.</div>
-                </div>
-
-                <div style="display: flex; gap: 1rem;">
-                    <div class="form-group" style="flex: 1;">
-                        <label for="sku">Código SKU *</label>
-                        <input type="text" id="sku" class="form-control" placeholder="Ex: CIM-001">
-                    </div>
-
-                    <div class="form-group" style="flex: 1;">
-                        <label for="unidade_medida">Unidade de Medida *</label>
-                        <select id="unidade_medida" class="form-control">
-                            <option value="UN">Unidade (UN)</option>
-                            <option value="M3">Metro Cúbico (M³)</option>
-                            <option value="KG">Quilograma (KG)</option>
-                            <option value="SC">Saco (SC)</option>
-                            <option value="L">Litro (L)</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label for="valor_venda">Valor de Venda (R$) *</label>
-                    <input type="number" id="valor_venda" class="form-control" step="0.01" placeholder="0.00">
-                    <div id="erroValor" class="error-message">O valor não pode ser negativo.</div>
-                </div>
-
-                <div class="form-group">
-                    <label for="descricao">Descrição</label>
-                    <textarea id="descricao" class="form-control" rows="3"
-                        placeholder="Detalhes opcionais..."></textarea>
-                </div>
-
-                <div style="display: flex; gap: 10px; margin-top: 2rem;">
-                    <button type="button" id="btnCancelar" class="btn-submit"
-                        style="background-color: var(--color-text-muted);">Cancelar</button>
-                    <button type="submit" id="btnSalvar" class="btn-submit" data-role="admin-only" disabled>Salvar Produto</button>
-                </div>
-            </form>
+        
+        <div class="action-bar" style="margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center;">
+            <h2>Catálogo de Produtos</h2>
+            <button id="btnAbrirModalAdd" class="btn-primary" data-role="admin-only">+ Novo Produto</button>
         </div>
 
-        <div class="table-container" style="margin-top: 4rem;">
-            <div class="action-bar" style="padding: 1.5rem 1.5rem 0 1.5rem; margin-bottom: 0;">
-                <h3 style="color: var(--color-text-main);">Produtos Cadastrados</h3>
-                <input type="text" id="searchInput" class="erp-input" placeholder="Buscar por nome ou SKU...">
+        <div class="table-container">
+            <div class="action-bar" style="padding: 1.5rem 1.5rem 0 1.5rem; margin-bottom: 1rem; flex-direction: column; align-items: flex-start; gap: 1rem;">
+                <div style="display: flex; justify-content: space-between; width: 100%; align-items: center;">
+                    <h3 style="color: var(--color-text-main); margin: 0;">Produtos Cadastrados</h3>
+                    <input type="text" id="searchInput" class="erp-input" placeholder="Buscar por nome ou SKU..." style="width: 300px;">
+                </div>
+                
+                <div class="filter-group">
+                    <button id="btnFiltroAtivos" class="btn-filter active">Somente Ativos</button>
+                    <button id="btnFiltroTodos" class="btn-filter">Catálogo Completo (Inativos)</button>
+                    <button id="btnFiltroEstoqueBaixo" class="btn-filter warning">Raio-X: Estoque Baixo/Zerado</button>
+                </div>
             </div>
 
-            <table class="erp-table">
+            <table class="erp-table hover-blue">
                 <thead>
                     <tr>
                         <th width="15%">SKU</th>
@@ -85,11 +51,125 @@
                 </thead>
                 <tbody id="tabelaProdutosBody">
                     <tr>
-                        <td colspan="7" class="text-center" style="padding: 2rem; color: var(--color-text-muted);">
-                            Carregando produtos...</td>
+                        <td colspan="7" class="text-center" style="padding: 2rem; color: var(--color-text-muted);">Carregando produtos...</td>
                     </tr>
                 </tbody>
             </table>
+        </div>
+
+        <div id="modalAddProduto" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; justify-content: center; align-items: center;">
+            <div style="background: var(--color-surface); padding: 2rem; border-radius: var(--radius-lg); width: 600px; box-shadow: var(--shadow-lg);">
+                <h3 style="margin-bottom: 1.5rem; color: var(--color-text-main);">Cadastrar Novo Produto</h3>
+                
+                <form id="formProduto">
+                    <div class="form-group">
+                        <label for="nome">Nome do Produto *</label>
+                        <input type="text" id="nome" class="form-control" placeholder="Ex: Cimento CP II">
+                        <div id="erroNome" class="error-message">O nome não pode estar vazio.</div>
+                    </div>
+
+                    <div style="display: flex; gap: 1rem;">
+                        <div class="form-group" style="flex: 1;">
+                            <label for="sku">Código SKU *</label>
+                            <input type="text" id="sku" class="form-control" placeholder="Ex: CIM-001">
+                        </div>
+
+                        <div class="form-group" style="flex: 1;">
+                            <label for="unidade_medida">Unidade de Medida *</label>
+                            <select id="unidade_medida" class="form-control">
+                                <option value="UN">Unidade (UN)</option>
+                                <option value="M3">Metro Cúbico (M³)</option>
+                                <option value="KG">Quilograma (KG)</option>
+                                <option value="SC">Saco (SC)</option>
+                                <option value="L">Litro (L)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: 1rem;">
+                        <div class="form-group" style="flex: 1;">
+                            <label for="valor_venda">Valor de Venda (R$) *</label>
+                            <input type="number" id="valor_venda" class="form-control" step="0.01" placeholder="0.00">
+                            <div id="erroValor" class="error-message">O valor não pode ser negativo.</div>
+                        </div>
+
+                        <div class="form-group" style="flex: 1;">
+                            <label for="quantidade_estoque">Estoque Inicial</label>
+                            <input type="number" id="quantidade_estoque" class="form-control" value="0" min="0">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="descricao">Descrição</label>
+                        <textarea id="descricao" class="form-control" rows="3" placeholder="Detalhes opcionais..."></textarea>
+                    </div>
+
+                    <div style="display: flex; gap: 10px; margin-top: 2rem;">
+                        <button type="button" id="btnCancelarAdd" class="btn-submit" style="background-color: var(--color-text-muted); flex: 1;">Cancelar</button>
+                        <button type="submit" id="btnSalvar" class="btn-submit" style="flex: 1;" disabled>Salvar Produto</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div id="modalEditarProduto" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; justify-content: center; align-items: center;">
+            <div style="background: var(--color-surface); padding: 2rem; border-radius: var(--radius-lg); width: 600px; box-shadow: var(--shadow-lg);">
+                <h3 style="margin-bottom: 1.5rem; color: var(--color-text-main);">Editar Produto</h3>
+                
+                <form id="formEditarProduto">
+                    <input type="hidden" id="edit_id">
+                    
+                    <div class="form-group">
+                        <label for="edit_nome">Nome do Produto *</label>
+                        <input type="text" id="edit_nome" class="form-control" required>
+                    </div>
+
+                    <div style="display: flex; gap: 1rem;">
+                        <div class="form-group" style="flex: 1;">
+                            <label for="edit_sku">Código SKU *</label>
+                            <input type="text" id="edit_sku" class="form-control" required>
+                        </div>
+
+                        <div class="form-group" style="flex: 1;">
+                            <label for="edit_unidade_medida">Unidade de Medida *</label>
+                            <select id="edit_unidade_medida" class="form-control" required>
+                                <option value="UN">Unidade (UN)</option>
+                                <option value="M3">Metro Cúbico (M³)</option>
+                                <option value="KG">Quilograma (KG)</option>
+                                <option value="SC">Saco (SC)</option>
+                                <option value="L">Litro (L)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: 1rem;">
+                        <div class="form-group" style="flex: 1;">
+                            <label for="edit_valor_venda">Valor de Venda (R$) *</label>
+                            <input type="number" id="edit_valor_venda" class="form-control" step="0.01" min="0" required>
+                        </div>
+
+                        <div class="form-group" style="flex: 1;">
+                            <label for="edit_quantidade_estoque">Estoque Atual</label>
+                            <input type="number" id="edit_quantidade_estoque" class="form-control" min="0" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="edit_descricao">Descrição</label>
+                        <textarea id="edit_descricao" class="form-control" rows="3"></textarea>
+                    </div>
+                    
+                    <div class="form-group" style="display: flex; align-items: center; gap: 10px;">
+                        <input type="checkbox" id="edit_ativo" style="width: 18px; height: 18px;">
+                        <label for="edit_ativo" style="margin: 0; cursor: pointer;">Produto Ativo no Catálogo</label>
+                    </div>
+
+                    <div style="display: flex; gap: 10px; margin-top: 2rem;">
+                        <button type="button" id="btnCancelarEdicao" class="btn-submit" style="background-color: var(--color-text-muted); flex: 1;">Cancelar</button>
+                        <button type="submit" id="btnSalvarEdicao" class="btn-submit" style="flex: 1;">Salvar Alterações</button>
+                    </div>
+                </form>
+            </div>
         </div>
     </main>
 
