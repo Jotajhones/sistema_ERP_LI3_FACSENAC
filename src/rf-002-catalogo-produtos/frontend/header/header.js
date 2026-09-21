@@ -14,12 +14,19 @@ export function renderHeader(activeRoute = 'produtos') {
             </div>
             
             <nav class="erp-header-nav">
-                <a href="../../frontend/ordemServico/ordemServico.html" class="erp-nav-link ${activeRoute === 'ordemServico' ? 'active' : ''}">
-                    Orçamento
+
+                <a href="../../../rf-002-catalogo-produtos/frontend/ordemServico/ordemServico.html" class="erp-nav-link ${activeRoute === 'ordemServico' ? 'active' : ''}">
+                    Novo Orçamento
                 </a>
-                <a href="../../frontend/produtos/produtos.html" class="erp-nav-link ${activeRoute === 'produtos' ? 'active' : ''}">
+                
+                <a href="../../../rf-004-hot-fix-orcamentos-os/frontend/listarOrcamento/listarOrcamento.html" class="erp-nav-link ${activeRoute === 'listarOrcamento' ? 'active' : ''}">
+                    Histórico
+                </a>
+
+                <a href="../../../rf-002-catalogo-produtos/frontend/produtos/produtos.html" class="erp-nav-link ${activeRoute === 'produtos' ? 'active' : ''}">
                     Produtos
                 </a>
+
             </nav>
 
             <div class="erp-header-user">

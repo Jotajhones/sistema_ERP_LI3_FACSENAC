@@ -1,20 +1,33 @@
 import { erpFetch } from "../../../rf-002-catalogo-produtos/frontend/scripts/authInterceptor.js";
-let carrinho = [];
+import { getCarrinho, setCarrinho, adicionarAoCarrinho, renderizarCarrinho, formatarMoeda } from "./carrinhoService.js";
+import { buscarClienteAPI } from "./clienteService.js";
+import { initModalFaturamento } from "./faturamentoService.js";
+
 let buscaTimeout = null;
+let orcamentoAtualId = null; 
 
 export function initOrcamento() {
+    configurarEventosBasicos();
+    initModalFaturamento(() => orcamentoAtualId);
+    
+    const urlParams = new URLSearchParams(window.location.search);
+    const idParam = urlParams.get('id');
+    if (idParam) carregarOrcamentoExistente(idParam);
+}
+
+function configurarEventosBasicos() {
     const btnBuscar = document.getElementById('btnBuscarCpf');
     const inputCpf = document.getElementById('cpfCliente');
     const form = document.getElementById('formOrcamento');
     const inputBuscaProduto = document.getElementById('inputBuscaProduto');
 
-    if (btnBuscar) btnBuscar.addEventListener('click', buscarCliente);
+    if (btnBuscar) btnBuscar.addEventListener('click', () => buscarClienteAPI(inputCpf.value));
 
     if (inputCpf) {
         inputCpf.addEventListener('input', (e) => {
             let val = e.target.value.replace(/\D/g, '');
             e.target.value = val;
-            if (val.length === 11) buscarCliente();
+            if (val.length === 11) buscarClienteAPI(val);
         });
     }
 
@@ -22,13 +35,11 @@ export function initOrcamento() {
         inputBuscaProduto.addEventListener('input', (e) => {
             clearTimeout(buscaTimeout);
             const termo = e.target.value.trim();
-            
             if (termo.length < 3) {
                 document.getElementById('dropdownResultados').style.display = 'none';
                 return;
             }
-
-            buscaTimeout = setTimeout(() => pesquisarProdutos(termo), 400);
+            buscaTimeout = setTimeout(() => pesquisarProdutosAjax(termo), 400);
         });
 
         document.addEventListener('click', (e) => {
@@ -38,19 +49,18 @@ export function initOrcamento() {
         });
     }
 
-    if (form) form.addEventListener('submit', salvarOrcamento);
+    if (form) form.addEventListener('submit', salvarOrcamentoAjax);
 }
 
-async function pesquisarProdutos(termo) {
+async function pesquisarProdutosAjax(termo) {
     const dropdown = document.getElementById('dropdownResultados');
-    
     try {
         const response = await erpFetch(`/produtos/busca?termo=${encodeURIComponent(termo)}`);
         if (!response.ok) throw new Error('Erro na busca');
         
         const produtos = await response.json();
-        
         dropdown.innerHTML = '';
+        
         if (produtos.length === 0) {
             dropdown.innerHTML = '<div class="search-item" style="color: var(--color-text-muted);">Nenhum produto encontrado.</div>';
         } else {
@@ -75,142 +85,11 @@ async function pesquisarProdutos(termo) {
     }
 }
 
-function adicionarAoCarrinho(produto) {
-    const existente = carrinho.find(item => item.id === produto.id);
-    
-    if (existente) {
-        existente.quantidade += 1;
-    } else {
-        carrinho.push({
-            id: produto.id,
-            nome: produto.nome,
-            valor_venda: produto.valor_venda,
-            quantidade: 1
-        });
-    }
-    
-    document.getElementById('inputBuscaProduto').value = '';
-    document.getElementById('dropdownResultados').style.display = 'none';
-    renderizarCarrinho();
-}
-
-function renderizarCarrinho() {
-    const tbody = document.getElementById('carrinhoBody');
-    const totalEl = document.getElementById('totalOrcamento');
-    let total = 0;
-
-    tbody.innerHTML = '';
-
-    if (carrinho.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="5" class="text-center" style="padding: 2rem; color: var(--color-text-muted);">Nenhum produto adicionado.</td></tr>';
-        totalEl.textContent = 'R$ 0,00';
-        return;
-    }
-
-    carrinho.forEach((item, index) => {
-        const subtotal = item.quantidade * item.valor_venda;
-        total += subtotal;
-
-        const row = document.createElement('tr');
-        row.innerHTML = `
-            <td>${item.nome}</td>
-            <td class="text-center">
-                <input type="number" min="1" class="input-qtd" value="${item.quantidade}" data-index="${index}">
-            </td>
-            <td class="text-right">${formatarMoeda(item.valor_venda)}</td>
-            <td class="text-right" style="font-weight: 500;">${formatarMoeda(subtotal)}</td>
-            <td class="text-center">
-                <button type="button" class="btn-remove" data-index="${index}" title="Remover">🗑️</button>
-            </td>
-        `;
-        tbody.appendChild(row);
-    });
-
-    totalEl.textContent = formatarMoeda(total);
-
-    document.querySelectorAll('.input-qtd').forEach(input => {
-        input.addEventListener('change', (e) => {
-            const idx = e.target.dataset.index;
-            let val = parseInt(e.target.value);
-            if (val < 1 || isNaN(val)) val = 1;
-            carrinho[idx].quantidade = val;
-            renderizarCarrinho();
-        });
-    });
-
-    document.querySelectorAll('.btn-remove').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            const idx = e.currentTarget.dataset.index;
-            carrinho.splice(idx, 1);
-            renderizarCarrinho();
-        });
-    });
-}
-
-function formatarMoeda(valor) {
-    return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(valor);
-}
-
-
-async function buscarCliente() {
-    const inputCpf = document.getElementById('cpfCliente');
-    const inputNome = document.getElementById('nomeCliente');
-    const inputId = document.getElementById('clienteId');
-    const feedback = document.getElementById('cpfFeedback');
-    
-    const cpf = inputCpf.value;
-
-    if (!cpf) {
-        inputNome.value = '';
-        inputNome.disabled = true;
-        inputNome.placeholder = "Informe o CPF ou deixe em branco para orçamento anônimo";
-        inputId.value = '';
-        feedback.textContent = '';
-        return;
-    }
-
-    if (cpf.length !== 11) {
-        feedback.textContent = 'CPF Inválido. Deve conter 11 dígitos numéricos.';
-        feedback.style.color = 'var(--color-error)';
-        inputNome.disabled = true;
-        return;
-    }
-
-    feedback.textContent = 'Buscando cliente...';
-    feedback.style.color = 'var(--color-text-muted)';
-
-    try {
-        const response = await erpFetch(`/pessoas/${cpf}`);
-        
-        if (response.status === 404) {
-            feedback.textContent = 'Cliente novo detectado. Preencha o nome.';
-            feedback.style.color = 'var(--color-primary)';
-            inputNome.value = '';
-            inputNome.disabled = false;
-            inputNome.placeholder = "Digite o nome do cliente";
-            inputNome.focus();
-            inputId.value = '';
-        } else if (response.ok) {
-            const cliente = await response.json();
-            feedback.textContent = 'Cliente encontrado!';
-            feedback.style.color = 'var(--color-success)';
-            inputNome.value = cliente.nome;
-            inputNome.disabled = true;
-            inputId.value = cliente.id;
-        } else {
-            feedback.textContent = 'Erro ao consultar CPF.';
-            feedback.style.color = 'var(--color-error)';
-        }
-    } catch (error) {
-        feedback.textContent = 'Falha de comunicação com o servidor.';
-        feedback.style.color = 'var(--color-error)';
-    }
-}
-
-async function salvarOrcamento(e) {
+async function salvarOrcamentoAjax(e) {
     e.preventDefault();
+    const carrinhoAtual = getCarrinho();
     
-    if (carrinho.length === 0) {
+    if (carrinhoAtual.length === 0) {
         alert("Adicione ao menos um produto para gerar o orçamento.");
         return;
     }
@@ -220,25 +99,21 @@ async function salvarOrcamento(e) {
     const inputId = document.getElementById('clienteId');
     const btnSalvar = document.getElementById('btnSalvarOrcamento');
     
-    const cpf = inputCpf.value;
-    const nome = inputNome.value.trim();
     let clienteId = inputId.value;
-
     btnSalvar.disabled = true;
     btnSalvar.textContent = "Processando...";
 
     try {
-        if (cpf && cpf.length === 11 && !clienteId) {
-            if (!nome) {
+        if (inputCpf.value && inputCpf.value.length === 11 && !clienteId) {
+            if (!inputNome.value.trim()) {
                 alert("O nome do cliente é obrigatório para um novo cadastro.");
                 btnSalvar.disabled = false;
                 btnSalvar.textContent = "Salvar Orçamento";
                 return;
             }
-            
             const resPessoa = await erpFetch('/pessoas', {
                 method: 'POST',
-                body: JSON.stringify({ cpf, nome })
+                body: JSON.stringify({ cpf: inputCpf.value, nome: inputNome.value.trim() })
             });
             
             if (resPessoa.ok) {
@@ -247,40 +122,109 @@ async function salvarOrcamento(e) {
                 inputId.value = clienteId; 
             } else {
                 const err = await resPessoa.json();
-                alert(`Erro ao cadastrar cliente silenciosamente: ${err.detail || 'Dados inválidos'}`);
-                btnSalvar.disabled = false;
-                btnSalvar.textContent = "Salvar Orçamento";
-                return;
+                throw new Error(`Erro ao cadastrar cliente: ${err.detail || 'Dados inválidos'}`);
             }
         }
 
         const orcamentoPayload = {
             cliente_id: clienteId || null,
-            itens: carrinho.map(item => ({
+            nome_cliente: inputNome.value.trim() || "Consumidor Final",
+            cpf_cliente: inputCpf.value || null,
+            itens: carrinhoAtual.map(item => ({
                 produto_id: item.id,
-                quantidade: item.quantidade
+                nome: item.nome,
+                quantidade: item.quantidade,
+                preco_unitario: item.valor_venda 
             }))
         };
 
-        // Simulação do envio (será ativado quando a API de OS for desenvolvida)
-        // const resOrcamento = await erpFetch('/orcamentos', { method: 'POST', body: JSON.stringify(orcamentoPayload) });
+        const resOrcamento = await erpFetch('/orcamentos', { 
+            method: 'POST', 
+            body: JSON.stringify(orcamentoPayload) 
+        });
         
-        console.log("Payload pronto para envio:", orcamentoPayload);
-        alert(`Orçamento gerado com sucesso! ${clienteId ? '(Vinculado)' : '(Anônimo)'}`);
+        if (!resOrcamento.ok) {
+            const err = await resOrcamento.json();
+            let msgErro = "Falha ao salvar orçamento.";
+            if (Array.isArray(err.detail)) {
+                msgErro = err.detail.map(e => `Erro no campo '${e.loc[e.loc.length - 1]}': ${e.msg}`).join('\n');
+            } else if (err.detail) {
+                msgErro = err.detail;
+            }
+            throw new Error(msgErro);
+        }
         
-        // Reset completo
-        e.target.reset();
-        inputId.value = '';
-        inputNome.disabled = true;
-        inputNome.placeholder = "Informe o CPF ou deixe em branco para orçamento anônimo";
-        document.getElementById('cpfFeedback').textContent = '';
-        carrinho = [];
-        renderizarCarrinho();
+        const orcamentoSalvo = await resOrcamento.json();
+        orcamentoAtualId = orcamentoSalvo.id;
+
+        alert(`Orçamento #${orcamentoAtualId.split('-')[0]} gerado com sucesso!`);
+        travarTelaParaFaturamento();
 
     } catch (error) {
-        alert("Falha de rede ao tentar processar o orçamento.");
-    } finally {
+        alert(`❌ ERRO:\n\n${error.message}`);
         btnSalvar.disabled = false;
         btnSalvar.textContent = "Salvar Orçamento";
     }
+}
+
+async function carregarOrcamentoExistente(id) {
+    try {
+        const res = await erpFetch(`/orcamentos/${id}`);
+        if (!res.ok) throw new Error("Orçamento não encontrado.");
+        
+        const orcamento = await res.json();
+        orcamentoAtualId = orcamento.id;
+
+        if (orcamento.cliente_id) {
+            document.getElementById('clienteId').value = orcamento.cliente_id;
+        }
+
+        if (orcamento.cpf_cliente) {
+            document.getElementById('cpfCliente').value = orcamento.cpf_cliente;
+            
+            if (!document.getElementById('clienteId').value) {
+                try {
+                    const cleanCpf = orcamento.cpf_cliente.replace(/\D/g, '');
+                    const resCli = await erpFetch(`/pessoas/cpf/${cleanCpf}`);
+                    if (resCli.ok) {
+                        const cliente = await resCli.json();
+                        document.getElementById('clienteId').value = cliente.id;
+                    }
+                } catch (e) {
+                    console.warn("Não foi possível sincronizar o cliente pelo CPF", e);
+                }
+            }
+        }
+        
+        document.getElementById('nomeCliente').value = orcamento.nome_cliente || "Consumidor Final";
+        
+        setCarrinho(orcamento.itens.map(item => ({
+            id: item.produto_id,
+            nome: item.nome || "Produto Cadastrado", 
+            quantidade: item.quantidade,
+            valor_venda: item.preco_unitario
+        })));
+        renderizarCarrinho();
+
+        travarTelaParaFaturamento(orcamento.status);
+
+    } catch (error) {
+        alert("Não foi possível carregar o orçamento. Ele pode não existir mais.");
+        window.location.href = window.location.pathname; 
+    }
+}
+
+function travarTelaParaFaturamento(status = 'PENDENTE') {
+    document.getElementById('containerSalvar').style.display = 'none';
+    document.getElementById('controlesFaturamento').style.display = 'flex';
+    
+    if (status === 'CONVERTIDO') {
+        document.getElementById('orcamentoIdDisplay').textContent = `Orçamento #${orcamentoAtualId.split('-')[0]} (FATURADO)`;
+        document.getElementById('orcamentoIdDisplay').style.color = 'var(--color-success)';
+        document.getElementById('btnFaturarOS').style.display = 'none';
+    } else {
+        document.getElementById('orcamentoIdDisplay').textContent = `Orçamento #${orcamentoAtualId.split('-')[0]}`;
+    }
+    
+    document.querySelectorAll('.input-qtd, .btn-remove, #inputBuscaProduto, #cpfCliente').forEach(el => el.disabled = true);
 }
