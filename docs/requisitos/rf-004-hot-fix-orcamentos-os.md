@@ -11,7 +11,7 @@
 **Complexidade:** ALTA (Envolve transações ACID, Bulk Inserts e RBAC avançado)  
 **Status:** BACKEND CONCLUÍDO (Aguardando plugar Frontend)  
 **Data de Criação:** 19/09/2026  
-**Última Atualização:** 19/09/2026  
+**Última Atualização:** 21/09/2026  
 
 **Breve Descrição:**
 Implementação definitiva da camada de persistência para Orçamentos e Ordens de Serviço (OS). O módulo transfere a responsabilidade matemática e de controle de estoque para o servidor, permitindo vendas a clientes não cadastrados (balcão), conversão rastreável de orçamentos em vendas definitivas, e blindagem estrita de acesso a dados (Anti-IDOR) na atualização de cadastros.
