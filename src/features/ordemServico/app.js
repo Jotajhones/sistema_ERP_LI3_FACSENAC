@@ -1,4 +1,4 @@
-import { initOrcamento } from "./ordemServico.js";
+import { initOrcamento } from "./services/ordemServico.js";
 import { aplicarControleDeAcesso } from "../../scripts/rbac.js";
 import { renderHeader } from "../header/header.js";
 

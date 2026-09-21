@@ -22,6 +22,7 @@ Nesta branch, a raiz do repositório foi totalmente reestruturada para conter ex
 └── src
     ├── features
     │   ├── header              <-- Componente compartilhado de navegação
+    |   |── listarOrcamento     <-- Listagem de orcamentos, E orcamentos convertidos em vendas
     │   ├── login               <-- Lógica e controladores de acesso
     │   ├── ordemServico        <-- Listagem, listagem de estoque e operações do catálogo
     │   └── produtos            <-- Formulários de cadastro e validação de itens

@@ -1,21 +1,36 @@
-import { erpFetch } from "../../scripts/authInterceptor.js";
+import { erpFetch } from "../../../scripts/authInterceptor.js";
 
-let form, inputNome, inputSku, inputValor, inputUnidade, inputDescricao, btnSalvar, erroNome, erroValor, btnCancelar;
+let modalAdd, btnAbrirModalAdd, btnCancelarAdd;
+let form, inputNome, inputSku, inputValor, inputUnidade, inputQuantidade, inputDescricao, btnSalvar, erroNome, erroValor;
 
 export function initFormProduto() {
+    modalAdd = document.getElementById('modalAddProduto');
+    btnAbrirModalAdd = document.getElementById('btnAbrirModalAdd');
+    btnCancelarAdd = document.getElementById('btnCancelarAdd');
+    
     form = document.getElementById('formProduto');
     inputNome = document.getElementById('nome');
     inputSku = document.getElementById('sku');
     inputValor = document.getElementById('valor_venda');
     inputUnidade = document.getElementById('unidade_medida');
+    inputQuantidade = document.getElementById('quantidade_estoque');
     inputDescricao = document.getElementById('descricao');
     btnSalvar = document.getElementById('btnSalvar');
 
     erroNome = document.getElementById('erroNome');
     erroValor = document.getElementById('erroValor');
-    btnCancelar = document.getElementById('btnCancelar');
 
     if (!form) return;
+
+    btnAbrirModalAdd.addEventListener('click', () => {
+        modalAdd.style.display = 'flex';
+    });
+
+    btnCancelarAdd.addEventListener('click', () => {
+        modalAdd.style.display = 'none';
+        form.reset();
+        validarFormulario(false);
+    });
 
     inputNome.addEventListener('input', () => validarFormulario(false));
     inputValor.addEventListener('input', () => validarFormulario(false));
@@ -31,12 +46,6 @@ export function initFormProduto() {
     });
 
     form.addEventListener('submit', addProduto);
-
-    if (btnCancelar) {
-        btnCancelar.addEventListener('click', () => {
-            window.location.href = '../dashboard/dashboard.html';
-        });
-    }
 }
 
 export function validarFormulario(mostrarErros = false) {
@@ -69,7 +78,7 @@ export async function addProduto(e) {
         sku: inputSku.value.trim(),
         valor_venda: parseFloat(inputValor.value),
         unidade_medida: inputUnidade.value,
-        quantidade_estoque: 0, 
+        quantidade_estoque: parseInt(inputQuantidade.value) || 0, 
         descricao: inputDescricao.value.trim() || null
     };
 

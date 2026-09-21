@@ -18,6 +18,11 @@ export function renderHeader(activeRoute = 'produtos') {
                 <a href="../ordemServico/ordemServico.html" class="erp-nav-link ${activeRoute === 'ordemServico' ? 'active' : ''}">
                     Orçamento
                 </a>
+
+                <a href="../listarOrcamento/listarOrcamento.html" class="erp-nav-link ${activeRoute === 'listarOrcamento' ? 'active' : ''}">
+                    Histórico
+                </a>
+
                 <a href="../produtos/produtos.html" class="erp-nav-link ${activeRoute === 'produtos' ? 'active' : ''}">
                     Produtos
                 </a>

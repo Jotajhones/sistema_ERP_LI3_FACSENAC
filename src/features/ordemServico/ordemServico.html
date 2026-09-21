@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,6 +9,7 @@
     <link rel="stylesheet" href="../header/header.css">
     <link rel="stylesheet" href="./ordemServico.css">
 </head>
+
 <body>
     <div id="app-header"></div>
 
@@ -19,7 +21,7 @@
         <div class="form-container">
             <form id="formOrcamento">
                 <input type="hidden" id="clienteId" name="clienteId">
-                
+
                 <div class="form-group">
                     <label for="cpfCliente">CPF do Cliente (Opcional):</label>
                     <div class="input-group">
@@ -31,14 +33,17 @@
 
                 <div class="form-group">
                     <label for="nomeCliente">Nome do Cliente:</label>
-                    <input type="text" id="nomeCliente" class="erp-input" placeholder="Informe o CPF ou deixe em branco para orçamento anônimo" disabled>
+                    <input type="text" id="nomeCliente" class="erp-input"
+                        placeholder="Informe o CPF ou deixe em branco para orçamento anônimo" disabled>
                 </div>
 
                 <div class="form-group">
-                    <h3 style="margin-top: 1rem; margin-bottom: 0.5rem; color: var(--color-text-dark);">Adicionar Produtos</h3>
-                    
+                    <h3 style="margin-top: 1rem; margin-bottom: 0.5rem; color: var(--color-text-dark);">Adicionar
+                        Produtos</h3>
+
                     <div class="input-group" style="position: relative;">
-                        <input type="text" id="inputBuscaProduto" class="erp-input" placeholder="Buscar produto por nome ou SKU (mín. 3 letras)..." autocomplete="off">
+                        <input type="text" id="inputBuscaProduto" class="erp-input"
+                            placeholder="Buscar produto por nome ou SKU (mín. 3 letras)..." autocomplete="off">
                         <div id="dropdownResultados" class="search-dropdown"></div>
                     </div>
 
@@ -54,12 +59,19 @@
                                 </tr>
                             </thead>
                             <tbody id="carrinhoBody">
-                                <tr><td colspan="5" class="text-center" style="padding: 2rem; color: var(--color-text-muted);">Nenhum produto adicionado.</td></tr>
+                                <tr>
+                                    <td colspan="5" class="text-center"
+                                        style="padding: 2rem; color: var(--color-text-muted);">Nenhum produto
+                                        adicionado.</td>
+                                </tr>
                             </tbody>
                             <tfoot>
                                 <tr style="background-color: var(--color-bg-app);">
-                                    <td colspan="3" class="text-right" style="font-weight: 600; padding: 1rem;">Total do Orçamento:</td>
-                                    <td class="text-right" id="totalOrcamento" style="font-weight: 700; font-size: 1.2rem; color: var(--color-primary); padding: 1rem;">R$ 0,00</td>
+                                    <td colspan="3" class="text-right" style="font-weight: 600; padding: 1rem;">Total do
+                                        Orçamento:</td>
+                                    <td class="text-right" id="totalOrcamento"
+                                        style="font-weight: 700; font-size: 1.2rem; color: var(--color-primary); padding: 1rem;">
+                                        R$ 0,00</td>
                                     <td></td>
                                 </tr>
                             </tfoot>
@@ -67,14 +79,105 @@
                     </div>
                 </div>
 
-                <div class="action-controls" style="margin-top: 1.5rem; justify-content: flex-end;">
+                <div class="action-controls" style="margin-top: 1.5rem; justify-content: flex-end;"
+                    id="containerSalvar">
                     <button type="submit" class="btn-primary" id="btnSalvarOrcamento">Salvar Orçamento</button>
+                </div>
+
+                <div id="controlesFaturamento" class="action-controls"
+                    style="margin-top: 1.5rem; justify-content: flex-end; display: none; gap: 10px;">
+                    <span id="orcamentoIdDisplay"
+                        style="align-self: center; font-weight: bold; color: var(--color-primary-dark); margin-right: auto;"></span>
+                    <button type="button" class="btn-secondary" id="btnNovoOrcamento">Novo Orçamento</button>
+                    <button type="button" class="btn-primary" id="btnFaturarOS"
+                        style="background-color: var(--color-success);">Faturar (Gerar OS)</button>
                 </div>
             </form>
         </div>
+
+        <style>
+            #modalFaturamento .erp-input {
+                min-width: 0;
+                width: 100%;
+            }
+        </style>
+        <div id="modalFaturamento"
+            style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; justify-content: center; align-items: center;">
+            <div
+                style="background: var(--color-surface); padding: 2rem; border-radius: var(--radius-lg); width: 650px; box-shadow: var(--shadow-lg);">
+                <h3 style="margin-bottom: 1.5rem; color: var(--color-text-main);">Finalizar Venda (OS)</h3>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div class="form-group">
+                        <label for="tipoPagamento">Forma de Pagamento *</label>
+                        <select id="tipoPagamento" class="erp-input">
+                            <option value="PIX">PIX</option>
+                            <option value="DINHEIRO">Dinheiro</option>
+                            <option value="CARTAO_CREDITO">Cartão de Crédito</option>
+                            <option value="CARTAO_DEBITO">Cartão de Débito</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="valorDesconto">Desconto (R$)</label>
+                        <input type="number" id="valorDesconto" class="erp-input" value="0.00" min="0" step="0.01">
+                    </div>
+                </div>
+
+                <hr style="margin: 1rem 0; border: 0; border-top: 1px solid var(--color-border);">
+
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <h4 style="color: var(--color-text-main); margin: 0;">Endereço de Entrega</h4>
+                    <span id="avisoEndereco"
+                        style="font-size: 0.75rem; color: var(--color-warning); display: none;">Requer cliente
+                        cadastrado</span>
+                </div>
+
+                <fieldset id="formEnderecoEntrega" style="border: none; padding: 0; margin: 0;">
+                    <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 10px; margin-bottom: 10px;">
+                        <div>
+                            <label style="font-size: 0.8rem;">CEP</label>
+                            <input type="text" id="cepEntrega" class="erp-input" maxlength="9" placeholder="00000-000">
+                        </div>
+                        <div>
+                            <label style="font-size: 0.8rem;">Logradouro</label>
+                            <input type="text" id="logradouroEntrega" class="erp-input"
+                                placeholder="Rua, Av, Quadra...">
+                        </div>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1.5fr 1.5fr 0.5fr; gap: 10px;">
+                        <div>
+                            <label style="font-size: 0.8rem;">Número</label>
+                            <input type="text" id="numeroEntrega" class="erp-input" placeholder="Ex: S/N">
+                        </div>
+                        <div>
+                            <label style="font-size: 0.8rem;">Bairro</label>
+                            <input type="text" id="bairroEntrega" class="erp-input">
+                        </div>
+                        <div>
+                            <label style="font-size: 0.8rem;">Cidade</label>
+                            <input type="text" id="cidadeEntrega" class="erp-input">
+                        </div>
+                        <div>
+                            <label style="font-size: 0.8rem;">UF</label>
+                            <input type="text" id="ufEntrega" class="erp-input" maxlength="2" placeholder="DF">
+                        </div>
+                    </div>
+                </fieldset>
+
+                <div style="display: flex; gap: 10px; margin-top: 2rem;">
+                    <button type="button" id="btnCancelarFaturamento" class="btn-secondary"
+                        style="flex: 1;">Cancelar</button>
+                    <button type="button" id="btnConfirmarFaturamento" class="btn-primary"
+                        style="flex: 1; background-color: var(--color-success);">Confirmar Venda</button>
+                </div>
+            </div>
+        </div>
+
     </main>
 
     <script src="../../scripts/env.js"></script>
     <script type="module" src="./app.js"></script>
 </body>
+
 </html>
