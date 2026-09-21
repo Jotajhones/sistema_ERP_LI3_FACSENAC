@@ -2,6 +2,7 @@ import re
 from fastapi import HTTPException, status
 from schemas.pessoas_schemas import PessoaCreate, PessoaResponse, PessoaUpdate
 from repositories import pessoas_repository
+from repositories.auth_repository import obter_usuario_por_id
 
 async def cadastrar_pessoa(payload: PessoaCreate):
     clean_cpf = re.sub(r"\D", "", payload.cpf) if payload.cpf else None
@@ -60,17 +61,24 @@ async def buscar_pessoa_por_cpf_service(cpf: str):
         raise HTTPException(status_code=404, detail="Cliente não encontrado.")
     return pessoa
 
-async def atualizar_pessoa_segura(pessoa_id: str, payload: PessoaUpdate, usuario_logado: dict):
+async def atualizar_pessoa_segura(pessoa_id: str, payload: PessoaUpdate, usuario_id: str):
 
     alvo = pessoas_repository.get_pessoa_by_id(pessoa_id)
     if not alvo:
         raise HTTPException(status_code=404, detail="Cliente não encontrado.")
 
     alvo_user_id = alvo.get("user_id")
+    
     if alvo_user_id:
-        is_owner = str(alvo_user_id) == str(usuario_logado["id"])
-        is_admin_or_gestor = usuario_logado.get("role") in ["ADMIN", "GESTOR"]
+
+        user_completo = obter_usuario_por_id(usuario_id)
+        role_logado = user_completo.get("user_role") if user_completo else ""
+
+        is_owner = str(alvo_user_id) == str(usuario_id)
+        is_admin_or_gestor = role_logado in ["ADMIN", "GESTOR"]
+        
         if not is_owner and not is_admin_or_gestor:
+
             raise HTTPException(
                 status_code=403, 
                 detail="Acesso Negado: Vendedores só podem alterar dados de Clientes."
@@ -80,19 +88,16 @@ async def atualizar_pessoa_segura(pessoa_id: str, payload: PessoaUpdate, usuario
     if payload.nome: 
         pessoa_data["nome"] = payload.nome.strip()
     if payload.telefone: 
-        pessoa_data["telefone"] = re.sub(r"\D", "", payload.telefone) #
+        pessoa_data["telefone"] = re.sub(r"\D", "", payload.telefone)
 
     try:
-        
         if pessoa_data:
             pessoas_repository.update_pessoa(pessoa_id, pessoa_data)
         
-       
         if payload.endereco:
             endereco_data = payload.endereco.model_dump(exclude_unset=True)
             if endereco_data:
                 endereco_data["pessoa_id"] = pessoa_id
-                
                 pessoas_repository.upsert_endereco(pessoa_id, endereco_data)
                 
         return pessoas_repository.get_pessoa_by_id(pessoa_id)

@@ -30,7 +30,7 @@ async def buscar_pessoa_por_cpf(cpf: str, usuario_id: str = Depends(get_current_
 async def atualizar_pessoa(
     pessoa_id: str,
     payload: PessoaUpdate,
-    usuario_logado: dict = Depends(get_current_user)
+    usuario_id: str = Depends(get_current_user)
 ):
     """Atualiza os dados comerciais e de endereço de um cliente de balcão."""
     return await service.atualizar_pessoa_segura(pessoa_id, payload, usuario_logado)
