@@ -11,7 +11,7 @@
 **Complexidade:** ALTA (Envolve transações ACID, Bulk Inserts e RBAC avançado)  
 **Status:** BACKEND CONCLUÍDO (Aguardando plugar Frontend)  
 **Data de Criação:** 19/09/2026  
-**Última Atualização:** 19/09/2026  
+**Última Atualização:** 21/09/2026  
 
 **Breve Descrição:**
 Implementação definitiva da camada de persistência para Orçamentos e Ordens de Serviço (OS). O módulo transfere a responsabilidade matemática e de controle de estoque para o servidor, permitindo vendas a clientes não cadastrados (balcão), conversão rastreável de orçamentos em vendas definitivas, e blindagem estrita de acesso a dados (Anti-IDOR) na atualização de cadastros.
@@ -77,6 +77,29 @@ O protótipo anterior possuía a interface visual, mas falhava em persistir os d
 9. Backend efetua o *Update* subtraindo o estoque dos produtos vendidos.
 10. Retorna a OS formatada com status 201 Created.
 
+### Fluxos Alternativos
+
+**A1: Estoque Insuficiente (Validação Prévia)**
+1. Backend verifica o saldo do produto no banco.
+2. Sistema detecta que a quantidade solicitada no orçamento é maior que a `quantidade_estoque`.
+3. Backend aborta a transação imediatamente e retorna `HTTP 409 Conflict`.
+4. Frontend intercepta o erro e exibe alerta vermelho: "VENDA BLOQUEADA: Estoque insuficiente".
+5. Botão de confirmação é desabilitado e a OS não é gerada.
+
+**A2: Orçamento Previamente Faturado (Bloqueio Anti-Fraude/Duplicidade)**
+1. Vendedor tenta converter um orçamento cujo status já é "CONVERTIDO".
+2. Barreira Frontend Nível 1 detecta o badge "FATURADO" na interface e exibe alerta bloqueando a ação.
+3. Se o frontend for burlado (via cURL/Postman), a Barreira Backend Nível 2 intercepta o status do banco.
+4. Backend rejeita a conversão e retorna `HTTP 409 Conflict`.
+5. Estoque e financeiro permanecem inalterados.
+
+**A3: Cliente Não Cadastrado (Venda de Balcão Rápida)**
+1. Frontend envia payload do orçamento sem `cliente_id`, contendo apenas CPF e Nome.
+2. Backend consulta o CPF e confirma que não existe na base.
+3. Backend realiza um *Insert* em background na tabela `pessoas` com o perfil mínimo.
+4. Sistema recupera o novo `cliente_id` gerado e o anexa à Ordem de Serviço de forma transparente.
+5. Fluxo principal segue normalmente sem interromper o vendedor.
+
 ### Regras de Negócio (RN)
 
 | ID | Regra | Descrição |
@@ -127,11 +150,12 @@ O protótipo anterior possuía a interface visual, mas falhava em persistir os d
 
 ## 5. ARQUITETURA E ADR
 
-### ADR-013: Controle de Estoque via API (Backend for Frontend) vs Triggers
+### ADR-013: Controle de Estoque Híbrido (Validação no Backend + Dedução via Trigger SGBD)
 
-* **Contexto:** A modelagem inicial delegava a responsabilidade transacional para o banco.
-* **Decisão:** Mover a leitura e baixa de estoque para o Python (FastAPI).
-* **Consequências:** Remove sobrecarga computacional do Supabase. O banco atua apenas como armazenamento, enquanto o Python realiza a lógica de negócio, retornando erros HTTP 409 legíveis para o Frontend.
+* **Status:** ACEITO
+* **Contexto:** A execução da baixa de estoque diretamente no código da aplicação (Python) abria brechas para *race conditions* (dupla baixa) caso múltiplas vendas ocorressem simultaneamente, além de quebrar a atomicidade se a rede falhasse entre a criação da OS e o update do produto.
+* **Decisão:** Adotar um modelo de responsabilidade dividida. O FastAPI realiza a **validação prévia (Fail-Fast)** consultando o saldo e retornando `HTTP 409 Conflict` se for insuficiente. A **dedução física (Update)** foi delegada integralmente ao PostgreSQL através da Trigger `trigger_atualizar_estoque` que reage ao *Bulk Insert* da tabela associativa `ordens_servico_itens`.
+* **Consequências:** Garantia absoluta de transações ACID (evita concorrência e estoque negativo), Backend mais limpo e rápido (menos requisições de update), Maior acoplamento com o banco de dados (lógica de negócio distribuída no SGBD).
 
 ### ADR-014: Venda Anônima e Rastreabilidade (`ALTER TABLE`)
 
@@ -146,12 +170,6 @@ O protótipo anterior possuía a interface visual, mas falhava em persistir os d
 * **Contexto:** Colisão de namespaces (`schemas`) entre as pastas `rf-001`, `rf-002` e `rf-004`.
 * **Decisão:** Uso do `sys.path.insert()` encapsulado em gerenciador de contexto no `main.py`.
 * **Consequências:** Isolamento perfeito das sprints, simulando uma arquitetura de microsserviços.
-
----
-
-Com certeza! Vamos estruturar isso no mais alto nível de engenharia de software para o professor Edilberto não ter do que reclamar.
-
-Aqui está o conteúdo completo da **Seção 6 (Validação de Segurança OWASP)** estruturado exatamente no padrão exigido pelo modelo do laboratório, contendo os 3 pontos escolhidos, as respectivas implementações reais do nosso ERP e os comandos `curl` simulando os ataques junto com as respostas de bloqueio do servidor.
 
 ---
 
