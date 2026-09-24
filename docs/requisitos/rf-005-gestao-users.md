@@ -211,10 +211,7 @@ O ERP atingiu sua maturidade operacional. Agora, a loja precisa gerenciar quem a
 * **Contexto:** A LGPD exige a possibilidade de exclusão de dados, mas o ERP exige integridade referencial para as Ordens de Serviço faturadas.
 * **Decisão:** Executou-se um comando DDL adicionando a coluna `ativo BOOLEAN NOT NULL DEFAULT TRUE` às tabelas `users` e `pessoas`.
 
-
 * **Consequências:** ✅ Quando um usuário é "excluído" na UI, seu acesso ao sistema (`auth_service`) é imediatamente revogado, mas seu ID permanece atrelado ao histórico contábil.
-
-
 
 ---
 
