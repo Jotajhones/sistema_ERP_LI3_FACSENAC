@@ -9,15 +9,15 @@ from repositories.auth_repository import (
     atualizar_senha_usuario
 )
 from schemas.auth_schemas import AuthRequest, AuthResponse, AlterarSenhaRequest
+from repositories.pessoas_repository import get_pessoa_by_user_id
 
-# Hash de custo 12 para uniformizar com o padrão de segurança
+
 _DUMMY_HASH = bcrypt.hashpw(b"dummy-password", bcrypt.gensalt(12))
 
 def autenticar_usuario(payload: AuthRequest) -> AuthResponse:
     usuario = get_user_by_email(payload.email)
 
     if not usuario or not usuario.get("ativo", True):
-        # Queima o mesmo ciclo de CPU mesmo se o usuário não existir ou estiver inativo
         bcrypt.checkpw(payload.senha.encode("utf-8"), _DUMMY_HASH)
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -38,10 +38,16 @@ def autenticar_usuario(payload: AuthRequest) -> AuthResponse:
     token = str(uuid.uuid4())
     create_session(str(usuario["id"]), token)
 
+    # Busca a entidade pessoa atrelada a este user
+    pessoa = get_pessoa_by_user_id(str(usuario["id"]))
+    pessoa_id = str(pessoa["id"]) if pessoa else str(usuario["id"])
+
     return AuthResponse(
-        role=usuario["user_role"],
-        token=token
-    )
+            role=usuario["user_role"],
+            token=token,
+            usuario_id=pessoa_id,
+            email=usuario.get("email") or payload.email
+        )
 
 def encerrar_sessao(token: str) -> dict:
     excluir_sessao(token)
@@ -80,4 +86,4 @@ def alterar_senha_usuario(usuario_id: str, dados: AlterarSenhaRequest) -> dict:
 
     atualizar_senha_usuario(usuario_id, novo_hash)
 
-    return {"mensagem": "Senha atualizada com sucesso"}
+    return {"mensagem": "Senha atualizada com sucesso"}

@@ -1,5 +1,4 @@
 document.addEventListener("DOMContentLoaded", () => {
-
   const API_URL = `${window.APP_CONFIG.API_URL}/auth`;
 
   const formLogin = document.getElementById("formLogin");
@@ -50,7 +49,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   async function fazerLogin() {
-    const email = inputEmail.value.trim();
+    const emailDigitado = inputEmail.value.trim();
     const senha = inputSenha.value;
 
     btnEntrar.className = "btn-entrar carregando";
@@ -63,7 +62,7 @@ document.addEventListener("DOMContentLoaded", () => {
         headers: {
           "Content-Type": "application/json"
         },
-        body: JSON.stringify({ email, senha })
+        body: JSON.stringify({ email: emailDigitado, senha: senha })
       });
 
       if (resposta.status === 401) {
@@ -79,20 +78,20 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const dados = await resposta.json();
 
-      iniciarSessao(dados);
+      // Passamos o emailDigitado para a função de sessão
+      iniciarSessao(dados, emailDigitado);
 
     } catch (erro) {
       alert("Erro de rede ao conectar com o servidor. Tente novamente.");
     } finally {
-
       btnEntrar.className = "btn-entrar";
       btnEntrar.disabled = false;
       btnEntrar.textContent = "ENTRAR";
     }
   }
 
-
-  function iniciarSessao(dados) {
+  // Recebemos o emailDigitado como segundo parâmetro
+  function iniciarSessao(dados, emailDigitado) {
     if (!dados.token || !dados.role) {
       console.error("Payload de autenticação incompleto:", dados);
       alert("Erro crítico: Dados de sessão ausentes.");
@@ -101,6 +100,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
     localStorage.setItem('authToken', dados.token);
     localStorage.setItem('userRole', dados.role);
+    
+    localStorage.setItem('userEmail', emailDigitado);
+    
+    if (dados.pessoa_id) {
+        localStorage.setItem('pessoaId', dados.pessoa_id);
+    } else if (dados.usuario_id) {
+        localStorage.setItem('pessoaId', dados.usuario_id);
+    }
 
     window.location.href = '../../../rf-002-catalogo-produtos/frontend/ordemServico/ordemServico.html';
   }
