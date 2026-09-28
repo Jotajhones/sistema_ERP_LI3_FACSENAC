@@ -8,6 +8,11 @@ export function renderHeader(activeRoute = 'produtos') {
         return;
     }
 
+    const rawRole = localStorage.getItem('userRole');
+    const userRole = rawRole ? rawRole.toUpperCase().trim() : '';
+    const isGestorOuAdmin = userRole === 'ADMIN' || userRole === 'GESTOR';
+    const displayRole = userRole || 'OPERADOR';
+
     const headerHTML = `
         <header class="erp-header">
             <div class="erp-header-brand">
@@ -16,9 +21,9 @@ export function renderHeader(activeRoute = 'produtos') {
             
             <nav class="erp-header-nav">
                 <a href="../ordemServico/ordemServico.html" class="erp-nav-link ${activeRoute === 'ordemServico' ? 'active' : ''}">
-                    Orçamento
+                    Novo Orçamento
                 </a>
-
+                
                 <a href="../listarOrcamento/listarOrcamento.html" class="erp-nav-link ${activeRoute === 'listarOrcamento' ? 'active' : ''}">
                     Histórico
                 </a>
@@ -26,12 +31,16 @@ export function renderHeader(activeRoute = 'produtos') {
                 <a href="../produtos/produtos.html" class="erp-nav-link ${activeRoute === 'produtos' ? 'active' : ''}">
                     Produtos
                 </a>
+
+                <a href="../gestaoPessoas/gestaoPessoas.html" class="erp-nav-link ${activeRoute === 'gestaoPessoas' ? 'active' : ''}">
+                    ${isGestorOuAdmin ? 'Pessoas' : 'Clientes'}
+                </a>
             </nav>
 
             <div class="erp-header-user">
-                <span id="header-user-role" style="font-size: 0.85rem; color: var(--color-border);">
-                    Operador
-                </span>
+                <a href="../meuPainel/meuPainel.html" class="erp-nav-link user-profile-link ${activeRoute === 'meuPainel' ? 'active' : ''}">
+                    <span id="header-user-role">${displayRole}</span>
+                </a>
                 <button id="btn-logout" class="btn-logout">Sair</button>
             </div>
         </header>
@@ -39,34 +48,28 @@ export function renderHeader(activeRoute = 'produtos') {
 
     headerContainer.innerHTML = headerHTML;
 
-    const userRole = localStorage.getItem('userRole');
-    if (userRole) {
-        document.getElementById('header-user-role').textContent = userRole.toUpperCase();
-    }
+    const btnLogout = document.getElementById('btn-logout');
+    if (btnLogout) {
+        btnLogout.addEventListener('click', async () => {
+            const token = localStorage.getItem('authToken');
+            const controller = new AbortController();
+            const timeout = setTimeout(() => controller.abort(), 2000);
 
-    document.getElementById('btn-logout').addEventListener('click', async () => {
-
-        const token = localStorage.getItem('authToken');
-
-        const controller = new AbortController();
-        const timeout = setTimeout(() => controller.abort(), 2000);
-
-        try {
-            if (token) {
-                await erpFetch('/auth/logout', {
-                    method: 'POST',
-                    signal: controller.signal
-                });
+            try {
+                if (token) {
+                    await erpFetch('/auth/logout', {
+                        method: 'POST',
+                        signal: controller.signal
+                    });
+                }
+            } catch (error) {
+                console.error('Erro ao encerrar sessão no servidor:', error);
+            } finally {
+                clearTimeout(timeout);
+                localStorage.removeItem('authToken');
+                localStorage.removeItem('userRole');
+                window.location.href = '../login/index.html';
             }
-        } catch (error) {
-            console.error('Erro ao encerrar sessão no servidor:', error);
-        } finally {
-            clearTimeout(timeout);
-
-            localStorage.removeItem('authToken');
-            localStorage.removeItem('userRole');
-
-            window.location.href = '../../../index.html';
-        }
-    });
+        });
+    }
 }

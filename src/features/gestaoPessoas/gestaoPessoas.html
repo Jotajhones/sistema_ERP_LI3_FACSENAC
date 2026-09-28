@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestão de Pessoas - ERP</title>
+
+    <link rel="stylesheet" href="../../styles/global.css">
+    <link rel="stylesheet" href="../../features/header/header.css">
+    <link rel="stylesheet" href="./gestaoPessoas.css">
+</head>
+<body>
+    <div id="app-header"></div>
+
+    <main class="erp-container">
+        <div class="action-bar">
+            <div class="filters">
+                <div class="filter-group">
+                    <label for="filtroStatus">Status (LGPD)</label>
+                    <select id="filtroStatus" class="erp-select">
+                        <option value="true" selected>Ativos</option>
+                        <option value="false">Inativos</option>
+                        <option value="">Todos</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group" id="containerFiltroTipo" style="display: none;">
+                    <label for="filtroTipo">Tipo de Cadastro</label>
+                    <select id="filtroTipo" class="erp-select">
+                        <option value="TODOS">Todos</option>
+                        <option value="CLIENTE">Clientes de Balcão</option>
+                        <option value="FUNCIONARIO">Funcionários</option>
+                    </select>
+                </div>
+            </div>
+
+            <button id="btnNovoFuncionario" class="btn-primary" style="display: none;">+ Novo Funcionário</button>
+        </div>
+
+        <table class="erp-table">
+            <thead>
+                <tr>
+                    <th>Nome</th>
+                    <th>E-mail / Telefone</th>
+                    <th>Perfil</th>
+                    <th>Status</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody id="tabelaCorpo">
+       
+            </tbody>
+        </table>
+    </main>
+
+    <div id="modalFuncionario" class="modal-backdrop" style="display: none;">
+        <div class="modal-content">
+            <h3>Cadastrar Novo Funcionário</h3>
+            <p style="font-size: 0.8rem; color: #666; margin-bottom: 15px;">A senha "senha123" será gerada automaticamente pelo sistema.</p>
+            
+            <form id="formNovoFuncionario">
+                <div class="form-group">
+                    <label>Nome Completo *</label>
+                    <input type="text" id="funcNome" required>
+                </div>
+                <div class="form-group">
+                    <label>E-mail *</label>
+                    <input type="email" id="funcEmail" required>
+                </div>
+                <div class="form-group">
+                    <label>Nível de Acesso (Role) *</label>
+                    <select id="funcRole" required>
+                        <option value="VENDEDOR">Vendedor</option>
+                        <option value="GESTOR">Gestor</option>
+                    </select>
+                </div>
+                
+                <div class="modal-actions">
+                    <button type="button" id="btnCancelarModal" class="btn-secondary">Cancelar</button>
+                    <button type="submit" class="btn-primary">Criar Cadastro</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="../../scripts/env.js"></script>
+    <script type="module" src="./app.js"></script>
+</body>
+</html>
