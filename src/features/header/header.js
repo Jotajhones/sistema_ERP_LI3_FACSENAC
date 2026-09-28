@@ -68,7 +68,7 @@ export function renderHeader(activeRoute = 'produtos') {
                 clearTimeout(timeout);
                 localStorage.removeItem('authToken');
                 localStorage.removeItem('userRole');
-                window.location.href = '../../index.html';
+                window.location.href = '../../../index.html';
             }
         });
     }
