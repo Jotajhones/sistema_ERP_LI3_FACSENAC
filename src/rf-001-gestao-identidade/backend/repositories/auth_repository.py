@@ -4,7 +4,8 @@ from fastapi import HTTPException, status
 from database import get_supabase_client
 
 def get_user_by_email(email: str) -> Optional[Dict[str, Any]]:
-    """Busca um usuário no banco pelo e-mail."""
+    """Busca um utilizador na base de dados pelo e-mail."""
+    
     url = f"/rest/v1/users?email=eq.{email}&select=id,email,password_hash,user_role,ativo"
     
     with get_supabase_client() as client:
@@ -99,4 +100,4 @@ def atualizar_senha_usuario(user_id: str, novo_password_hash: str) -> bool:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Não foi possível atualizar a senha no banco de dados."
-        )
+        )

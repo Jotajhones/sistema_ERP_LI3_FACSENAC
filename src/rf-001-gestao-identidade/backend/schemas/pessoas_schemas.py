@@ -44,6 +44,7 @@ class PessoaResponse(BaseModel):
     id: UUID
     nome: str
     cpf: Optional[str]
+    telefone: Optional[str] = None
     user_id: Optional[UUID]
     ativo: bool
 

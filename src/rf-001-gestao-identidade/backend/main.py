@@ -44,7 +44,6 @@ def carregar_rota_externa(nome_modulo: str, caminho_absoluto: str):
     """Carrega um router de outra pasta injetando o diretório pai no sys.path para achar os schemas/services."""
     diretorio_modulo = os.path.dirname(os.path.dirname(caminho_absoluto))
 
-    # Adiciona a pasta backend do módulo no path se já não estiver
     if diretorio_modulo not in sys.path:
         sys.path.insert(0, diretorio_modulo)
 
@@ -66,20 +65,18 @@ def carregar_rota_externa(nome_modulo: str, caminho_absoluto: str):
         return modulo.router
 
     finally:
-        # Remove o diretório do path para evitar poluição global
         if diretorio_modulo in sys.path:
             sys.path.remove(diretorio_modulo)
 
 
-# IMPORTAÇÃO DOS ROUTERS
-# Locais (RF-001)
+# IMPORTAÇÃO DOS ROUTERS LOCAIS (RF-001)
 if BASE_DIR not in sys.path:
     sys.path.insert(0, BASE_DIR)
 
-from routers import auth_router
+from routers import auth_router, pessoas_router
 
 
-# Externos (Outras Sprints)
+# IMPORTAÇÃO DOS ROUTERS EXTERNOS
 produto_router = carregar_rota_externa(
     "produto_router",
     os.path.join(
@@ -107,23 +104,13 @@ os_router = carregar_rota_externa(
     )
 )
 
-
-# RF-005 - Gestão de Usuários
+# RF-005: Gestão de Utilizadores
 usuarios_router = carregar_rota_externa(
     "usuarios_router",
     os.path.join(
         RF005_DIR,
         'routers',
         'usuarios_router.py'
-    )
-)
-
-pessoas_rf005_router = carregar_rota_externa(
-    "pessoas_rf005_router",
-    os.path.join(
-        RF005_DIR,
-        'routers',
-        'pessoas_rf005_router.py'
     )
 )
 
@@ -150,13 +137,11 @@ origens_permitidas = [
     "https://sistema-erp-li-3-facsenac.vercel.app"
 ]
 
-
 origens_extras = os.getenv("CORS_ORIGENS_EXTRAS", "")
 
 if origens_extras:
     for origem in origens_extras.split(","):
         origem_limpa = origem.strip()
-
         if origem_limpa and origem_limpa not in origens_permitidas:
             origens_permitidas.append(origem_limpa)
 
@@ -194,22 +179,18 @@ async def aplicar_cabecalhos_seguranca(requisicao, proximo):
 
 # REGISTRO DAS ROTAS (ENDPOINTS)
 
-# RF-001
+# RF-001 - Autenticação e Gestão de Pessoas
 app.include_router(auth_router.router)
+app.include_router(pessoas_router.router)
 
-# RF-005
-# A RF-005 passa a controlar o GET /pessoas
-app.include_router(pessoas_rf005_router)
-
-# RF-002
+# RF-002 - Catálogo de Produtos
 app.include_router(produto_router)
 
-# RF-004
+# RF-004 - Orçamentos e Ordens de Serviço
 app.include_router(orcamentos_router)
 app.include_router(os_router)
 
-# RF-005
-# Criação de usuários/funcionários
+# RF-005 - Gestão de Utilizadores
 app.include_router(usuarios_router)
 
 

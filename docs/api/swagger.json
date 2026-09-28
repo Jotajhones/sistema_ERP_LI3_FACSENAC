@@ -164,49 +164,26 @@
       }
     },
     "/pessoas": {
-      "get": {
-        "tags": [
-          "Pessoas"
-        ],
-        "summary": "Listar Pessoas",
-        "operationId": "listar_pessoas_pessoas_get",
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "items": {
-                    "$ref": "#/components/schemas/PessoaResponse"
-                  },
-                  "type": "array",
-                  "title": "Response Listar Pessoas Pessoas Get"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ]
-      },
       "post": {
         "tags": [
           "Pessoas"
         ],
         "summary": "Criar Pessoa",
         "operationId": "criar_pessoa_pessoas_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
         "requestBody": {
+          "required": true,
           "content": {
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/PessoaCreate"
               }
             }
-          },
-          "required": true
+          }
         },
         "responses": {
           "201": {
@@ -229,12 +206,65 @@
               }
             }
           }
-        },
+        }
+      },
+      "get": {
+        "tags": [
+          "Pessoas"
+        ],
+        "summary": "Listar Todas Pessoas",
+        "operationId": "listar_todas_pessoas_pessoas_get",
         "security": [
           {
             "HTTPBearer": []
           }
-        ]
+        ],
+        "parameters": [
+          {
+            "name": "ativo",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filtra pessoas por situação ativa/inativa.",
+              "title": "Ativo"
+            },
+            "description": "Filtra pessoas por situação ativa/inativa."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PessoaResponse"
+                  },
+                  "title": "Response Listar Todas Pessoas Pessoas Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/pessoas/{pessoa_id}": {
@@ -484,6 +514,75 @@
                     "$ref": "#/components/schemas/ProdutoResponse"
                   },
                   "title": "Response Listar Produtos Produtos  Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/produtos/busca": {
+      "get": {
+        "tags": [
+          "Produtos"
+        ],
+        "summary": "Buscar Produtos Autocomplete",
+        "description": "Rota usada pelo autocomplete no balcão de orçamentos.",
+        "operationId": "buscar_produtos_autocomplete_produtos_busca_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "termo",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Termo"
+            }
+          },
+          {
+            "name": "ativo_only",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": true,
+              "title": "Ativo Only"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ProdutoResponse"
+                  },
+                  "title": "Response Buscar Produtos Autocomplete Produtos Busca Get"
                 }
               }
             }
@@ -783,6 +882,54 @@
         ]
       }
     },
+    "/orcamentos/{orcamento_id}": {
+      "get": {
+        "tags": [
+          "Orçamentos"
+        ],
+        "summary": "Buscar Orcamento Por Id",
+        "operationId": "buscar_orcamento_por_id_orcamentos__orcamento_id__get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "orcamento_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Orcamento Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrcamentoResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/ordens-servico/converter/{orcamento_id}": {
       "post": {
         "tags": [
@@ -839,6 +986,52 @@
             }
           }
         }
+      }
+    },
+    "/usuarios": {
+      "post": {
+        "tags": [
+          "Usuários"
+        ],
+        "summary": "Criar Novo Usuario",
+        "operationId": "criar_novo_usuario_usuarios_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UsuarioCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UsuarioResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
       }
     },
     "/": {
@@ -913,12 +1106,23 @@
           "token": {
             "type": "string",
             "title": "Token"
+          },
+          "usuario_id": {
+            "type": "string",
+            "title": "Usuario Id"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "title": "Email"
           }
         },
         "type": "object",
         "required": [
           "role",
-          "token"
+          "token",
+          "usuario_id",
+          "email"
         ],
         "title": "AuthResponse"
       },
@@ -1286,6 +1490,18 @@
             "minItems": 1,
             "title": "Itens",
             "description": "Lista de produtos"
+          },
+          "cliente_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cliente Id"
           }
         },
         "type": "object",
@@ -1300,6 +1516,18 @@
             "type": "string",
             "format": "uuid",
             "title": "Id"
+          },
+          "cliente_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cliente Id"
           },
           "nome_cliente": {
             "anyOf": [
@@ -1334,6 +1562,11 @@
           "valor_total": {
             "type": "number",
             "title": "Valor Total"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "default": "PENDENTE"
           },
           "vendedor_id": {
             "type": "string",
@@ -1429,6 +1662,17 @@
               }
             ],
             "title": "Cpf"
+          },
+          "telefone": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Telefone"
           },
           "user_id": {
             "anyOf": [
@@ -1766,6 +2010,84 @@
           "novo_saldo"
         ],
         "title": "RecebimentoResposta"
+      },
+      "UsuarioCreate": {
+        "properties": {
+          "nome": {
+            "type": "string",
+            "maxLength": 150,
+            "minLength": 3,
+            "title": "Nome"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "title": "Email"
+          },
+          "cpf": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 14
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cpf"
+          },
+          "role": {
+            "type": "string",
+            "title": "Role",
+            "description": "ADMIN, GESTOR ou VENDEDOR"
+          }
+        },
+        "type": "object",
+        "required": [
+          "nome",
+          "email",
+          "role"
+        ],
+        "title": "UsuarioCreate"
+      },
+      "UsuarioResponse": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "pessoa_id": {
+            "type": "string",
+            "title": "Pessoa Id"
+          },
+          "nome": {
+            "type": "string",
+            "title": "Nome"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "title": "Email"
+          },
+          "role": {
+            "type": "string",
+            "title": "Role"
+          },
+          "ativo": {
+            "type": "boolean",
+            "title": "Ativo"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "pessoa_id",
+          "nome",
+          "email",
+          "role",
+          "ativo"
+        ],
+        "title": "UsuarioResponse"
       },
       "ValidationError": {
         "properties": {

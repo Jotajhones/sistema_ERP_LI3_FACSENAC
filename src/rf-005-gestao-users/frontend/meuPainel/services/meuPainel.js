@@ -32,38 +32,51 @@ export function initMeuPainel() {
         document.getElementById('userRoleInput').value = roleSalva;
 
         try {
-            let pessoa = null;
+            let respostaFetch = null;
 
-            // 1. Tenta buscar pelo ID direto no localStorage
             if (idPessoaLogada) {
                 try {
-                    pessoa = await erpFetch(`/pessoas/${idPessoaLogada}`);
+                    respostaFetch = await erpFetch(`/pessoas/${idPessoaLogada}`);
                 } catch (e) {
                     console.warn('Não foi possível carregar pessoa pelo ID salvo:', e);
                 }
             }
 
-            // 2. Se não encontrou por ID, busca a lista de pessoas
-            if (!pessoa) {
-                const pessoas = await erpFetch('/pessoas');
-                if (Array.isArray(pessoas) && pessoas.length > 0) {
-                    pessoa = pessoas[0];
-                    if (pessoa && pessoa.id) {
-                        idPessoaLogada = pessoa.id;
-                        localStorage.setItem('pessoaId', pessoa.id);
-                    }
-                }
+            if (!respostaFetch) {
+                throw new Error("Não foi possível carregar os dados cadastrais da sua conta.");
             }
 
-            // 3. Preenche os campos na tela se encontrou os dados da pessoa
-            if (pessoa) {
-                document.getElementById('userEmailInput').value = pessoa.email || '';
-                document.getElementById('nomeInput').value = pessoa.nome || '';
-                document.getElementById('telefoneInput').value = pessoa.telefone || '';
-            } else {
-                // Caso seja o primeiro acesso ou usuário sem vínculo na tabela pessoas
-                console.info('Aviso: Nenhuma pessoa vinculada encontrada na listagem.');
+
+            let pessoa = await respostaFetch.json();
+
+            if (typeof pessoa === 'string') {
+                try { pessoa = JSON.parse(pessoa); } catch (e) { }
             }
+
+            if (pessoa && pessoa.data) {
+                pessoa = pessoa.data;
+            }
+
+            if (Array.isArray(pessoa)) {
+                pessoa = pessoa[0];
+            }
+
+            if (pessoa && pessoa.id) {
+                idPessoaLogada = pessoa.id;
+                localStorage.setItem('pessoaId', pessoa.id);
+            }
+
+            // Preenche o formulário
+            const inputNome = document.getElementById('nomeInput');
+            const inputTelefone = document.getElementById('telefoneInput');
+            const inputEmail = document.getElementById('userEmailInput');
+
+            if (inputNome) inputNome.value = pessoa.nome || '';
+            if (inputTelefone) inputTelefone.value = pessoa.telefone || '';
+            if (inputEmail) inputEmail.value = localStorage.getItem('userEmail') || '';
+
+            console.log("3. Campos preenchidos no HTML!");
+
         } catch (error) {
             console.error('Erro ao carregar dados do usuário:', error);
             exibirAlerta('Aviso ao carregar dados do perfil. Você ainda pode alterar sua senha.', false);
