@@ -368,6 +368,45 @@
             }
           }
         }
+      },
+      "delete": {
+        "tags": [
+          "Pessoas"
+        ],
+        "summary": "Deletar Pessoa",
+        "description": "Inativa logicamente uma pessoa e revoga seu acesso ao sistema",
+        "operationId": "deletar_pessoa_pessoas__pessoa_id__delete",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "pessoa_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Pessoa Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/pessoas/cpf/{cpf}": {
