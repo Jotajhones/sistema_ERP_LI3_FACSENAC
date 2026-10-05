@@ -1,0 +1,214 @@
+.erp-container {
+max-width: 1200px;
+margin: 0 auto;
+padding: var(--spacing-lg);
+}
+
+.dashboard-header {
+margin-bottom: var(--spacing-lg);
+}
+
+.dashboard-header h1 {
+color: var(--color-text-main);
+font-size: 1.8rem;
+margin-bottom: 0.4rem;
+}
+
+.dashboard-header p {
+color: var(--color-text-muted);
+font-size: 0.95rem;
+}
+
+/* Filtros */
+
+.dashboard-filters {
+display: flex;
+align-items: flex-end;
+gap: var(--spacing-md);
+background-color: var(--color-surface);
+border: 1px solid var(--color-border);
+border-radius: var(--radius-lg);
+box-shadow: var(--shadow-sm);
+padding: var(--spacing-lg);
+margin-bottom: var(--spacing-lg);
+}
+
+.filter-group {
+display: flex;
+flex-direction: column;
+gap: 0.4rem;
+}
+
+.filter-group label {
+font-weight: 600;
+font-size: 0.9rem;
+color: var(--color-text-main);
+}
+
+.erp-input {
+padding: 10px 12px;
+border: 1px solid var(--color-border);
+border-radius: var(--radius-md);
+outline: none;
+background-color: var(--color-surface);
+color: var(--color-text-main);
+}
+
+.erp-input:focus {
+border-color: var(--color-primary-light);
+box-shadow: 0 0 0 2px rgba(74, 126, 187, 0.2);
+}
+
+.btn-primary {
+background-color: var(--color-primary);
+color: var(--color-surface);
+border: none;
+padding: 10px 20px;
+border-radius: var(--radius-md);
+cursor: pointer;
+font-weight: 500;
+transition: background-color 0.2s;
+}
+
+.btn-primary:hover {
+background-color: var(--color-primary-dark);
+}
+
+.btn-primary:disabled {
+opacity: 0.6;
+cursor: not-allowed;
+}
+
+/* Card principal */
+
+.conversion-card {
+background-color: var(--color-primary-dark);
+color: var(--color-surface);
+border-radius: var(--radius-lg);
+box-shadow: var(--shadow-md);
+padding: 2rem;
+margin-bottom: var(--spacing-lg);
+text-align: center;
+}
+
+.conversion-card-content {
+display: flex;
+flex-direction: column;
+align-items: center;
+gap: 0.5rem;
+}
+
+.conversion-card .card-label {
+color: var(--color-surface);
+opacity: 0.9;
+}
+
+.conversion-card strong {
+font-size: 3rem;
+line-height: 1.1;
+}
+
+.conversion-card .card-description {
+color: var(--color-surface);
+opacity: 0.8;
+font-size: 0.9rem;
+}
+
+/* Cards de métricas */
+
+.metrics-grid {
+display: grid;
+grid-template-columns: repeat(3, 1fr);
+gap: var(--spacing-md);
+}
+
+.metric-card {
+background-color: var(--color-surface);
+border: 1px solid var(--color-border);
+border-radius: var(--radius-lg);
+box-shadow: var(--shadow-sm);
+padding: 1.5rem;
+min-height: 130px;
+
+
+display: flex;
+flex-direction: column;
+justify-content: space-between;
+
+
+}
+
+.metric-card .card-label {
+color: var(--color-text-muted);
+font-size: 0.9rem;
+font-weight: 500;
+}
+
+.metric-card strong {
+color: var(--color-text-main);
+font-size: 1.6rem;
+}
+
+/* Estados */
+
+.dashboard-state {
+background-color: var(--color-surface);
+border: 1px solid var(--color-border);
+border-radius: var(--radius-lg);
+box-shadow: var(--shadow-sm);
+padding: 2rem;
+margin-bottom: var(--spacing-lg);
+text-align: center;
+}
+
+.dashboard-state h2 {
+margin-bottom: 0.5rem;
+color: var(--color-text-main);
+}
+
+.dashboard-state p {
+color: var(--color-text-muted);
+}
+
+.dashboard-state-error {
+border-color: var(--color-error);
+}
+
+.dashboard-state-error h2 {
+color: var(--color-error);
+}
+
+/* Feedback */
+
+.dashboard-feedback {
+padding: 12px 16px;
+margin-bottom: var(--spacing-lg);
+border-radius: var(--radius-md);
+background-color: var(--color-warning);
+color: var(--color-surface);
+}
+
+/* Responsividade */
+
+@media (max-width: 768px) {
+
+
+.dashboard-filters {
+    flex-direction: column;
+    align-items: stretch;
+}
+
+.metrics-grid {
+    grid-template-columns: 1fr;
+}
+
+.conversion-card strong {
+    font-size: 2.5rem;
+}
+
+.erp-container {
+    padding: var(--spacing-md);
+}
+
+
+}
