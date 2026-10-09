@@ -28,8 +28,6 @@ pip install fastapi uvicorn httpx pydantic "pydantic[email]" python-dotenv bcryp
 
 ```
 
-
-
 ## Como Executar Localmente
 
 Para iniciar o servidor de desenvolvimento, rode:
