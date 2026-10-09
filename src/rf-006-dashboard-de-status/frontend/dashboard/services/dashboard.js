@@ -150,7 +150,8 @@ function validarPeriodo() {
     const dataFim = elementos.dataFim.value;
 
     if (!dataInicio || !dataFim) {
-        return true;
+        mostrarErro('Por favor, selecione as datas de início e fim.');
+        return false;
     }
 
     if (dataInicio > dataFim) {
@@ -159,6 +160,23 @@ function validarPeriodo() {
     }
 
     return true;
+}
+
+function definirDatasPadrao() {
+    const hoje = new Date();
+    const primeiroDia = new Date(hoje.getFullYear(), hoje.getMonth(), 1);
+    const ultimoDia = new Date(hoje.getFullYear(), hoje.getMonth() + 1, 0);
+
+    // Formata para YYYY-MM-DD (desconsiderando fuso horário local que pode causar erro no dia)
+    const formatarData = (data) => {
+        const ano = data.getFullYear();
+        const mes = String(data.getMonth() + 1).padStart(2, '0');
+        const dia = String(data.getDate()).padStart(2, '0');
+        return `${ano}-${mes}-${dia}`;
+    };
+
+    elementos.dataInicio.value = formatarData(primeiroDia);
+    elementos.dataFim.value = formatarData(ultimoDia);
 }
 
 async function carregarDashboard() {
@@ -233,6 +251,7 @@ async function carregarDashboard() {
     }
 }
 
+
 export function initDashboard() {
     elementos.btnAplicarFiltro.addEventListener(
         'click',
@@ -247,5 +266,6 @@ export function initDashboard() {
         elementos.dashboardError.hidden = true;
     });
 
+    definirDatasPadrao();
     carregarDashboard();
 }

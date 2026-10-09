@@ -6,185 +6,170 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+    <title>Dashboard - ERP</title>
 
-<title>Dashboard - ERP</title>
-
-<link rel="stylesheet" href="../../../rf-002-catalogo-produtos/frontend/styles/global.css">
-<link rel="stylesheet" href="../../../rf-002-catalogo-produtos/frontend/header/header.css">
-<link rel="stylesheet" href="./dashboard.css">
-
-
+    <link rel="stylesheet" href="../../../rf-002-catalogo-produtos/frontend/styles/global.css">
+    <link rel="stylesheet" href="../../../rf-002-catalogo-produtos/frontend/header/header.css">
+    <link rel="stylesheet" href="./dashboard.css">
 </head>
 
 <body>
 
-<div id="app-header"></div>
+    <div id="app-header"></div>
 
-<main class="erp-container">
+    <main class="erp-container">
 
-    <section class="dashboard-header">
-        <div>
-            <h1>Dashboard</h1>
-            <p>Acompanhe o status dos orçamentos da loja.</p>
-        </div>
-    </section>
+        <section class="dashboard-header">
+            <div>
+                <h1>Dashboard</h1>
+                <p>Acompanhe o status dos orçamentos da loja.</p>
+            </div>
+        </section>
 
-    <section class="dashboard-filters">
+        <section class="dashboard-filters">
 
-        <div class="filter-group">
-            <label for="dataInicio">Data início</label>
+            <div class="filter-group">
+                <label for="dataInicio">Data início</label>
 
-            <input
-                type="date"
-                id="dataInicio"
-                class="erp-input"
-            >
-        </div>
+                <input type="date" id="dataInicio" class="erp-input">
+            </div>
 
-        <div class="filter-group">
-            <label for="dataFim">Data fim</label>
+            <div class="filter-group">
+                <label for="dataFim">Data fim</label>
 
-            <input
-                type="date"
-                id="dataFim"
-                class="erp-input"
-            >
-        </div>
+                <input type="date" id="dataFim" class="erp-input">
+            </div>
 
-        <button
-            type="button"
-            id="btnAplicarFiltro"
-            class="btn-primary"
-        >
-            Aplicar
-        </button>
+            <button type="button" id="btnAplicarFiltro" class="btn-primary">
+                Aplicar
+            </button>
 
-    </section>
+        </section>
 
-    <section id="dashboardFeedback" class="dashboard-feedback" hidden>
-        <p id="dashboardFeedbackText"></p>
-    </section>
+        <section id="dashboardFeedback" class="dashboard-feedback" hidden>
+            <p id="dashboardFeedbackText"></p>
+        </section>
 
-    <section id="dashboardLoading" class="dashboard-state" hidden>
-        <p>Carregando dados do dashboard...</p>
-    </section>
+        <section id="dashboardLoading" class="dashboard-state" hidden>
+            <p>Carregando dados do dashboard...</p>
+        </section>
 
-    <section id="dashboardError" class="dashboard-state dashboard-state-error" hidden>
-        <h2>Não foi possível carregar o dashboard</h2>
+        <section id="dashboardError" class="dashboard-state dashboard-state-error" hidden>
+            <h2>Não foi possível carregar o dashboard</h2>
 
-        <p id="dashboardErrorText">
-            Ocorreu um erro ao consultar os dados.
-        </p>
-    </section>
+            <p id="dashboardErrorText">
+                Ocorreu um erro ao consultar os dados.
+            </p>
+        </section>
 
-    <section id="dashboardForbidden" class="dashboard-state dashboard-state-error" hidden>
-        <h2>Acesso negado</h2>
+        <section id="dashboardForbidden" class="dashboard-state dashboard-state-error" hidden>
+            <h2>Acesso negado</h2>
 
-        <p>
-            Você não possui permissão para acessar o dashboard.
-        </p>
-    </section>
+            <p>
+                Você não possui permissão para acessar o dashboard.
+            </p>
+        </section>
 
-    <section id="dashboardEmpty" class="dashboard-state" hidden>
-        <h2>Nenhum orçamento encontrado</h2>
+        <section id="dashboardEmpty" class="dashboard-state" hidden>
+            <h2>Nenhum orçamento encontrado</h2>
 
-        <p>
-            Não existem orçamentos no período selecionado.
-        </p>
-    </section>
+            <p>
+                Não existem orçamentos no período selecionado.
+            </p>
+        </section>
 
-    <section id="dashboardContent">
+        <section id="dashboardContent">
 
-        <article class="conversion-card">
+            <article class="conversion-card">
 
-            <div class="conversion-card-content">
+                <div class="conversion-card-content">
 
-                <span class="card-label">
-                    Taxa de conversão
-                </span>
+                    <span class="card-label">
+                        Taxa de conversão
+                    </span>
 
-                <strong id="taxaConversao">
-                    0,00%
-                </strong>
+                    <strong id="taxaConversao">
+                        0,00%
+                    </strong>
 
-                <span class="card-description">
-                    Percentual de orçamentos convertidos
-                </span>
+                    <span class="card-description">
+                        Percentual de orçamentos convertidos
+                    </span>
+
+                </div>
+
+            </article>
+
+            <div class="metrics-grid">
+
+                <article class="metric-card">
+
+                    <span class="card-label">
+                        Total de orçamentos
+                    </span>
+
+                    <strong id="totalOrcamentos">
+                        0
+                    </strong>
+
+                </article>
+
+                <article class="metric-card">
+
+                    <span class="card-label">
+                        Convertidos
+                    </span>
+
+                    <strong id="convertidos">
+                        0
+                    </strong>
+
+                </article>
+
+                <article class="metric-card">
+
+                    <span class="card-label">
+                        Pendentes
+                    </span>
+
+                    <strong id="pendentes">
+                        0
+                    </strong>
+
+                </article>
+
+                <article class="metric-card">
+
+                    <span class="card-label">
+                        Valor total orçado
+                    </span>
+
+                    <strong id="valorTotalOrcado">
+                        R$ 0,00
+                    </strong>
+
+                </article>
+
+                <article class="metric-card">
+
+                    <span class="card-label">
+                        Valor total convertido
+                    </span>
+
+                    <strong id="valorTotalConvertido">
+                        R$ 0,00
+                    </strong>
+
+                </article>
 
             </div>
 
-        </article>
+        </section>
 
-        <div class="metrics-grid">
+    </main>
 
-            <article class="metric-card">
-
-                <span class="card-label">
-                    Total de orçamentos
-                </span>
-
-                <strong id="totalOrcamentos">
-                    0
-                </strong>
-
-            </article>
-
-            <article class="metric-card">
-
-                <span class="card-label">
-                    Convertidos
-                </span>
-
-                <strong id="convertidos">
-                    0
-                </strong>
-
-            </article>
-
-            <article class="metric-card">
-
-                <span class="card-label">
-                    Pendentes
-                </span>
-
-                <strong id="pendentes">
-                    0
-                </strong>
-
-            </article>
-
-            <article class="metric-card">
-
-                <span class="card-label">
-                    Valor total orçado
-                </span>
-
-                <strong id="valorTotalOrcado">
-                    R$ 0,00
-                </strong>
-
-            </article>
-
-            <article class="metric-card">
-
-                <span class="card-label">
-                    Valor total convertido
-                </span>
-
-                <strong id="valorTotalConvertido">
-                    R$ 0,00
-                </strong>
-
-            </article>
-
-        </div>
-
-    </section>
-
-</main>
-
-<script src="../../../rf-002-catalogo-produtos/frontend/scripts/env.js"></script>
-<script type="module" src="../services/app.js"></script>
+    <script src="../../../rf-002-catalogo-produtos/frontend/scripts/env.js"></script>
+    <script type="module" src="./services/app.js"></script>
 
 </body>
 

@@ -19,13 +19,11 @@ function redirecionarUsuarioSemPermissao() {
         : '';
 
     if (!role) {
-        window.location.href =
-            '../../../../rf-001-gestao-identidade/frontend/login/index.html';
+        window.location.href = '../../../../rf-001-gestao-identidade/frontend/login/index.html';
         return;
     }
 
-    window.location.href =
-        '../../../../rf-002-catalogo-produtos/frontend/produtos/produtos.html';
+    window.location.href = '../../../../rf-002-catalogo-produtos/frontend/produtos/produtos.html';
 }
 
 window.addEventListener('DOMContentLoaded', () => {

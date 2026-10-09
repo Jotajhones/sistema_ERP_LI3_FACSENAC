@@ -1073,6 +1073,81 @@
         ]
       }
     },
+    "/dashboard/conversao-orcamentos": {
+      "get": {
+        "tags": [
+          "Dashboard"
+        ],
+        "summary": "Taxa de conversão de orçamentos em OS por período",
+        "description": "Total de orçamentos do período, quantos viraram OS, taxa de conversão (%) e valores.\nAcesso restrito a ADMIN e GESTOR. Responde 422 para parâmetros inválidos\nou quando data_inicio é posterior a data_fim.",
+        "operationId": "conversao_orcamentos_dashboard_conversao_orcamentos_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "data_inicio",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date",
+              "description": "Início do período (YYYY-MM-DD), inclusivo.",
+              "title": "Data Inicio"
+            },
+            "description": "Início do período (YYYY-MM-DD), inclusivo."
+          },
+          {
+            "name": "data_fim",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date",
+              "description": "Fim do período (YYYY-MM-DD), inclusivo.",
+              "title": "Data Fim"
+            },
+            "description": "Fim do período (YYYY-MM-DD), inclusivo."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConversaoOrcamentosResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente, inválido ou sessão expirada"
+          },
+          "403": {
+            "description": "Perfil sem permissão (apenas ADMIN e GESTOR)"
+          },
+          "500": {
+            "description": "Erro interno ao calcular o indicador"
+          },
+          "503": {
+            "description": "Banco de dados indisponível"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/": {
       "get": {
         "summary": "Health Check",
@@ -1164,6 +1239,56 @@
           "email"
         ],
         "title": "AuthResponse"
+      },
+      "ConversaoOrcamentosResponse": {
+        "properties": {
+          "periodo": {
+            "$ref": "#/components/schemas/PeriodoResponse"
+          },
+          "total_orcamentos": {
+            "type": "integer",
+            "minimum": 0,
+            "title": "Total Orcamentos"
+          },
+          "orcamentos_convertidos": {
+            "type": "integer",
+            "minimum": 0,
+            "title": "Orcamentos Convertidos"
+          },
+          "orcamentos_pendentes": {
+            "type": "integer",
+            "minimum": 0,
+            "title": "Orcamentos Pendentes"
+          },
+          "taxa_conversao": {
+            "type": "number",
+            "maximum": 100,
+            "minimum": 0,
+            "title": "Taxa Conversao",
+            "description": "Percentual de orçamentos convertidos em OS (0 a 100, 2 casas). 0 quando não há orçamentos."
+          },
+          "valor_total_orcado": {
+            "type": "number",
+            "minimum": 0,
+            "title": "Valor Total Orcado"
+          },
+          "valor_total_convertido": {
+            "type": "number",
+            "minimum": 0,
+            "title": "Valor Total Convertido"
+          }
+        },
+        "type": "object",
+        "required": [
+          "periodo",
+          "total_orcamentos",
+          "orcamentos_convertidos",
+          "orcamentos_pendentes",
+          "taxa_conversao",
+          "valor_total_orcado",
+          "valor_total_convertido"
+        ],
+        "title": "ConversaoOrcamentosResponse"
       },
       "EnderecoCreate": {
         "properties": {
@@ -1629,6 +1754,28 @@
           "created_at"
         ],
         "title": "OrcamentoResponse"
+      },
+      "PeriodoResponse": {
+        "properties": {
+          "data_inicio": {
+            "type": "string",
+            "format": "date",
+            "title": "Data Inicio",
+            "description": "Início do período (inclusivo)."
+          },
+          "data_fim": {
+            "type": "string",
+            "format": "date",
+            "title": "Data Fim",
+            "description": "Fim do período (inclusivo), como enviado pelo cliente."
+          }
+        },
+        "type": "object",
+        "required": [
+          "data_inicio",
+          "data_fim"
+        ],
+        "title": "PeriodoResponse"
       },
       "PessoaCreate": {
         "properties": {

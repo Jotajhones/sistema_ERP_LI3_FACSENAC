@@ -38,6 +38,16 @@ RF005_DIR = os.path.abspath(
     )
 )
 
+RF006_DIR = os.path.abspath(
+    os.path.join(
+        BASE_DIR,
+        '..',
+        '..',
+        'rf-006-dashboard-de-status', 
+        'backend'
+    )
+)
+
 
 # CARREGADOR DINÂMICO DE ROTAS EXTERNAS
 def carregar_rota_externa(nome_modulo: str, caminho_absoluto: str):
@@ -114,6 +124,15 @@ usuarios_router = carregar_rota_externa(
     )
 )
 
+# RF-006: Dashboard de Status
+dashboard_router = carregar_rota_externa(
+    "dashboard_router",
+    os.path.join(
+        RF006_DIR,
+        'routers',
+        'dashboard_router.py'
+    )
+)
 
 # CONFIGURAÇÃO DA APLICAÇÃO FASTAPI
 app = FastAPI(
@@ -193,6 +212,8 @@ app.include_router(os_router)
 # RF-005 - Gestão de Utilizadores
 app.include_router(usuarios_router)
 
+# RF-006 - Dashboard de Status
+app.include_router(dashboard_router)
 
 # HEALTH CHECK
 @app.get("/")
