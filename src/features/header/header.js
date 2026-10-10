@@ -35,6 +35,14 @@ export function renderHeader(activeRoute = 'produtos') {
                 <a href="../gestaoPessoas/gestaoPessoas.html" class="erp-nav-link ${activeRoute === 'gestaoPessoas' ? 'active' : ''}">
                     ${isGestorOuAdmin ? 'Pessoas' : 'Clientes'}
                 </a>
+
+                ${isGestorOuAdmin ? `
+                <a href="../dashboard/dashboard.html"
+                class="erp-nav-link ${activeRoute === 'dashboard' ? 'active' : ''}">
+                    Dashboard
+                </a>
+                ` : ''}
+
             </nav>
 
             <div class="erp-header-user">
