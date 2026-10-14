@@ -19,7 +19,7 @@ function redirecionarUsuarioSemPermissao() {
         : '';
 
     if (!role) {
-        window.location.href = '../login/index.html';
+        window.location.href = '../../index.html';
         return;
     }
 
