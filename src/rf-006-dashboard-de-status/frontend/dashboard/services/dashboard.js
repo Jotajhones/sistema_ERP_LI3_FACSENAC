@@ -110,10 +110,10 @@ function renderizarDashboard(dados) {
         formatarNumero(dados.total_orcamentos);
 
     elementos.convertidos.textContent =
-        formatarNumero(dados.convertidos);
+        formatarNumero(dados.orcamentos_convertidos);
 
     elementos.pendentes.textContent =
-        formatarNumero(dados.pendentes);
+        formatarNumero(dados.orcamentos_pendentes);
 
     elementos.valorTotalOrcado.textContent =
         formatarMoeda(dados.valor_total_orcado);
