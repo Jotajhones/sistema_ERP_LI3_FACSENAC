@@ -37,14 +37,14 @@ VERSÃO 15.0 — COM VALIDAÇÃO AGNÓSTICA DE LINGUAGEM
 
 ### 1. IDENTIFICAÇÃO DO REQUISITO
 
-**ID:** RF-006
-**Título:** Dashboard de Status e Conversão de Orçamentos
-**Tipo:** Requisito Funcional
-**Prioridade:** ALTA
-**Complexidade:** MÉDIA (estimado 5 story points)
-**Status:** CONCLUÍDO
-**Data de Criação:** 09/10/2026
-**Última Atualização:** 09/10/2026
+**ID:** RF-006  
+**Título:** Dashboard de Status e Conversão de Orçamentos  
+**Tipo:** Requisito Funcional  
+**Prioridade:** ALTA  
+**Complexidade:** MÉDIA (estimado 5 story points)  
+**Status:** CONCLUÍDO  
+**Data de Criação:** 09/10/2026  
+**Última Atualização:** 13/10/2026  
 
 **Breve Descrição:**
 O sistema deve prover um painel gerencial (dashboard) restrito, exibindo métricas legíveis sobre o status dos orçamentos, calculando automaticamente a taxa de conversão em ordens de serviço (vendas efetivadas), total orçado e pendente dentro de um período filtrado, facilitando a tomada de decisões da gestão.
