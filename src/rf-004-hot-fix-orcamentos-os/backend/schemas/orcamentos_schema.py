@@ -12,6 +12,7 @@ class ItemOrcamento(BaseModel):
 class OrcamentoCreate(BaseModel):
     nome_cliente: Optional[str] = Field("Cliente Balcão", description="Nome na nota")
     cpf_cliente: Optional[str] = Field(None, max_length=14, description="CPF opcional")
+    telefone_cliente: Optional[str] = Field(None, description="Telefone do cliente com DDD")
     itens: List[ItemOrcamento] = Field(..., min_length=1, description="Lista de produtos")
     cliente_id: Optional[UUID] = None
 
@@ -20,8 +21,12 @@ class OrcamentoResponse(BaseModel):
     cliente_id: Optional[UUID] = None
     nome_cliente: Optional[str]
     cpf_cliente: Optional[str]
+    telefone_cliente: Optional[str] = None
     itens: List[dict]
     valor_total: float
     status: str = "PENDENTE"
     vendedor_id: UUID
     created_at: datetime
+
+    class Config:
+        from_attributes = True
