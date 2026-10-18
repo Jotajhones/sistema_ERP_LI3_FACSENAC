@@ -83,27 +83,39 @@ def create_endereco(endereco_data: Dict[str, Any]) -> List[Dict[str, Any]]:
         raise Exception(f"Erro no banco ao criar endereço: {resp.text}")
 
 
-def update_pessoa(pessoa_id: str, pessoa_data: dict):
+def update_pessoa(pessoa_id: str, pessoa_data: dict) -> Dict[str, Any]:
+    headers = {"Prefer": "return=representation"}
     with get_supabase_client() as client:
-        resp = client.patch(f"/rest/v1/pessoas?id=eq.{pessoa_id}", json=pessoa_data)
-        if resp.status_code not in (200, 204):
-            raise Exception("Erro ao atualizar dados do cliente.")
+        resp = client.patch(
+            f"/rest/v1/pessoas?id=eq.{pessoa_id}", 
+            json=pessoa_data, 
+            headers=headers
+        )
+        if resp.status_code in (200, 201):
+            data = resp.json()
+            return data[0] if isinstance(data, list) and data else data
+        elif resp.status_code == 204:
+            return {}
+        raise Exception(f"Erro ao atualizar dados do cliente: {resp.text}")
 
 
 def upsert_endereco(pessoa_id: str, endereco_data: dict):
+    headers = {"Prefer": "return=representation"}
     with get_supabase_client() as client:
         resp_check = client.get(f"/rest/v1/enderecos?pessoa_id=eq.{pessoa_id}")
         
         if resp_check.status_code == 200 and len(resp_check.json()) > 0:
             endereco_id = resp_check.json()[0]["id"]
-            resp = client.patch(f"/rest/v1/enderecos?id=eq.{endereco_id}", json=endereco_data)
+            resp = client.patch(f"/rest/v1/enderecos?id=eq.{endereco_id}", json=endereco_data, headers=headers)
         else:
-            resp = client.post("/rest/v1/enderecos", json=endereco_data)
+            resp = client.post("/rest/v1/enderecos", json=endereco_data, headers=headers)
             
         if resp.status_code not in (200, 201, 204):
-            raise Exception("Erro ao atualizar o endereço.")
+            raise Exception(f"Erro ao atualizar o endereço: {resp.text}")
         
+
 def inativar_pessoa_e_usuario(pessoa_id: str) -> dict:
+    headers = {"Prefer": "return=representation"}
     with get_supabase_client() as client:
         
         resp_busca = client.get(f"/rest/v1/pessoas?id=eq.{pessoa_id}&select=*")
@@ -113,12 +125,12 @@ def inativar_pessoa_e_usuario(pessoa_id: str) -> dict:
         alvo = resp_busca.json()[0]
         user_id = alvo.get("user_id")
         
-        resp_pessoa = client.patch(f"/rest/v1/pessoas?id=eq.{pessoa_id}", json={"ativo": False})
+        resp_pessoa = client.patch(f"/rest/v1/pessoas?id=eq.{pessoa_id}", json={"ativo": False}, headers=headers)
         if resp_pessoa.status_code not in (200, 204):
             raise Exception("Erro ao inativar o cadastro da pessoa.")
         
         if user_id:
-            resp_user = client.patch(f"/rest/v1/users?id=eq.{user_id}", json={"ativo": False})
+            resp_user = client.patch(f"/rest/v1/users?id=eq.{user_id}", json={"ativo": False}, headers=headers)
             if resp_user.status_code not in (200, 204):
                 raise Exception("Erro ao inativar as credenciais de login do usuário.")
             
