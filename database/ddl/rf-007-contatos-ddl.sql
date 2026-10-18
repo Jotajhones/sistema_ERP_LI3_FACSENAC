@@ -1,0 +1,3 @@
+ALTER TABLE pessoas ADD COLUMN IF NOT EXISTS telefone VARCHAR(20);
+
+ALTER TABLE orcamentos ADD COLUMN IF NOT EXISTS telefone_cliente VARCHAR(20);
