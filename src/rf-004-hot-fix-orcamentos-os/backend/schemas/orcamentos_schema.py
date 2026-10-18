@@ -22,6 +22,7 @@ class OrcamentoResponse(BaseModel):
     nome_cliente: Optional[str]
     cpf_cliente: Optional[str]
     telefone_cliente: Optional[str] = None
+    contatado: Optional[bool] = False
     itens: List[dict]
     valor_total: float
     status: str = "PENDENTE"
