@@ -109,7 +109,7 @@ document.addEventListener("DOMContentLoaded", () => {
         localStorage.setItem('pessoaId', dados.usuario_id);
     }
 
-    window.location.href = '../../../rf-002-catalogo-produtos/frontend/ordemServico/ordemServico.html';
+    window.location.href = '../../../rf-007-tracking-clientes/frontend/ordemServico/ordemServico.html';
   }
 
   function limparCampos() {
