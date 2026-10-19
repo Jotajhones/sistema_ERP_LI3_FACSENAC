@@ -58,6 +58,17 @@ RF007_DIR = os.path.abspath(
     )
 )
 
+RF008_DIR = os.path.abspath(
+    os.path.join(
+        BASE_DIR,
+        '..',
+        '..',
+        'rf-008-auditoria-recuperacao',
+        'backend'
+    )
+)
+
+
 
 
 # CARREGADOR DINÂMICO DE ROTAS EXTERNAS
@@ -155,6 +166,17 @@ contatos_router = carregar_rota_externa(
     )
 )
 
+# SPRINT 7: Recuperação de Acesso e Senha (OWASP A07)
+recuperar_senha_router = carregar_rota_externa(
+    "recuperar_senha_router",
+    os.path.join(
+        RF008_DIR,
+        'routers',
+        'recuperar_senha_router.py'
+    )
+)
+
+
 
 # CONFIGURAÇÃO DA APLICAÇÃO FASTAPI
 app = FastAPI(
@@ -223,6 +245,9 @@ async def aplicar_cabecalhos_seguranca(requisicao, proximo):
 # RF-001 - Autenticação e Gestão de Pessoas
 app.include_router(auth_router.router)
 app.include_router(pessoas_router.router)
+
+# SPRINT 7 - Recuperação de Acesso e Senha (OWASP A07)
+app.include_router(recuperar_senha_router)
 
 # RF-002 - Catálogo de Produtos
 app.include_router(produto_router)
