@@ -4,22 +4,42 @@ import { buscarClienteAPI } from "./clienteService.js";
 import { initModalFaturamento } from "./faturamentoService.js";
 
 let buscaTimeout = null;
-let orcamentoAtualId = null; 
+let orcamentoAtualId = null;
 
 export function initOrcamento() {
     configurarEventosBasicos();
     initModalFaturamento(() => orcamentoAtualId);
-    
+
     const urlParams = new URLSearchParams(window.location.search);
     const idParam = urlParams.get('id');
     if (idParam) carregarOrcamentoExistente(idParam);
 }
+
+function aplicarMascaraTelefone(value) {
+    if (!value) return "";
+    value = value.replace(/\D/g, ""); // Remove tudo que não é dígito
+    value = value.substring(0, 11);   // Limita a 11 dígitos
+
+    if (value.length > 10) {
+        // Celular: (XX) XXXXX-XXXX
+        return value.replace(/^(\d{2})(\d{5})(\d{4})$/, "($1) $2-$3");
+    } else if (value.length > 6) {
+        // Telefone / Celular em digitação: (XX) XXXX-XXXX
+        return value.replace(/^(\d{2})(\d{4})(\d{0,4})$/, "($1) $2-$3");
+    } else if (value.length > 2) {
+        return value.replace(/^(\d{2})(\d{0,5})$/, "($1) $2");
+    } else {
+        return value.replace(/^(\d*)$/, "($1");
+    }
+}
+
 
 function configurarEventosBasicos() {
     const btnBuscar = document.getElementById('btnBuscarCpf');
     const inputCpf = document.getElementById('cpfCliente');
     const form = document.getElementById('formOrcamento');
     const inputBuscaProduto = document.getElementById('inputBuscaProduto');
+    const inputTelefone = document.getElementById('telefoneCliente');
 
     if (btnBuscar) btnBuscar.addEventListener('click', () => buscarClienteAPI(inputCpf.value));
 
@@ -30,6 +50,14 @@ function configurarEventosBasicos() {
             if (val.length === 11) buscarClienteAPI(val);
         });
     }
+
+    // Máscara de Telefone Fluida em Tempo Real
+    if (inputTelefone) {
+        inputTelefone.addEventListener('input', (e) => {
+            e.target.value = aplicarMascaraTelefone(e.target.value);
+        });
+    }
+
 
     if (inputBuscaProduto) {
         inputBuscaProduto.addEventListener('input', (e) => {
@@ -57,10 +85,10 @@ async function pesquisarProdutosAjax(termo) {
     try {
         const response = await erpFetch(`/produtos/busca?termo=${encodeURIComponent(termo)}`);
         if (!response.ok) throw new Error('Erro na busca');
-        
+
         const produtos = await response.json();
         dropdown.innerHTML = '';
-        
+
         if (produtos.length === 0) {
             dropdown.innerHTML = '<div class="search-item" style="color: var(--color-text-muted);">Nenhum produto encontrado.</div>';
         } else {
@@ -77,6 +105,7 @@ async function pesquisarProdutosAjax(termo) {
                 item.addEventListener('click', () => adicionarAoCarrinho(prod));
                 dropdown.appendChild(item);
             });
+
         }
         dropdown.style.display = 'block';
     } catch (error) {
@@ -88,7 +117,7 @@ async function pesquisarProdutosAjax(termo) {
 async function salvarOrcamentoAjax(e) {
     e.preventDefault();
     const carrinhoAtual = getCarrinho();
-    
+
     if (carrinhoAtual.length === 0) {
         alert("Adicione ao menos um produto para gerar o orçamento.");
         return;
@@ -96,12 +125,20 @@ async function salvarOrcamentoAjax(e) {
 
     const inputCpf = document.getElementById('cpfCliente');
     const inputNome = document.getElementById('nomeCliente');
+    const inputTelefone = document.getElementById('telefoneCliente');
     const inputId = document.getElementById('clienteId');
     const btnSalvar = document.getElementById('btnSalvarOrcamento');
-    
+
     let clienteId = inputId.value;
     btnSalvar.disabled = true;
     btnSalvar.textContent = "Processando...";
+
+    // Tratamento e limpeza do telefone para o formato do banco: 55dddnnnnnnnnn
+    let telefoneFormatado = null;
+    const telefoneBruto = inputTelefone ? inputTelefone.value.replace(/\D/g, '') : '';
+    if (telefoneBruto.length >= 10) {
+        telefoneFormatado = telefoneBruto.startsWith('55') ? telefoneBruto : `55${telefoneBruto}`;
+    }
 
     try {
         if (inputCpf.value && inputCpf.value.length === 11 && !clienteId) {
@@ -113,13 +150,17 @@ async function salvarOrcamentoAjax(e) {
             }
             const resPessoa = await erpFetch('/pessoas', {
                 method: 'POST',
-                body: JSON.stringify({ cpf: inputCpf.value, nome: inputNome.value.trim() })
+                body: JSON.stringify({ 
+                    cpf: inputCpf.value, 
+                    nome: inputNome.value.trim(),
+                    telefone: telefoneFormatado 
+                })
             });
-            
+
             if (resPessoa.ok) {
                 const novaPessoa = await resPessoa.json();
                 clienteId = novaPessoa.id;
-                inputId.value = clienteId; 
+                inputId.value = clienteId;
             } else {
                 const err = await resPessoa.json();
                 throw new Error(`Erro ao cadastrar cliente: ${err.detail || 'Dados inválidos'}`);
@@ -130,19 +171,20 @@ async function salvarOrcamentoAjax(e) {
             cliente_id: clienteId || null,
             nome_cliente: inputNome.value.trim() || "Consumidor Final",
             cpf_cliente: inputCpf.value || null,
+            telefone_cliente: telefoneFormatado,
             itens: carrinhoAtual.map(item => ({
                 produto_id: item.id,
                 nome: item.nome,
                 quantidade: item.quantidade,
-                preco_unitario: item.valor_venda 
+                preco_unitario: item.valor_venda
             }))
         };
 
-        const resOrcamento = await erpFetch('/orcamentos', { 
-            method: 'POST', 
-            body: JSON.stringify(orcamentoPayload) 
+        const resOrcamento = await erpFetch('/orcamentos', {
+            method: 'POST',
+            body: JSON.stringify(orcamentoPayload)
         });
-        
+
         if (!resOrcamento.ok) {
             const err = await resOrcamento.json();
             let msgErro = "Falha ao salvar orçamento.";
@@ -153,7 +195,7 @@ async function salvarOrcamentoAjax(e) {
             }
             throw new Error(msgErro);
         }
-        
+
         const orcamentoSalvo = await resOrcamento.json();
         orcamentoAtualId = orcamentoSalvo.id;
 
@@ -171,7 +213,7 @@ async function carregarOrcamentoExistente(id) {
     try {
         const res = await erpFetch(`/orcamentos/${id}`);
         if (!res.ok) throw new Error("Orçamento não encontrado.");
-        
+
         const orcamento = await res.json();
         orcamentoAtualId = orcamento.id;
 
@@ -181,7 +223,7 @@ async function carregarOrcamentoExistente(id) {
 
         if (orcamento.cpf_cliente) {
             document.getElementById('cpfCliente').value = orcamento.cpf_cliente;
-            
+
             if (!document.getElementById('clienteId').value) {
                 try {
                     const cleanCpf = orcamento.cpf_cliente.replace(/\D/g, '');
@@ -189,18 +231,28 @@ async function carregarOrcamentoExistente(id) {
                     if (resCli.ok) {
                         const cliente = await resCli.json();
                         document.getElementById('clienteId').value = cliente.id;
+                        
+                        // Atualiza a máscara ao sincronizar cliente
+                        if (cliente.telefone && document.getElementById('telefoneCliente')) {
+                            document.getElementById('telefoneCliente').value = aplicarMascaraTelefone(cliente.telefone);
+                        }
                     }
                 } catch (e) {
                     console.warn("Não foi possível sincronizar o cliente pelo CPF", e);
                 }
             }
         }
-        
+
         document.getElementById('nomeCliente').value = orcamento.nome_cliente || "Consumidor Final";
         
+        // Atualiza a máscara com os dados do próprio orçamento salvo
+        if (orcamento.telefone_cliente && document.getElementById('telefoneCliente')) {
+            document.getElementById('telefoneCliente').value = aplicarMascaraTelefone(orcamento.telefone_cliente);
+        }
+
         setCarrinho(orcamento.itens.map(item => ({
             id: item.produto_id,
-            nome: item.nome || "Produto Cadastrado", 
+            nome: item.nome || "Produto Cadastrado",
             quantidade: item.quantidade,
             valor_venda: item.preco_unitario
         })));
@@ -210,14 +262,14 @@ async function carregarOrcamentoExistente(id) {
 
     } catch (error) {
         alert("Não foi possível carregar o orçamento. Ele pode não existir mais.");
-        window.location.href = window.location.pathname; 
+        window.location.href = window.location.pathname;
     }
 }
 
 function travarTelaParaFaturamento(status = 'PENDENTE') {
     document.getElementById('containerSalvar').style.display = 'none';
     document.getElementById('controlesFaturamento').style.display = 'flex';
-    
+
     if (status === 'CONVERTIDO') {
         document.getElementById('orcamentoIdDisplay').textContent = `Orçamento #${orcamentoAtualId.split('-')[0]} (FATURADO)`;
         document.getElementById('orcamentoIdDisplay').style.color = 'var(--color-success)';
@@ -225,6 +277,7 @@ function travarTelaParaFaturamento(status = 'PENDENTE') {
     } else {
         document.getElementById('orcamentoIdDisplay').textContent = `Orçamento #${orcamentoAtualId.split('-')[0]}`;
     }
-    
-    document.querySelectorAll('.input-qtd, .btn-remove, #inputBuscaProduto, #cpfCliente').forEach(el => el.disabled = true);
+
+    // Bloqueia a edição do campo de telefone também
+    document.querySelectorAll('.input-qtd, .btn-remove, #inputBuscaProduto, #cpfCliente, #telefoneCliente').forEach(el => el.disabled = true);
 }
