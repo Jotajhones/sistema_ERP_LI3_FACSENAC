@@ -48,6 +48,28 @@ RF006_DIR = os.path.abspath(
     )
 )
 
+RF007_DIR = os.path.abspath(
+    os.path.join(
+        BASE_DIR,
+        '..',
+        '..',
+        'rf-007-tracking-clientes',
+        'backend'
+    )
+)
+
+RF008_DIR = os.path.abspath(
+    os.path.join(
+        BASE_DIR,
+        '..',
+        '..',
+        'rf-008-auditoria-recuperacao',
+        'backend'
+    )
+)
+
+
+
 
 # CARREGADOR DINÂMICO DE ROTAS EXTERNAS
 def carregar_rota_externa(nome_modulo: str, caminho_absoluto: str):
@@ -134,6 +156,28 @@ dashboard_router = carregar_rota_externa(
     )
 )
 
+# RF-007: Tracking de Clientes (WhatsApp)
+contatos_router = carregar_rota_externa(
+    "contatos_router",
+    os.path.join(
+        RF007_DIR,
+        'routers',
+        'contatos_router.py'
+    )
+)
+
+# SPRINT 7: Recuperação de Acesso e Senha (OWASP A07)
+recuperar_senha_router = carregar_rota_externa(
+    "recuperar_senha_router",
+    os.path.join(
+        RF008_DIR,
+        'routers',
+        'recuperar_senha_router.py'
+    )
+)
+
+
+
 # CONFIGURAÇÃO DA APLICAÇÃO FASTAPI
 app = FastAPI(
     title="API - ERP Construção",
@@ -202,8 +246,14 @@ async def aplicar_cabecalhos_seguranca(requisicao, proximo):
 app.include_router(auth_router.router)
 app.include_router(pessoas_router.router)
 
+# SPRINT 7 - Recuperação de Acesso e Senha (OWASP A07)
+app.include_router(recuperar_senha_router)
+
 # RF-002 - Catálogo de Produtos
 app.include_router(produto_router)
+
+# RF-007 - Tracking de Clientes (WhatsApp - Rotas estáticas antes de {orcamento_id})
+app.include_router(contatos_router)
 
 # RF-004 - Orçamentos e Ordens de Serviço
 app.include_router(orcamentos_router)
@@ -214,6 +264,8 @@ app.include_router(usuarios_router)
 
 # RF-006 - Dashboard de Status
 app.include_router(dashboard_router)
+
+
 
 # HEALTH CHECK
 @app.get("/")

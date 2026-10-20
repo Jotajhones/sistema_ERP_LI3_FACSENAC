@@ -15,11 +15,30 @@ export function initOrcamento() {
     if (idParam) carregarOrcamentoExistente(idParam);
 }
 
+function aplicarMascaraTelefone(value) {
+    if (!value) return "";
+    value = value.replace(/\D/g, ""); // Remove tudo que não é dígito
+    value = value.substring(0, 11);   // Limita a 11 dígitos
+
+    if (value.length > 10) {
+        // Celular: (XX) XXXXX-XXXX
+        return value.replace(/^(\d{2})(\d{5})(\d{4})$/, "($1) $2-$3");
+    } else if (value.length > 6) {
+        // Telefone / Celular em digitação: (XX) XXXX-XXXX
+        return value.replace(/^(\d{2})(\d{4})(\d{0,4})$/, "($1) $2-$3");
+    } else if (value.length > 2) {
+        return value.replace(/^(\d{2})(\d{0,5})$/, "($1) $2");
+    } else {
+        return value.replace(/^(\d*)$/, "($1");
+    }
+}
+
 function configurarEventosBasicos() {
     const btnBuscar = document.getElementById('btnBuscarCpf');
     const inputCpf = document.getElementById('cpfCliente');
     const form = document.getElementById('formOrcamento');
     const inputBuscaProduto = document.getElementById('inputBuscaProduto');
+    const inputTelefone = document.getElementById('telefoneCliente');
 
     if (btnBuscar) btnBuscar.addEventListener('click', () => buscarClienteAPI(inputCpf.value));
 
@@ -28,6 +47,13 @@ function configurarEventosBasicos() {
             let val = e.target.value.replace(/\D/g, '');
             e.target.value = val;
             if (val.length === 11) buscarClienteAPI(val);
+        });
+    }
+
+    // Máscara de Telefone Fluida em Tempo Real
+    if (inputTelefone) {
+        inputTelefone.addEventListener('input', (e) => {
+            e.target.value = aplicarMascaraTelefone(e.target.value);
         });
     }
 
@@ -96,12 +122,20 @@ async function salvarOrcamentoAjax(e) {
 
     const inputCpf = document.getElementById('cpfCliente');
     const inputNome = document.getElementById('nomeCliente');
+    const inputTelefone = document.getElementById('telefoneCliente');
     const inputId = document.getElementById('clienteId');
     const btnSalvar = document.getElementById('btnSalvarOrcamento');
     
     let clienteId = inputId.value;
     btnSalvar.disabled = true;
     btnSalvar.textContent = "Processando...";
+
+    // Tratamento e limpeza do telefone para o formato do banco: 55dddnnnnnnnnn
+    let telefoneFormatado = null;
+    const telefoneBruto = inputTelefone ? inputTelefone.value.replace(/\D/g, '') : '';
+    if (telefoneBruto.length >= 10) {
+        telefoneFormatado = telefoneBruto.startsWith('55') ? telefoneBruto : `55${telefoneBruto}`;
+    }
 
     try {
         if (inputCpf.value && inputCpf.value.length === 11 && !clienteId) {
@@ -113,7 +147,11 @@ async function salvarOrcamentoAjax(e) {
             }
             const resPessoa = await erpFetch('/pessoas', {
                 method: 'POST',
-                body: JSON.stringify({ cpf: inputCpf.value, nome: inputNome.value.trim() })
+                body: JSON.stringify({ 
+                    cpf: inputCpf.value, 
+                    nome: inputNome.value.trim(),
+                    telefone: telefoneFormatado 
+                })
             });
             
             if (resPessoa.ok) {
@@ -130,6 +168,7 @@ async function salvarOrcamentoAjax(e) {
             cliente_id: clienteId || null,
             nome_cliente: inputNome.value.trim() || "Consumidor Final",
             cpf_cliente: inputCpf.value || null,
+            telefone_cliente: telefoneFormatado,
             itens: carrinhoAtual.map(item => ({
                 produto_id: item.id,
                 nome: item.nome,
@@ -189,6 +228,9 @@ async function carregarOrcamentoExistente(id) {
                     if (resCli.ok) {
                         const cliente = await resCli.json();
                         document.getElementById('clienteId').value = cliente.id;
+                        if (cliente.telefone && document.getElementById('telefoneCliente')) {
+                            document.getElementById('telefoneCliente').value = aplicarMascaraTelefone(cliente.telefone);
+                        }
                     }
                 } catch (e) {
                     console.warn("Não foi possível sincronizar o cliente pelo CPF", e);
@@ -197,6 +239,10 @@ async function carregarOrcamentoExistente(id) {
         }
         
         document.getElementById('nomeCliente').value = orcamento.nome_cliente || "Consumidor Final";
+        
+        if (orcamento.telefone_cliente && document.getElementById('telefoneCliente')) {
+            document.getElementById('telefoneCliente').value = aplicarMascaraTelefone(orcamento.telefone_cliente);
+        }
         
         setCarrinho(orcamento.itens.map(item => ({
             id: item.produto_id,
@@ -226,5 +272,5 @@ function travarTelaParaFaturamento(status = 'PENDENTE') {
         document.getElementById('orcamentoIdDisplay').textContent = `Orçamento #${orcamentoAtualId.split('-')[0]}`;
     }
     
-    document.querySelectorAll('.input-qtd, .btn-remove, #inputBuscaProduto, #cpfCliente').forEach(el => el.disabled = true);
+    document.querySelectorAll('.input-qtd, .btn-remove, #inputBuscaProduto, #cpfCliente, #telefoneCliente').forEach(el => el.disabled = true);
 }

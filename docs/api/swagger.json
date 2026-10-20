@@ -457,6 +457,254 @@
         }
       }
     },
+    "/recuperar-senha/solicitar": {
+      "post": {
+        "tags": [
+          "Sprint 7 - Recuperação de Acesso e Senha"
+        ],
+        "summary": "Solicitar link/token de recuperação de senha",
+        "operationId": "solicitar_link_recuperacao_recuperar_senha_solicitar_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EsqueciSenhaRequisicao"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EsqueciSenhaResposta"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/esqueci-senha": {
+      "post": {
+        "tags": [
+          "Sprint 7 - Recuperação de Acesso e Senha"
+        ],
+        "summary": "Alias de compatibilidade sob /auth para esqueci minha senha",
+        "operationId": "alias_esqueci_senha_auth_esqueci_senha_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EsqueciSenhaRequisicao"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EsqueciSenhaResposta"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/recuperar-senha/validar": {
+      "get": {
+        "tags": [
+          "Sprint 7 - Recuperação de Acesso e Senha"
+        ],
+        "summary": "Validar token JWT de recuperação via Query Parameter (para telas web)",
+        "operationId": "validar_token_via_query_recuperar_senha_validar_get",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 10,
+              "description": "Token JWT de recuperação",
+              "title": "Token"
+            },
+            "description": "Token JWT de recuperação"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidarTokenResposta"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Sprint 7 - Recuperação de Acesso e Senha"
+        ],
+        "summary": "Validar token JWT de recuperação via Payload JSON",
+        "operationId": "validar_token_via_body_recuperar_senha_validar_post",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ValidarTokenRequisicao"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidarTokenResposta"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/recuperar-senha/confirmar": {
+      "post": {
+        "tags": [
+          "Sprint 7 - Recuperação de Acesso e Senha"
+        ],
+        "summary": "Redefinir senha de acesso utilizando token de uso único",
+        "operationId": "confirmar_redefinicao_senha_recuperar_senha_confirmar_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RedefinirSenhaRequisicao"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RedefinirSenhaResposta"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/redefinir-senha": {
+      "post": {
+        "tags": [
+          "Sprint 7 - Recuperação de Acesso e Senha"
+        ],
+        "summary": "Alias de compatibilidade sob /auth para redefinição de senha",
+        "operationId": "alias_redefinir_senha_auth_redefinir_senha_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RedefinirSenhaRequisicao"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RedefinirSenhaResposta"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/produtos/": {
       "post": {
         "tags": [
@@ -830,6 +1078,132 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/RecebimentoResposta"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/orcamentos/pendentes-contato": {
+      "get": {
+        "tags": [
+          "RF-007 - Tracking de Contatos de Orçamentos"
+        ],
+        "summary": "Recuperar orçamentos pendentes que ainda não foram contatados",
+        "operationId": "listar_orcamentos_pendentes_orcamentos_pendentes_contato_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/OrcamentoPendenteContatoResposta"
+                  },
+                  "type": "array",
+                  "title": "Response Listar Orcamentos Pendentes Orcamentos Pendentes Contato Get"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/orcamentos/{orcamento_id}/contato": {
+      "post": {
+        "tags": [
+          "RF-007 - Tracking de Contatos de Orçamentos"
+        ],
+        "summary": "Registrar que o orçamento foi contatado via WhatsApp",
+        "operationId": "registrar_contato_orcamento_orcamentos__orcamento_id__contato_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "orcamento_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Orcamento Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContatoConfirmacaoResposta"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/orcamentos/{orcamento_id}/contatar": {
+      "post": {
+        "tags": [
+          "RF-007 - Tracking de Contatos de Orçamentos"
+        ],
+        "summary": "Alias de compatibilidade com o frontend para marcar contato",
+        "operationId": "contatar_orcamento_alias_orcamentos__orcamento_id__contatar_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "orcamento_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Orcamento Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContatoConfirmacaoResposta"
                 }
               }
             }
@@ -1240,6 +1614,47 @@
         ],
         "title": "AuthResponse"
       },
+      "ContatoConfirmacaoResposta": {
+        "properties": {
+          "mensagem": {
+            "type": "string",
+            "title": "Mensagem",
+            "description": "Mensagem de confirmação da operação"
+          },
+          "orcamento_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Orcamento Id",
+            "description": "ID do orçamento marcado"
+          },
+          "contatado": {
+            "type": "boolean",
+            "title": "Contatado",
+            "description": "Status de contato atualizado"
+          },
+          "vendedor_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Vendedor Id",
+            "description": "ID do vendedor responsável pelo registro"
+          },
+          "data_contato": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Data Contato",
+            "description": "Timestamp do registro"
+          }
+        },
+        "type": "object",
+        "required": [
+          "mensagem",
+          "orcamento_id",
+          "contatado",
+          "vendedor_id",
+          "data_contato"
+        ],
+        "title": "ContatoConfirmacaoResposta"
+      },
       "ConversaoOrcamentosResponse": {
         "properties": {
           "periodo": {
@@ -1452,6 +1867,58 @@
         "type": "object",
         "title": "EnderecoUpdate"
       },
+      "EsqueciSenhaRequisicao": {
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "title": "Email",
+            "description": "E-mail cadastrado do usuário para recuperação de acesso",
+            "examples": [
+              "vendedor@empresa.com"
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "email"
+        ],
+        "title": "EsqueciSenhaRequisicao",
+        "description": "Payload para solicitação de link/token de recuperação de senha."
+      },
+      "EsqueciSenhaResposta": {
+        "properties": {
+          "mensagem": {
+            "type": "string",
+            "title": "Mensagem",
+            "description": "Mensagem informativa neutra contra enumeração de contas"
+          },
+          "expira_em_minutos": {
+            "type": "integer",
+            "title": "Expira Em Minutos",
+            "description": "Tempo de validade do token gerado em minutos",
+            "default": 15
+          },
+          "debug_token": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Debug Token",
+            "description": "Token JWT exposto apenas em ambiente de desenvolvimento/teste para facilitar a homologação"
+          }
+        },
+        "type": "object",
+        "required": [
+          "mensagem"
+        ],
+        "title": "EsqueciSenhaResposta",
+        "description": "Resposta padronizada para solicitação de recuperação de senha (Anti-Enumeração OWASP A07)."
+      },
       "EstoqueRecebimento": {
         "properties": {
           "quantidade_recebida": {
@@ -1646,6 +2113,18 @@
             "title": "Cpf Cliente",
             "description": "CPF opcional"
           },
+          "telefone_cliente": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Telefone Cliente",
+            "description": "Telefone do cliente com DDD"
+          },
           "itens": {
             "items": {
               "$ref": "#/components/schemas/ItemOrcamento"
@@ -1673,6 +2152,96 @@
           "itens"
         ],
         "title": "OrcamentoCreate"
+      },
+      "OrcamentoPendenteContatoResposta": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id",
+            "description": "ID do orçamento"
+          },
+          "cliente_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cliente Id",
+            "description": "ID do cliente vinculado"
+          },
+          "nome_cliente": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nome Cliente",
+            "description": "Nome do cliente",
+            "default": "Cliente Balcão"
+          },
+          "cpf_cliente": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cpf Cliente",
+            "description": "CPF do cliente"
+          },
+          "telefone_cliente": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Telefone Cliente",
+            "description": "Telefone de contato do cliente"
+          },
+          "valor_total": {
+            "type": "number",
+            "title": "Valor Total",
+            "description": "Valor total do orçamento"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "description": "Status atual do orçamento (ex: PENDENTE)"
+          },
+          "contatado": {
+            "type": "boolean",
+            "title": "Contatado",
+            "description": "Flag indicando se já foi contatado via WhatsApp",
+            "default": false
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At",
+            "description": "Data de emissão do orçamento"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "valor_total",
+          "status",
+          "created_at"
+        ],
+        "title": "OrcamentoPendenteContatoResposta"
       },
       "OrcamentoResponse": {
         "properties": {
@@ -1714,6 +2283,29 @@
               }
             ],
             "title": "Cpf Cliente"
+          },
+          "telefone_cliente": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Telefone Cliente"
+          },
+          "contatado": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Contatado",
+            "default": false
           },
           "itens": {
             "items": {
@@ -2197,6 +2789,65 @@
         ],
         "title": "RecebimentoResposta"
       },
+      "RedefinirSenhaRequisicao": {
+        "properties": {
+          "token": {
+            "type": "string",
+            "minLength": 10,
+            "title": "Token",
+            "description": "Token JWT de uso único gerado na solicitação"
+          },
+          "nova_senha": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 6,
+            "title": "Nova Senha",
+            "description": "Nova senha de acesso desejada pelo usuário"
+          },
+          "confirmacao_senha": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 100,
+                "minLength": 6
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Confirmacao Senha",
+            "description": "Confirmação da nova senha para prevenir erros de digitação"
+          }
+        },
+        "type": "object",
+        "required": [
+          "token",
+          "nova_senha"
+        ],
+        "title": "RedefinirSenhaRequisicao",
+        "description": "Payload para confirmação da redefinição de senha com o token de uso único."
+      },
+      "RedefinirSenhaResposta": {
+        "properties": {
+          "sucesso": {
+            "type": "boolean",
+            "title": "Sucesso",
+            "description": "Indica se a senha foi alterada com sucesso",
+            "default": true
+          },
+          "mensagem": {
+            "type": "string",
+            "title": "Mensagem",
+            "description": "Mensagem de sucesso para o usuário"
+          }
+        },
+        "type": "object",
+        "required": [
+          "mensagem"
+        ],
+        "title": "RedefinirSenhaResposta",
+        "description": "Resposta de sucesso da redefinição de senha."
+      },
       "UsuarioCreate": {
         "properties": {
           "nome": {
@@ -2274,6 +2925,55 @@
           "ativo"
         ],
         "title": "UsuarioResponse"
+      },
+      "ValidarTokenRequisicao": {
+        "properties": {
+          "token": {
+            "type": "string",
+            "minLength": 10,
+            "title": "Token",
+            "description": "Token JWT temporário recebido pelo usuário"
+          }
+        },
+        "type": "object",
+        "required": [
+          "token"
+        ],
+        "title": "ValidarTokenRequisicao",
+        "description": "Payload para validação de integridade e validade do token de recuperação."
+      },
+      "ValidarTokenResposta": {
+        "properties": {
+          "valido": {
+            "type": "boolean",
+            "title": "Valido",
+            "description": "Indica se o token é válido e pode ser utilizado"
+          },
+          "mensagem": {
+            "type": "string",
+            "title": "Mensagem",
+            "description": "Detalhes sobre a validade do token"
+          },
+          "email_mascarado": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Email Mascarado",
+            "description": "E-mail mascarado para conferência visual segura do usuário"
+          }
+        },
+        "type": "object",
+        "required": [
+          "valido",
+          "mensagem"
+        ],
+        "title": "ValidarTokenResposta",
+        "description": "Resposta indicando se o token está apto para redefinição."
       },
       "ValidationError": {
         "properties": {

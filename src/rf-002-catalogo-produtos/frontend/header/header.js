@@ -20,7 +20,7 @@ export function renderHeader(activeRoute = 'produtos') {
             </div>
             
             <nav class="erp-header-nav">
-                <a href="../../../rf-002-catalogo-produtos/frontend/ordemServico/ordemServico.html" class="erp-nav-link ${activeRoute === 'ordemServico' ? 'active' : ''}">
+                <a href="../../../rf-007-tracking-clientes/frontend/ordemServico/ordemServico.html" class="erp-nav-link ${activeRoute === 'ordemServico' ? 'active' : ''}">
                     Novo Orçamento
                 </a>
                 

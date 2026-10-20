@@ -1,11 +1,15 @@
 from fastapi import APIRouter, Depends, status
 from schemas.auth_schemas import AuthRequest, AuthResponse, AlterarSenhaRequest, MensagemResposta
 from services.auth_service import autenticar_usuario, encerrar_sessao, alterar_senha_usuario
-from dependencies import obter_token_atual, obter_usuario_atual
+from dependencies import obter_token_atual, obter_usuario_atual, limitar_taxa_requisicao
 
 router = APIRouter(tags=["Autenticação"])
 
-@router.post("/auth", response_model=AuthResponse)
+@router.post(
+    "/auth",
+    response_model=AuthResponse,
+    dependencies=[Depends(limitar_taxa_requisicao("auth_login", limite=5, janela_segundos=60))]
+)
 def login(requisicao: AuthRequest):
     return autenticar_usuario(requisicao)
 

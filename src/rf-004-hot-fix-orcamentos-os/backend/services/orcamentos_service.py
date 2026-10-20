@@ -15,6 +15,7 @@ async def criar_orcamento(payload: OrcamentoCreate, vendedor_id: str):
     orcamento_data = {
         "nome_cliente": payload.nome_cliente,
         "cpf_cliente": clean_cpf,
+        "telefone_cliente": payload.telefone_cliente,
         "itens": itens_dict,
         "valor_total": valor_total_calculado,
         "vendedor_id": vendedor_id

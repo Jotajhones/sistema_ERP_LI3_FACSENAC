@@ -126,3 +126,106 @@ def require_role(allowed_roles: list[str]) -> Callable:
 obter_usuario_atual = get_current_user
 obter_papel_usuario = get_user_role
 exigir_papeis = require_role
+
+
+import time
+import threading
+from fastapi import Request
+
+
+class RateLimiterMemoria:
+    """
+    Controlador de limitação de taxa (Rate Limiter) em memória com janela deslizante (Sliding Window),
+    thread-safe e em conformidade com OWASP A07 (Anti-Brute Force e Anti-Enumeração).
+    """
+
+    def __init__(self):
+        self._lock = threading.Lock()
+        self._historico: dict[str, list[float]] = {}
+
+    def verificar_e_registrar(
+        self,
+        chave: str,
+        limite_requisicoes: int,
+        janela_segundos: int
+    ) -> tuple[bool, int, int]:
+        agora = time.time()
+        corte_janela = agora - janela_segundos
+
+        with self._lock:
+            timestamps = self._historico.get(chave, [])
+            timestamps = [ts for ts in timestamps if ts > corte_janela]
+
+            if len(timestamps) >= limite_requisicoes:
+                ts_mais_antiga = timestamps[0]
+                segundos_restantes = max(1, int(janela_segundos - (agora - ts_mais_antiga)) + 1)
+                self._historico[chave] = timestamps
+                return False, segundos_restantes, 0
+
+            timestamps.append(agora)
+            self._historico[chave] = timestamps
+            restantes = max(0, limite_requisicoes - len(timestamps))
+            return True, 0, restantes
+
+    def limpar(self, chave: str = None):
+        with self._lock:
+            if chave:
+                self._historico.pop(chave, None)
+            else:
+                self._historico.clear()
+
+
+rate_limiter_global = RateLimiterMemoria()
+
+
+def extrair_ip_cliente(request: Request) -> str:
+    """Extrai o IP real do cliente considerando proxies reversos (Render, Vercel, Cloudflare)."""
+    forwarded_for = request.headers.get("X-Forwarded-For")
+    if forwarded_for:
+        return forwarded_for.split(",")[0].strip()
+
+    real_ip = request.headers.get("X-Real-IP")
+    if real_ip:
+        return real_ip.strip()
+
+    if request.client and request.client.host:
+        return request.client.host
+
+    return "127.0.0.1"
+
+
+def limitar_taxa_requisicao(
+    escopo: str,
+    limite: int = 5,
+    janela_segundos: int = 60
+) -> Callable:
+    """
+    Cria uma dependência FastAPI para aplicar rate limiting (OWASP A07).
+    """
+    def dependency(request: Request):
+        ip = extrair_ip_cliente(request)
+        chave = f"{escopo}:{ip}"
+
+        permitido, segundos_espera, restantes = rate_limiter_global.verificar_e_registrar(
+            chave=chave,
+            limite_requisicoes=limite,
+            janela_segundos=janela_segundos
+        )
+
+        if not permitido:
+            raise HTTPException(
+                status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+                detail=(
+                    f"Muitas requisições para a rota de {escopo}. "
+                    f"Por favor, aguarde {segundos_espera} segundo(s) antes de tentar novamente (OWASP A07)."
+                ),
+                headers={
+                    "Retry-After": str(segundos_espera),
+                    "X-RateLimit-Limit": str(limite),
+                    "X-RateLimit-Remaining": "0",
+                    "X-RateLimit-Reset": str(segundos_espera)
+                }
+            )
+
+    return dependency
+
