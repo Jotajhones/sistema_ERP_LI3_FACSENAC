@@ -31,7 +31,7 @@ LINK_DEMONSTRAÇÃO: https://sistema-erp-li-3-facsenac.vercel.app/
 **Complexidade:** MÉDIA (estimado 5 story points)    
 **Status:** CONCLUÍDO (Refatorado na Sprint 05)
 **Data de Criação:** 27/08/2026    
-**Última Atualização:** 09/10/2026    
+**Última Atualização:** 20/10/2026    
 
 **Breve Descrição:**
 Criar e implementar a gestão de identidade (autenticação e autorização) estabelecendo o núcleo de segurança da API. O sistema emite credenciais criptografadas de acesso e gerencia diferentes tipos de atores corporativos no ERP.
@@ -105,6 +105,7 @@ Permissões: Leitura da tabela `users` do PostgreSQL para cálculo de hash e com
 | RN-01 | Entidade Única | O e-mail deve ser chave primária lógica na tabela `users` (UNIQUE). |
 | RN-02 | Segurança Zero-Knowledge | Nenhuma senha trafega descriptografada ou é salva em plain text. O uso de `bcrypt` 12 rounds é obrigatório. |
 | RN-03 | Respostas Opacas | O sistema jamais informa "E-mail não encontrado". A resposta de falha deve ser uniforme para evitar User Enumeration. |
+| RN-04 | Proteção Global de Rotas | Com exceção da rota pública de login (`/auth`), absolutamente todas as rotas da aplicação (produtos, orçamentos, pessoas) são bloqueadas por padrão. O acesso só é liberado mediante o envio do Token de Sessão Opaco (UUID) gerado pela própria aplicação, garantindo o controle estrito de visualização e manipulação de dados. |
 
 **Requisitos Não-Funcionais (RNF)**
 
@@ -213,6 +214,29 @@ curl -X OPTIONS "[http://127.0.0.1:8000/auth](http://127.0.0.1:8000/auth)" \
      -H "Access-Control-Request-Method: POST" -I
 
 ```
+
+**4. A01:2021 – Broken Access Control (Proteção Global de Rotas e Sessão)**
+
+* **Vulnerabilidade:** Requisições simples feitas diretamente para as rotas da API (ex: `/produtos` ou `/orcamentos`) poderiam burlar a interface web e expor dados sensíveis da loja caso o backend não validasse quem está fazendo a requisição.
+* **Implementação:** A aplicação não confia no client-side. Foi implementado um mecanismo rigoroso onde o sistema gera um Token de Sessão Opaco (UUID) exclusivo no ato do login. Um *middleware* guardião intercepta todas as requisições subsequentes do ERP, exigindo que este token gerado pela própria aplicação seja enviado no cabeçalho `Authorization: Bearer`. Sem ele, qualquer tentativa de acesso externo ou direto à API é sumariamente bloqueada.
+* **Teste (Mocks de Validação de Acesso):**
+
+*Mock 1: Tentativa de acesso sem o Token da Aplicação (Bloqueado)*
+```bash
+curl -X GET "[https://sistema-erp-li3-facsenac.onrender.com/produtos](https://sistema-erp-li3-facsenac.onrender.com/produtos)" \
+     -H "Accept: application/json"
+```
+
+(Status Retornado: 401 Unauthorized. O servidor detecta a ausência da sessão e impede o vazamento do catálogo).
+
+Mock 2: Tentativa de acesso utilizando o Token de Sessão válido gerado pela Aplicação (Permitido)
+
+```bash
+curl -X GET "[https://sistema-erp-li3-facsenac.onrender.com/produtos](https://sistema-erp-li3-facsenac.onrender.com/produtos)" \
+     -H "Authorization: Bearer 59d9a34b-d1f1-4754-af25-3a8204af89bc" \
+     -H "Accept: application/json"
+```
+(Status Retornado: 200 OK. O middleware valida o token ativo na tabela de sessões e autoriza a visualização dos dados, aplicando o controle de acesso correto).
 
 *(A resposta bloqueia o CORS, não informando cabeçalhos `Access-Control-Allow-Origin` para o site pirata).*
 

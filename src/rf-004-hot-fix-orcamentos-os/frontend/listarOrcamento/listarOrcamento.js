@@ -52,16 +52,22 @@ async function carregarOrcamentos() {
     tbody.innerHTML = '<tr><td colspan="6" class="text-center" style="padding: 2rem; color: var(--color-text-muted);">Carregando orçamentos...</td></tr>';
 
     try {
-        const response = await erpFetch('/orcamentos');
+        // CORREÇÃO: Usar a rota específica que cruza os dados com a tabela de contatos!
+        let endpoint = '/orcamentos';
+        
+        if (filtroAtual === 'nao_contatados') {
+            endpoint = '/orcamentos/pendentes-contato';
+        }
+
+        const response = await erpFetch(endpoint);
         if (!response.ok) throw new Error('Falha ao buscar orçamentos');
 
         let orcamentos = await response.json();
 
-        // Aplica o filtro selecionado
+        // O filtro local do JS agora só se preocupa com a rota geral.
+        // Se a rota for "nao_contatados", o backend já devolveu a lista mastigada!
         if (filtroAtual === 'pendentes') {
-            orcamentos = orcamentos.filter(orc => orc.status !== 'CONVERTIDO');
-        } else if (filtroAtual === 'nao_contatados') {
-            orcamentos = orcamentos.filter(orc => orc.status !== 'CONVERTIDO' && !orc.contatado);
+            orcamentos = orcamentos.filter(orc => orc.status !== 'CONVERTIDO' && orc.status !== 'FINALIZADA' && orc.status !== 'FINALIZADO');
         }
 
         tbody.innerHTML = '';
@@ -81,8 +87,11 @@ async function carregarOrcamentos() {
             const shortId = orc.id.split('-')[0];
 
             const status = orc.status || 'PENDENTE';
-            const badgeClass = status === 'CONVERTIDO' ? 'convertido' : 'pendente';
-            const statusTexto = status === 'CONVERTIDO' ? 'OS Gerada' : 'Pendente';
+            
+            // Blindando a cor da badge para aceitar os outros status de OS convertida
+            const isConvertido = status === 'CONVERTIDO' || status === 'FINALIZADA' || status === 'FINALIZADO';
+            const badgeClass = isConvertido ? 'convertido' : 'pendente';
+            const statusTexto = isConvertido ? 'OS Gerada' : 'Pendente';
 
             row.innerHTML = `
                 <td>${dataFormatada}</td>
@@ -115,7 +124,6 @@ async function carregarOrcamentos() {
         tbody.innerHTML = '<tr><td colspan="6" class="text-center" style="color: var(--color-error); padding: 2rem;">Erro ao carregar os orçamentos.</td></tr>';
     }
 }
-
 function abrirWhatsApp(idOrcamento, telefoneBruto, nomeCliente, valorTotal) {
     if (!telefoneBruto) {
         alert('Este cliente não possui um número de telefone cadastrado.');

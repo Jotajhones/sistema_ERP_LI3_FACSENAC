@@ -19,7 +19,6 @@ source venv/bin/activate
 
 ```
 
-
 *(No Windows, utilize `venv\Scripts\activate`)*
 3. **Instalação das Dependências:**
 Com o `venv` ativado, instale as bibliotecas necessárias:
