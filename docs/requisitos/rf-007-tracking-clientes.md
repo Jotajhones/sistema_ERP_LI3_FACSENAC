@@ -191,16 +191,16 @@ O arquivo OpenAPI reflete rigorosamente os campos de requestBody e os códigos H
 
 ### Decisões Técnicas (ADRs)
 
-**ADR-001: Arquitetura de Tabela Associativa**
+**ADR-024: Arquitetura de Tabela Associativa**
 - **Razão:** Em vez de poluir a tabela financeira de orçamentos com colunas de tracking comercial, optou-se por criar a tabela relacional orcamentos_contatos. Isso garante um schema limpo, separando domínios (Financeiro vs. CRM) e permitindo expansões futuras de auditoria sem travar tabelas vitais.
 
-**ADR-002: Integração Deep Link (wa.me) no Client-Side**
+**ADR-025: Integração Deep Link (wa.me) no Client-Side**
 - **Razão:** Utilizar a API Cloud Oficial da Meta demandaria custos financeiros e configuração de webhooks fora do escopo do MVP. A montagem da URI dinamicamente no frontend resolve a necessidade de negócio com custo zero e zero latência de servidor.  
 
-**ADR-003: Filtro Lógico no Python (Application-Level Join)**
+**ADR-026: Filtro Lógico no Python (Application-Level Join)**
 - **Razão:** Optou-se por realizar o cruzamento de orçamentos pendentes com orçamentos contatados diretamente na camada Service do Python, ao invés de uma view complexa no PostgREST. Isso simplifica a manutenção imediata, dadas as permissões estritas de RLS ativas no banco.
 
-**ADR-004: Injeção de Identidade via Token JWT/UUID**
+**ADR-027: Injeção de Identidade via Token JWT/UUID**
 - **Razão:** Para garantir integridade máxima na auditoria comercial, a rota de POST não possui o campo vendedor_id no seu Payload JSON. A arquitetura força o framework FastAPI a descompactar a identidade a partir do Header de Autorização, eliminando vulnerabilidades de falsidade ideológica.  
 
 ---
