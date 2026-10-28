@@ -75,12 +75,25 @@ export function initGestaoPessoas() {
                 <td><span class="badge ${classBadgeTipo}">${labelTipo}</span></td>
                 <td><span class="badge ${classBadgeAtivo}">${labelAtivo}</span></td>
                 <td>
+                    ${isGestorOuAdmin && isFuncionario
+                    ? `<a class="btn-secondary btn-detalhes" href="./user.html?id=${encodeURIComponent(p.id)}">Detalhes</a>`
+                    : ''
+                }
                     ${p.ativo
                     ? `<button class="btn-danger btn-inativar" data-id="${p.id}">Excluir</button>`
                     : `<span style="color: #999; font-size: 0.85rem;">Inativado</span>`
                 }
                 </td>
             `;
+            // Linha do funcionário abre os detalhes (exceto ao clicar nos botões)
+            if (isGestorOuAdmin && isFuncionario) {
+                tr.classList.add('linha-clicavel');
+                tr.addEventListener('click', (e) => {
+                    if (e.target.closest('button, a')) return;
+                    window.location.href = `./user.html?id=${encodeURIComponent(p.id)}`;
+                });
+            }
+
             tabelaCorpo.appendChild(tr);
         });
 

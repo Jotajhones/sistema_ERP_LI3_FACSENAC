@@ -183,3 +183,18 @@
 .btn-secondary:hover {
     background-color: #e2e8f0;
 }
+a.btn-detalhes {
+    display: inline-block;
+    padding: 6px 12px;
+    margin-right: 6px;
+    text-decoration: none;
+    font-size: 0.9rem;
+}
+
+.linha-clicavel {
+    cursor: pointer;
+}
+
+.linha-clicavel:hover {
+    background-color: #f8fafc;
+}

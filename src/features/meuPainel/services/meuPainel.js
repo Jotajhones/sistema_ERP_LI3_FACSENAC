@@ -158,10 +158,22 @@ export function initMeuPainel() {
             };
 
             try {
-                await erpFetch('/auth/senha', {
-                    method: 'PATCH',
+                // RF-008: troca da própria senha; o alvo vem do token, nunca do payload
+                const respostaFetch = await erpFetch('/usuarios/minha-senha', {
+                    method: 'PUT',
                     body: JSON.stringify(payload)
                 });
+
+                // erpFetch só lança erro em 401, os demais status precisam ser checados aqui
+                if (!respostaFetch.ok) {
+                    const erro = await respostaFetch.json().catch(() => ({}));
+                    exibirFeedbackModal(
+                        respostaFetch.status === 400 || respostaFetch.status === 403
+                            ? (erro.detail || 'Senha atual incorreta.')
+                            : 'Erro ao alterar senha.'
+                    );
+                    return;
+                }
 
                 modalSenha.style.display = 'none';
                 exibirAlerta('Senha alterada com sucesso!', true);
