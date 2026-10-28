@@ -23,7 +23,7 @@ export function validarAcessibilidadeRota() {
 
     if (roleNormalizada === 'CLIENTE') {
         alert("Acesso negado: você não tem permissão para acessar esta área.");
-        window.location.href = '../../../rf-001-gestao-identidade/frontend/login/index.html';
+        window.location.href = '../../../index.html';
         return false;
     }
     return true;
