@@ -34,7 +34,7 @@ async def obter_pessoa_por_id(
     pessoa_id: str,
     usuario_id: str = Depends(get_current_user)
 ):
-    return await service.buscar_pessoa_por_id(pessoa_id)
+    return await service.buscar_pessoa_por_id(pessoa_id, usuario_id)
 
 
 @router.get("/cpf/{cpf}", response_model=PessoaResponse)

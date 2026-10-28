@@ -58,15 +58,15 @@ RF007_DIR = os.path.abspath(
     )
 )
 
-# RF008_DIR = os.path.abspath(
-#     os.path.join(
-#         BASE_DIR,
-#         '..',
-#         '..',
-#         'rf-008-auditoria-recuperacao',
-#         'backend'
-#     )
-# )
+RF008_DIR = os.path.abspath(
+    os.path.join(
+        BASE_DIR,
+        '..',
+        '..',
+        'rf-008-recuperar-senha',
+        'backend'
+    )
+)
 
 
 # CARREGADOR DINÂMICO DE ROTAS EXTERNAS
@@ -161,6 +161,16 @@ contatos_router = carregar_rota_externa(
         RF007_DIR,
         'routers',
         'contatos_router.py'
+    )
+)
+
+# RF-008: Reset Administrativo de Senha
+reset_senha_router = carregar_rota_externa(
+    "reset_senha_router",
+    os.path.join(
+        RF008_DIR,
+        'routers',
+        'reset_senha_router.py'
     )
 )
 
@@ -262,6 +272,9 @@ app.include_router(usuarios_router)
 
 # RF-006 - Dashboard de Status
 app.include_router(dashboard_router)
+
+# RF-008 - Reset Administrativo de Senha
+app.include_router(reset_senha_router)
 
 
 

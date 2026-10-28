@@ -47,6 +47,8 @@ class PessoaResponse(BaseModel):
     telefone: Optional[str] = None
     user_id: Optional[UUID]
     ativo: bool
+    email: Optional[str] = None
+    role: Optional[str] = None
 
     class Config:
         from_attributes = True        

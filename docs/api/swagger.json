@@ -59,9 +59,7 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {
-
-                }
+                "schema": {}
               }
             }
           }
@@ -1447,6 +1445,117 @@
         ]
       }
     },
+    "/usuarios/{user_id}/reset-senha": {
+      "post": {
+        "tags": [
+          "Usuários"
+        ],
+        "summary": "Resetar senha de funcionário para o padrão (exclusivo GESTOR/ADMIN)",
+        "description": "Rota exclusiva para os perfis **GESTOR** e **ADMIN** (`RequireRole([\"ADMIN\", \"GESTOR\"])`); VENDEDOR recebe 403. Não recebe body: a senha padrão é definida no backend, criptografada com bcrypt (12 rounds) e gravada em `users.password_hash`. Em seguida todas as sessões do usuário alvo são apagadas (`DELETE FROM sessoes WHERE user_id = {id}`). GESTOR não pode resetar a senha de um ADMIN.",
+        "operationId": "resetar_senha_usuario_usuarios__user_id__reset_senha_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "User Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResetSenhaResposta"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente, inválido ou sessão expirada"
+          },
+          "403": {
+            "description": "Perfil sem permissão (VENDEDOR, ou GESTOR tentando resetar um ADMIN)"
+          },
+          "404": {
+            "description": "Usuário não encontrado"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/usuarios/minha-senha": {
+      "put": {
+        "tags": [
+          "Usuários"
+        ],
+        "summary": "Alterar a própria senha (qualquer usuário autenticado)",
+        "description": "Usado pelo funcionário no Meu Painel após o reset. Altera apenas a senha do usuário dono do token (RN-03), exigindo a senha atual. Mesma regra de `PUT/PATCH /auth/senha`.",
+        "operationId": "alterar_minha_senha_usuarios_minha_senha_put",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AlterarSenhaRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MensagemResposta"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Senha atual incorreta ou nova senha igual à atual"
+          },
+          "401": {
+            "description": "Token ausente, inválido ou sessão expirada"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
     "/dashboard/conversao-orcamentos": {
       "get": {
         "tags": [
@@ -1531,9 +1640,7 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {
-
-                }
+                "schema": {}
               }
             }
           }
@@ -2467,6 +2574,28 @@
           "ativo": {
             "type": "boolean",
             "title": "Ativo"
+          },
+          "email": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Email"
+          },
+          "role": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Role"
           }
         },
         "type": "object",
@@ -3014,6 +3143,19 @@
           "type"
         ],
         "title": "ValidationError"
+      },
+      "ResetSenhaResposta": {
+        "properties": {
+          "mensagem": {
+            "type": "string",
+            "title": "Mensagem"
+          }
+        },
+        "type": "object",
+        "required": [
+          "mensagem"
+        ],
+        "title": "ResetSenhaResposta"
       }
     },
     "securitySchemes": {
