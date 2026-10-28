@@ -11,6 +11,14 @@ def get_user_by_id(user_id: str) -> Optional[Dict[str, Any]]:
     return None
 
 
+def get_dados_acesso_usuario(user_id: str) -> Optional[Dict[str, Any]]:
+    with get_supabase_client() as client:
+        resp = client.get(f"/rest/v1/users?id=eq.{user_id}&select=email,user_role")
+        if resp.status_code == 200 and resp.json():
+            return resp.json()[0]
+    return None
+
+
 def get_pessoa_by_user_id(user_id: str) -> Optional[Dict[str, Any]]:
     with get_supabase_client() as client:
         resp = client.get(f"/rest/v1/pessoas?user_id=eq.{user_id}&select=id")

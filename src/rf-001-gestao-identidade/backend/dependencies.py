@@ -126,6 +126,7 @@ def require_role(allowed_roles: list[str]) -> Callable:
 obter_usuario_atual = get_current_user
 obter_papel_usuario = get_user_role
 exigir_papeis = require_role
+RequireRole = require_role
 
 
 import time

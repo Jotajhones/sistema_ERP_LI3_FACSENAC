@@ -59,9 +59,7 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {
-
-                }
+                "schema": {}
               }
             }
           }
@@ -440,254 +438,6 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/PessoaResponse"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/recuperar-senha/solicitar": {
-      "post": {
-        "tags": [
-          "Sprint 7 - Recuperação de Acesso e Senha"
-        ],
-        "summary": "Solicitar link/token de recuperação de senha",
-        "operationId": "solicitar_link_recuperacao_recuperar_senha_solicitar_post",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/EsqueciSenhaRequisicao"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/EsqueciSenhaResposta"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/auth/esqueci-senha": {
-      "post": {
-        "tags": [
-          "Sprint 7 - Recuperação de Acesso e Senha"
-        ],
-        "summary": "Alias de compatibilidade sob /auth para esqueci minha senha",
-        "operationId": "alias_esqueci_senha_auth_esqueci_senha_post",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/EsqueciSenhaRequisicao"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/EsqueciSenhaResposta"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/recuperar-senha/validar": {
-      "get": {
-        "tags": [
-          "Sprint 7 - Recuperação de Acesso e Senha"
-        ],
-        "summary": "Validar token JWT de recuperação via Query Parameter (para telas web)",
-        "operationId": "validar_token_via_query_recuperar_senha_validar_get",
-        "parameters": [
-          {
-            "name": "token",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "minLength": 10,
-              "description": "Token JWT de recuperação",
-              "title": "Token"
-            },
-            "description": "Token JWT de recuperação"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ValidarTokenResposta"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      },
-      "post": {
-        "tags": [
-          "Sprint 7 - Recuperação de Acesso e Senha"
-        ],
-        "summary": "Validar token JWT de recuperação via Payload JSON",
-        "operationId": "validar_token_via_body_recuperar_senha_validar_post",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ValidarTokenRequisicao"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ValidarTokenResposta"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/recuperar-senha/confirmar": {
-      "post": {
-        "tags": [
-          "Sprint 7 - Recuperação de Acesso e Senha"
-        ],
-        "summary": "Redefinir senha de acesso utilizando token de uso único",
-        "operationId": "confirmar_redefinicao_senha_recuperar_senha_confirmar_post",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/RedefinirSenhaRequisicao"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/RedefinirSenhaResposta"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/auth/redefinir-senha": {
-      "post": {
-        "tags": [
-          "Sprint 7 - Recuperação de Acesso e Senha"
-        ],
-        "summary": "Alias de compatibilidade sob /auth para redefinição de senha",
-        "operationId": "alias_redefinir_senha_auth_redefinir_senha_post",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/RedefinirSenhaRequisicao"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/RedefinirSenhaResposta"
                 }
               }
             }
@@ -1447,6 +1197,117 @@
         ]
       }
     },
+    "/usuarios/{user_id}/reset-senha": {
+      "post": {
+        "tags": [
+          "Usuários"
+        ],
+        "summary": "Resetar senha de funcionário para o padrão (exclusivo GESTOR/ADMIN)",
+        "description": "Rota exclusiva para os perfis **GESTOR** e **ADMIN** (`RequireRole([\"ADMIN\", \"GESTOR\"])`); VENDEDOR recebe 403. Não recebe body: a senha padrão é definida no backend, criptografada com bcrypt (12 rounds) e gravada em `users.password_hash`. Em seguida todas as sessões do usuário alvo são apagadas (`DELETE FROM sessoes WHERE user_id = {id}`). GESTOR não pode resetar a senha de um ADMIN.",
+        "operationId": "resetar_senha_usuario_usuarios__user_id__reset_senha_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "User Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResetSenhaResposta"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente, inválido ou sessão expirada"
+          },
+          "403": {
+            "description": "Perfil sem permissão (VENDEDOR, ou GESTOR tentando resetar um ADMIN)"
+          },
+          "404": {
+            "description": "Usuário não encontrado"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/usuarios/minha-senha": {
+      "put": {
+        "tags": [
+          "Usuários"
+        ],
+        "summary": "Alterar a própria senha (qualquer usuário autenticado)",
+        "description": "Usado pelo funcionário no Meu Painel após o reset. Altera apenas a senha do usuário dono do token (RN-03), exigindo a senha atual. Mesma regra de `PUT/PATCH /auth/senha`.",
+        "operationId": "alterar_minha_senha_usuarios_minha_senha_put",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AlterarSenhaRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MensagemResposta"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Senha atual incorreta ou nova senha igual à atual"
+          },
+          "401": {
+            "description": "Token ausente, inválido ou sessão expirada"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
     "/dashboard/conversao-orcamentos": {
       "get": {
         "tags": [
@@ -1531,9 +1392,7 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {
-
-                }
+                "schema": {}
               }
             }
           }
@@ -1564,7 +1423,8 @@
           "senha_atual",
           "nova_senha"
         ],
-        "title": "AlterarSenhaRequest"
+        "title": "AlterarSenhaRequest",
+        "additionalProperties": false
       },
       "AuthRequest": {
         "properties": {
@@ -1866,58 +1726,6 @@
         },
         "type": "object",
         "title": "EnderecoUpdate"
-      },
-      "EsqueciSenhaRequisicao": {
-        "properties": {
-          "email": {
-            "type": "string",
-            "format": "email",
-            "title": "Email",
-            "description": "E-mail cadastrado do usuário para recuperação de acesso",
-            "examples": [
-              "vendedor@empresa.com"
-            ]
-          }
-        },
-        "type": "object",
-        "required": [
-          "email"
-        ],
-        "title": "EsqueciSenhaRequisicao",
-        "description": "Payload para solicitação de link/token de recuperação de senha."
-      },
-      "EsqueciSenhaResposta": {
-        "properties": {
-          "mensagem": {
-            "type": "string",
-            "title": "Mensagem",
-            "description": "Mensagem informativa neutra contra enumeração de contas"
-          },
-          "expira_em_minutos": {
-            "type": "integer",
-            "title": "Expira Em Minutos",
-            "description": "Tempo de validade do token gerado em minutos",
-            "default": 15
-          },
-          "debug_token": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Debug Token",
-            "description": "Token JWT exposto apenas em ambiente de desenvolvimento/teste para facilitar a homologação"
-          }
-        },
-        "type": "object",
-        "required": [
-          "mensagem"
-        ],
-        "title": "EsqueciSenhaResposta",
-        "description": "Resposta padronizada para solicitação de recuperação de senha (Anti-Enumeração OWASP A07)."
       },
       "EstoqueRecebimento": {
         "properties": {
@@ -2467,6 +2275,28 @@
           "ativo": {
             "type": "boolean",
             "title": "Ativo"
+          },
+          "email": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Email"
+          },
+          "role": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Role"
           }
         },
         "type": "object",
@@ -2789,65 +2619,6 @@
         ],
         "title": "RecebimentoResposta"
       },
-      "RedefinirSenhaRequisicao": {
-        "properties": {
-          "token": {
-            "type": "string",
-            "minLength": 10,
-            "title": "Token",
-            "description": "Token JWT de uso único gerado na solicitação"
-          },
-          "nova_senha": {
-            "type": "string",
-            "maxLength": 100,
-            "minLength": 6,
-            "title": "Nova Senha",
-            "description": "Nova senha de acesso desejada pelo usuário"
-          },
-          "confirmacao_senha": {
-            "anyOf": [
-              {
-                "type": "string",
-                "maxLength": 100,
-                "minLength": 6
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Confirmacao Senha",
-            "description": "Confirmação da nova senha para prevenir erros de digitação"
-          }
-        },
-        "type": "object",
-        "required": [
-          "token",
-          "nova_senha"
-        ],
-        "title": "RedefinirSenhaRequisicao",
-        "description": "Payload para confirmação da redefinição de senha com o token de uso único."
-      },
-      "RedefinirSenhaResposta": {
-        "properties": {
-          "sucesso": {
-            "type": "boolean",
-            "title": "Sucesso",
-            "description": "Indica se a senha foi alterada com sucesso",
-            "default": true
-          },
-          "mensagem": {
-            "type": "string",
-            "title": "Mensagem",
-            "description": "Mensagem de sucesso para o usuário"
-          }
-        },
-        "type": "object",
-        "required": [
-          "mensagem"
-        ],
-        "title": "RedefinirSenhaResposta",
-        "description": "Resposta de sucesso da redefinição de senha."
-      },
       "UsuarioCreate": {
         "properties": {
           "nome": {
@@ -2926,55 +2697,6 @@
         ],
         "title": "UsuarioResponse"
       },
-      "ValidarTokenRequisicao": {
-        "properties": {
-          "token": {
-            "type": "string",
-            "minLength": 10,
-            "title": "Token",
-            "description": "Token JWT temporário recebido pelo usuário"
-          }
-        },
-        "type": "object",
-        "required": [
-          "token"
-        ],
-        "title": "ValidarTokenRequisicao",
-        "description": "Payload para validação de integridade e validade do token de recuperação."
-      },
-      "ValidarTokenResposta": {
-        "properties": {
-          "valido": {
-            "type": "boolean",
-            "title": "Valido",
-            "description": "Indica se o token é válido e pode ser utilizado"
-          },
-          "mensagem": {
-            "type": "string",
-            "title": "Mensagem",
-            "description": "Detalhes sobre a validade do token"
-          },
-          "email_mascarado": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Email Mascarado",
-            "description": "E-mail mascarado para conferência visual segura do usuário"
-          }
-        },
-        "type": "object",
-        "required": [
-          "valido",
-          "mensagem"
-        ],
-        "title": "ValidarTokenResposta",
-        "description": "Resposta indicando se o token está apto para redefinição."
-      },
       "ValidationError": {
         "properties": {
           "loc": {
@@ -3014,6 +2736,19 @@
           "type"
         ],
         "title": "ValidationError"
+      },
+      "ResetSenhaResposta": {
+        "properties": {
+          "mensagem": {
+            "type": "string",
+            "title": "Mensagem"
+          }
+        },
+        "type": "object",
+        "required": [
+          "mensagem"
+        ],
+        "title": "ResetSenhaResposta"
       }
     },
     "securitySchemes": {

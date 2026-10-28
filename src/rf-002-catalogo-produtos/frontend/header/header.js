@@ -32,7 +32,7 @@ export function renderHeader(activeRoute = 'produtos') {
                     Produtos
                 </a>
 
-                <a href="../../../rf-005-gestao-users/frontend/gestaoPessoas/gestaoPessoas.html" class="erp-nav-link ${activeRoute === 'gestaoPessoas' ? 'active' : ''}">
+                <a href="../../../rf-008-recuperar-senha/frontend/gestaoPessoas/gestaoPessoas.html" class="erp-nav-link ${activeRoute === 'gestaoPessoas' ? 'active' : ''}">
                     ${isGestorOuAdmin ? 'Pessoas' : 'Clientes'}
                 </a>
                 ${isGestorOuAdmin ? `
@@ -44,7 +44,7 @@ export function renderHeader(activeRoute = 'produtos') {
             </nav>
 
             <div class="erp-header-user">
-                <a href="../../../rf-005-gestao-users/frontend/meuPainel/meuPainel.html" class="erp-nav-link user-profile-link ${activeRoute === 'meuPainel' ? 'active' : ''}">
+                <a href="../../../rf-008-recuperar-senha/frontend/meuPainel/meuPainel.html" class="erp-nav-link user-profile-link ${activeRoute === 'meuPainel' ? 'active' : ''}">
                     <span id="header-user-role">${displayRole}</span>
                 </a>
                 <button id="btn-logout" class="btn-logout">Sair</button>

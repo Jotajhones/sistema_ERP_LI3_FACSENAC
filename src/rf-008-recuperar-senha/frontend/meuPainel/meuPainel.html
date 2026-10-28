@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meu Painel - ERP</title>
+
+    <link rel="stylesheet" href="../../../rf-002-catalogo-produtos/frontend/styles/global.css">
+    <link rel="stylesheet" href="../../../rf-002-catalogo-produtos/frontend/header/header.css">
+    <link rel="stylesheet" href="./meuPainel.css">
+</head>
+
+<body>
+    <div id="app-header"></div>
+
+    <main class="erp-container">
+        <div class="action-bar">
+            <h2>Meu Painel</h2>
+        </div>
+
+        <div id="feedback-alert" class="alert-message" style="display: none;"></div>
+
+        <div class="form-container">
+            <form id="formMeuPainel">
+                <div class="form-group">
+                    <label for="userRoleInput">Perfil / Role</label>
+                    <input type="text" id="userRoleInput" class="erp-input" disabled readonly>
+                </div>
+
+                <div class="form-group">
+                    <label for="userEmailInput">E-mail</label>
+                    <input type="email" id="userEmailInput" class="erp-input" disabled readonly>
+                </div>
+
+                <div class="form-group">
+                    <label for="nomeInput">Nome *</label>
+                    <input type="text" id="nomeInput" class="erp-input" placeholder="Informe seu nome" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="telefoneInput">Telefone</label>
+                    <input type="text" id="telefoneInput" class="erp-input" placeholder="(00) 00000-0000">
+                </div>
+
+                <div class="action-controls" style="margin-top: 1.5rem; display: flex; gap: 10px; justify-content: flex-end;">
+                    <button type="button" id="btnAbrirModalSenha" class="btn-secondary">Alterar Senha</button>
+                    <button type="submit" id="btnSalvarDados" class="btn-primary">Salvar Alterações</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Popup / Modal de Alteração de Senha -->
+        <div id="modalSenha" class="modal-backdrop" style="display: none;">
+            <div class="modal-content">
+                <h3>Alterar Senha</h3>
+                <div id="modal-feedback" class="feedback-msg"></div>
+
+                <form id="formTrocaSenha">
+                    <div class="form-group">
+                        <label for="senhaAtual">Senha Atual *</label>
+                        <input type="password" id="senhaAtual" class="erp-input" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="novaSenha">Nova Senha *</label>
+                        <input type="password" id="novaSenha" class="erp-input" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="confirmarNovaSenha">Confirmar Nova Senha *</label>
+                        <input type="password" id="confirmarNovaSenha" class="erp-input" required>
+                    </div>
+
+                    <div class="action-controls" style="margin-top: 1.5rem; display: flex; gap: 10px; justify-content: flex-end;">
+                        <button type="button" id="btnCancelarSenha" class="btn-secondary">Cancelar</button>
+                        <button type="submit" id="btnConfirmarSenha" class="btn-primary">Confirmar Troca</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <script src="../../../rf-002-catalogo-produtos/frontend/scripts/env.js"></script>
+    <script type="module" src="./services/app.js"></script>
+</body>
+
+</html>

@@ -70,10 +70,22 @@ async def listar_pessoas_service(usuario_logado_id: str, ativo: Optional[bool] =
     )
 
 
-async def buscar_pessoa_por_id(pessoa_id: str):
+async def buscar_pessoa_por_id(pessoa_id: str, usuario_logado_id: str):
     pessoa = pessoas_repository.get_pessoa_by_id(pessoa_id)
     if not pessoa:
         raise HTTPException(status_code=404, detail="Pessoa não encontrada.")
+
+    # E-mail e role (tabela users) só são expostos para GESTOR/ADMIN (RF-008)
+    if pessoa.get("user_id"):
+        usuario = obter_usuario_por_id(usuario_logado_id)
+        role_logado = str((usuario or {}).get("user_role", "")).upper()
+
+        if role_logado in {"ADMIN", "GESTOR"}:
+            dados_acesso = pessoas_repository.get_dados_acesso_usuario(pessoa["user_id"])
+            if dados_acesso:
+                pessoa["email"] = dados_acesso.get("email")
+                pessoa["role"] = dados_acesso.get("user_role")
+
     return pessoa
 
 

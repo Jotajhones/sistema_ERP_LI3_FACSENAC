@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalhes do Usuário - ERP</title>
+
+    <link rel="stylesheet" href="../../../rf-002-catalogo-produtos/frontend/styles/global.css">
+    <link rel="stylesheet" href="../../../rf-002-catalogo-produtos/frontend/header/header.css">
+    <link rel="stylesheet" href="./gestaoPessoas.css">
+    <link rel="stylesheet" href="./user.css">
+</head>
+<body>
+    <div id="app-header"></div>
+
+    <main class="erp-container">
+        <div class="action-bar">
+            <h2>Detalhes do Usuário</h2>
+            <a href="./gestaoPessoas.html" class="btn-secondary">&larr; Voltar</a>
+        </div>
+
+        <div id="feedback-alert" class="alert-message" style="display: none;"></div>
+
+        <div class="user-card">
+            <dl class="user-dados">
+                <dt>Nome</dt>
+                <dd id="userNome">-</dd>
+
+                <dt>CPF</dt>
+                <dd id="userCpf">-</dd>
+
+                <dt>E-mail</dt>
+                <dd id="userEmail">-</dd>
+
+                <dt>Papel / Role</dt>
+                <dd><span id="userTipo" class="badge">-</span></dd>
+
+                <dt>Status</dt>
+                <dd><span id="userStatus" class="badge">-</span></dd>
+            </dl>
+
+            <div id="areaResetSenha" class="reset-area" style="display: none;">
+                <h3>Recuperação de Senha</h3>
+                <p>O reset aplica a senha padrão do sistema e desconecta o funcionário de todas as sessões ativas.</p>
+                <button type="button" id="btnResetSenha" class="btn-danger">Resetar Senha para Padrão</button>
+            </div>
+        </div>
+    </main>
+
+    <script src="../../../rf-002-catalogo-produtos/frontend/scripts/env.js"></script>
+    <script type="module" src="./services/userApp.js"></script>
+</body>
+</html>
