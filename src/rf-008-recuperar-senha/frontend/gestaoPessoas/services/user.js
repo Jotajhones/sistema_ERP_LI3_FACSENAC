@@ -53,10 +53,9 @@ export function initUser() {
     function renderizarUsuario() {
         const isFuncionario = pessoa.user_id !== null && pessoa.user_id !== undefined;
 
-        // E-mail e role ficam na tabela users; hoje o GET /pessoas/{id} ainda não os devolve
-        const usuario = pessoa.users || {};
-        const email = pessoa.email || usuario.email;
-        const role = pessoa.role || pessoa.user_role || usuario.user_role;
+        // E-mail e role vêm da tabela users; o GET /pessoas/{id} só os devolve para GESTOR/ADMIN
+        const email = pessoa.email;
+        const role = (pessoa.role || '').toUpperCase();
 
         document.getElementById('userNome').textContent = pessoa.nome || 'N/D';
         document.getElementById('userCpf').textContent = formatarCpf(pessoa.cpf);
@@ -70,8 +69,9 @@ export function initUser() {
         badgeStatus.textContent = pessoa.ativo ? 'Ativo' : 'Inativo';
         badgeStatus.className = `badge ${pessoa.ativo ? 'badge-ativo' : 'badge-inativo'}`;
 
-        // 2. RBAC Visual: reset só para gestor/admin e só em funcionários
-        if (isGestorOuAdmin && isFuncionario) {
+        // 2. RBAC Visual: reset só para gestor/admin, só em funcionários, e GESTOR não reseta ADMIN
+        const gestorVendoAdmin = roleUsuario === 'GESTOR' && role === 'ADMIN';
+        if (isGestorOuAdmin && isFuncionario && !gestorVendoAdmin) {
             areaResetSenha.style.display = 'block';
         }
     }
@@ -103,7 +103,8 @@ export function initUser() {
             if (respostaFetch.ok) {
                 alert(`Senha de ${pessoa.nome} resetada com sucesso.`);
             } else if (respostaFetch.status === 403) {
-                alert('Acesso Negado: apenas Gestores e Administradores podem resetar senhas.');
+                const erro = await respostaFetch.json().catch(() => ({}));
+                alert(erro.detail || 'Acesso Negado: apenas Gestores e Administradores podem resetar senhas.');
             } else if (respostaFetch.status === 404) {
                 alert('Usuário não encontrado.');
             } else {

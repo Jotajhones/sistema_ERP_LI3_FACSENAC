@@ -93,13 +93,13 @@ O Gestor da unidade utiliza seu painel de controle corporativo para auditar o pe
 - O ID do funcionário alvo deve existir na tabela de usuários.  
 
 **Fluxo:**
-1. Gestor acessa a tela de "Gestão de Pessoas" e clica no card de um funcionário.  
+1. Gestor acessa a tela de "Gestão de Pessoas" e clica na linha (ou no botão "Detalhes") de um funcionário.  
 2. Sistema (Frontend) abre a página de detalhes do usuário (user.html).  
-3. Sistema carrega as informações do funcionário e exibe o botão "Resetar Senha para Padrão".  
+3. Sistema carrega as informações do funcionário via `GET /pessoas/{id}` (nome, CPF, e-mail, role e status) e exibe o botão "Resetar Senha para Padrão". O botão não aparece para VENDEDOR, para clientes nem quando um GESTOR abre o perfil de um ADMIN.  
 4. Gestor clica no botão de reset.  
 5. Sistema (Frontend) exibe uma caixa de diálogo nativa alertando sobre o deslogamento global do usuário e a aplicação da senha padrão.  
 6. Gestor confirma a operação.  
-7. Sistema (Frontend) dispara a requisição POST `/usuarios/{id}/reset-senha`.  
+7. Sistema (Frontend) dispara a requisição POST `/usuarios/{id}/reset-senha`, sem body, usando o `user_id` (id da tabela `users`).  
 8. Sistema (Backend) intercepta e confirma via middleware se a requisição partiu de um gestor autorizado.  
 9. Sistema (Backend) define internamente o texto da nova senha e executa a criptografia bcrypt 12 rounds em memória.  
 10. Sistema (Backend) atualiza a coluna `password_hash` daquele usuário.  
@@ -122,13 +122,26 @@ O Gestor da unidade utiliza seu painel de controle corporativo para auditar o pe
 1. O funcionário que sofreu o reset realiza login com a senha padrão informada pelo Gestor.
 2. O funcionário acessa o menu "Meu Painel".  
 3. O funcionário preenche a senha padrão e cadastra uma nova senha exclusiva.  
-4. O Backend confirma a validade da senha antiga e atualiza o hash, retomando o sigilo corporativo.  
+4. O Frontend envia `PUT /usuarios/minha-senha` com apenas `senha_atual` e `nova_senha`.  
+5. O Backend identifica o usuário exclusivamente pelo token da sessão, confirma a validade da senha antiga e atualiza o hash (bcrypt 12 rounds), retomando o sigilo corporativo.  
+
+**Fluxo Alternativo A3: Gestor tentando resetar um Administrador**
+1. Um GESTOR envia `POST /usuarios/{id}/reset-senha` com o id de um ADMIN.  
+2. O Backend compara os perfis e rejeita com `403 Forbidden` ("GESTOR não pode resetar a senha de um ADMIN").  
+3. O hash e as sessões do ADMIN permanecem intactos. No frontend, o botão de reset nem é exibido nesse caso.  
+
+**Fluxo Alternativo A4: Usuário inexistente**
+1. O id informado não existe na tabela `users`.  
+2. O Backend responde `404 Not Found` e nenhuma sessão é apagada.  
 
 ### Regras de Negócio
 
 - **RN-01:** Hash Exclusivo Server-Side: O payload do frontend jamais deve enviar qual será a senha padrão no corpo da requisição. O valor a ser hasteado deve residir em variável constante isolada no Python para evitar adulteração na requisição.  
 - **RN-02:** Revogação Compulsória: Todo reset de senha aciona compulsoriamente a quebra da integridade de sessão na tabela respectiva para garantir proteção de contas.  
 - **RN-03:** Restrição de Rotas de Mutações Alheias: Somente níveis gerenciais podem realizar reset em IDs arbitrários. O usuário base só tem permissão para alterar a própria credencial vinculada ao token atual. 
+- **RN-04:** Hierarquia de Perfis: GESTOR pode resetar VENDEDOR e outros GESTORES, mas não ADMIN. ADMIN pode resetar qualquer funcionário.
+- **RN-05:** Payload Fechado na Troca de Senha: o corpo de `PUT /usuarios/minha-senha` (e de `PUT/PATCH /auth/senha`) aceita somente `senha_atual` e `nova_senha`; qualquer campo extra, como `user_id`, é rejeitado com `422`.
+- **RN-06:** Dados de Acesso Restritos: `GET /pessoas/{id}` só devolve `email` e `role` do funcionário para GESTOR/ADMIN; para VENDEDOR esses campos vêm `null`.
 
 ### Requisitos Não-Funcionais
 
@@ -149,11 +162,24 @@ O Gestor da unidade utiliza seu painel de controle corporativo para auditar o pe
 
 **Operações Implementadas (Módulo de Identidade Restrita):**
 
-| Operação | Método | Endpoint | Status Esperado |
-|---|---|---|---|
-| Update | POST | /api/usuarios/{id}/reset-senha | 200 OK |
-| Update | PUT | /api/usuarios/minha-senha | 200 OK |
-| Read | GET | /api/pessoas/{id} | 200 OK |
+As rotas ficam na raiz da API (`https://sistema-erp-li3-facsenac.onrender.com`), sem prefixo `/api`.
+
+| Operação | Método | Endpoint | Perfis | Status Esperado | Erros |
+|---|---|---|---|---|---|
+| Update | POST | /usuarios/{id}/reset-senha | ADMIN, GESTOR | 200 OK | 401, 403, 404, 422 |
+| Update | PUT | /usuarios/minha-senha | Qualquer autenticado | 200 OK | 400, 401, 422 |
+| Read | GET | /pessoas/{id} | Qualquer autenticado | 200 OK | 401, 404 |
+
+`{id}` no reset é o id da tabela `users` (campo `user_id` devolvido por `GET /pessoas/{id}`). A rota legada `PUT/PATCH /auth/senha` (RF-001) continua disponível com a mesma regra de `PUT /usuarios/minha-senha`.
+
+**Exemplo de resposta do reset (RNF-01, a senha nunca é devolvida):**
+```json
+{ "mensagem": "Senha resetada com sucesso. Todas as sessões do usuário foram encerradas." }
+```
+
+**Artefatos no repositório:**
+- Backend: `src/rf-008-recuperar-senha/backend/` (router, service, repository, schemas e `tests/teste_seguranca_rf008.sh`)
+- Frontend: `src/rf-008-recuperar-senha/frontend/gestaoPessoas/` (`gestaoPessoas.html` e `user.html`) e `src/rf-008-recuperar-senha/frontend/meuPainel/`
 
 **Documentação Obrigatória da API:**
 O arquivo técnico OpenAPI refletindo rigorosamente o comportamento testado das rotas está localizado em:
@@ -188,10 +214,10 @@ O arquivo técnico OpenAPI refletindo rigorosamente o comportamento testado das 
 Um funcionário mal-intencionado da ponta poderia montar um script para atacar o backend, enviando IDs de gestores ou outros colegas para a rota `/usuarios/{id}/reset-senha`, derrubando as sessões da liderança e forçando senhas genéricas.
 
 **Implementação (Como você protege?):**
-A rota foi construída em FastAPI com o decorador atrelado ao AuthZ de gestão `Depends(RequireRole(["ADMIN", "GESTOR"]))`. Quando o token recebido pertence à role `VENDEDOR`, o Framework não chega sequer a processar o parâmetro do ID na URL, abortando a função no nascedouro.
+A rota foi construída em FastAPI com o decorador atrelado ao AuthZ de gestão `Depends(RequireRole(["ADMIN", "GESTOR"]))`. Quando o token recebido pertence à role `VENDEDOR`, a dependência aborta a requisição com `403` antes de o service ser executado, sem nenhuma escrita no banco. Adicionalmente, o service impede que um GESTOR resete um ADMIN (RN-04), evitando escalada de privilégio.
 
 **Teste (Como provou que funciona?):**
-Disparo de uma requisição REST via CURL simulando o uso de um token válido pertencente a um caixa. O sistema devolveu código HTTP 403 Forbidden. A tabela de auditoria provou que o hash do ID alvo não sofreu reescrita e as sessões permaneceram abertas.
+Requisições via curl com token válido de VENDEDOR contra os ids de um GESTOR, de um ADMIN e do próprio vendedor: todas retornaram `403 Forbidden`. Sem token e com token forjado, `401 Unauthorized`. Um GESTOR tentando resetar um ADMIN recebeu `403`. Em todos os casos, a consulta às tabelas `users` e `sessoes` após os testes mostrou o `password_hash` e as sessões dos alvos inalterados. O roteiro está em `src/rf-008-recuperar-senha/backend/tests/teste_seguranca_rf008.sh`.
 
 ### Controle 2: Cryptographic Failures - A02:2021
 
@@ -199,10 +225,10 @@ Disparo de uma requisição REST via CURL simulando o uso de um token válido pe
 A definição de uma senha padrão ("senha123") por vias administrativas não isenta a necessidade de armazenamento seguro. O salvamento desta string em texto limpo comprometeria todo o banco de dados em um potencial vazamento.
 
 **Implementação (Como você protege?):**
-O módulo de Reset nunca envia senhas pela rede e não insere *plain-texts* no banco. O servidor Python armazena o padrão em uma variável constante de ambiente protegido, aplicando o salt estocástico com `bcrypt` (fator 12 de custo) antes da Query de UPDATE ser submetida.
+O módulo de Reset nunca envia senhas pela rede e não insere *plain-texts* no banco. O valor padrão fica na constante `NOVA_SENHA` em `services/reset_senha_service.py`, no servidor, e recebe salt aleatório com `bcrypt` (fator 12 de custo) antes do UPDATE em `users.password_hash`. A resposta HTTP devolve apenas uma mensagem de confirmação.
 
 **Teste (Como provou que funciona?):**
-Auditoria manual na interface do Supabase após o Reset. O campo `password_hash` constava como `$2b$12$exemploDeHashIlegivelNoBanco...`, garantindo que um administrador do banco ou invasor logado jamais saberia prever a senha em texto legível.
+Após o reset, o campo `password_hash` passou a começar com `$2b$12$` (bcrypt, custo 12), e `bcrypt.checkpw` confirmou que o hash corresponde à senha padrão sem que ela apareça em texto legível no banco ou na resposta da API.
 
 ### Controle 3: Identification and Authentication Failures - A07:2021
 
@@ -210,7 +236,29 @@ Auditoria manual na interface do Supabase após o Reset. O campo `password_hash`
 Sessões zumbis (Tokens UUID ativos salvos em cache ou em computadores sem supervisão) permitiriam que antigos operadores ou invasores que tivessem furtado as credenciais originais continuassem acessando o painel indefinidamente, mesmo após o administrador resetar a senha.
 
 **Implementação (Como você protege?):**
-O método no Python Repository acopla compulsoriamente a operação de UPDATE na tabela `users` com uma operação de deleção na tabela de sessões (`DELETE FROM sessoes WHERE user_id = id_alvo`). As operações formam uma política atrelada.
+O método `resetar_senha_usuario(id, hash_padrao)` do repository acopla compulsoriamente o UPDATE na tabela `users` à deleção na tabela de sessões (`DELETE FROM sessoes WHERE user_id = id_alvo`). Se o usuário não existir, nenhuma sessão é apagada e a API responde `404`.
 
 **Teste (Como provou que funciona?):**
 Logado como Vendedor na Janela A, e como Gestor na Janela B. O Gestor apertou o Reset de Senha do Vendedor. Na sequência, a Janela A do vendedor tentou dar refresh na página de clientes. A API validou a perda do registro UUID no Supabase, invalidou o acesso, devolveu 401 Unauthorized e o Vendedor foi lançado de volta à tela inicial de Login.
+
+### Controle 4: IDOR na Troca de Senha Própria (Broken Access Control) - A01:2021
+
+**Vulnerabilidade OWASP (Risco):**
+Um usuário autenticado poderia tentar alterar a senha de outro colega enviando o id da vítima no corpo da requisição de troca de senha (`{"user_id": "<id da vítima>", ...}`).
+
+**Implementação (Como você protege?):**
+O id do usuário é extraído exclusivamente do token UUID da sessão (`Depends(get_current_user)`). Além disso, o schema `AlterarSenhaRequest` usa `extra="forbid"`: qualquer campo além de `senha_atual` e `nova_senha` é rejeitado com `422`, tanto em `PUT /usuarios/minha-senha` quanto em `PUT/PATCH /auth/senha`.
+
+**Teste (Como provou que funciona?):**
+Com o token do Vendedor A, foram enviadas requisições com `user_id`, `usuario_id` e `id` do Vendedor B no JSON, nas três rotas: todas retornaram `422 Unprocessable Entity` (`extra_forbidden`). Um `?user_id=` na query string é ignorado e a troca só se aplica ao dono do token. O `password_hash` do Vendedor B permaneceu idêntico ao final dos testes.
+
+---
+
+## 7. Validação End-to-End
+
+Os fluxos foram validados em navegador (Chromium) contra a API FastAPI rodando localmente:
+
+- GESTOR abre a Gestão de Pessoas, clica no funcionário, vê nome, e-mail e role, confirma o `confirm()` e recebe o alerta de sucesso; o hash passa a `$2b$12$` e as sessões do funcionário são apagadas.
+- GESTOR abrindo o perfil de um ADMIN e VENDEDOR abrindo qualquer perfil não veem o botão de reset; o VENDEDOR não recebe o e-mail do funcionário.
+- VENDEDOR no Meu Painel: senha atual errada exibe "Senha atual incorreta"; senha correta troca o hash via `PUT /usuarios/minha-senha`.
+- Sessão antiga do funcionário resetado recebe `401` e é redirecionada ao login.

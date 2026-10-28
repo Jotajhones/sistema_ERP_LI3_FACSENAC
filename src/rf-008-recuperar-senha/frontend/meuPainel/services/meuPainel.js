@@ -158,8 +158,9 @@ export function initMeuPainel() {
             };
 
             try {
-                const respostaFetch = await erpFetch('/auth/senha', {
-                    method: 'PATCH',
+                // RF-008: troca da própria senha; o alvo vem do token, nunca do payload
+                const respostaFetch = await erpFetch('/usuarios/minha-senha', {
+                    method: 'PUT',
                     body: JSON.stringify(payload)
                 });
 
