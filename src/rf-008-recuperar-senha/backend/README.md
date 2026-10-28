@@ -44,3 +44,20 @@ Status do reset:
 * **Revogação de sessões (OWASP A07):** `resetar_senha_usuario(id, hash_padrao)` em `repositories/reset_senha_repository.py` faz o UPDATE e em seguida `DELETE FROM sessoes WHERE user_id = {id}`.
 * **Troca da própria senha (RN-03):** `PUT /usuarios/minha-senha` altera só a senha do dono do token, exigindo a senha atual. Reaproveita a regra de `PUT/PATCH /auth/senha` (RF-001), que continua disponível.
 * **Detalhes do funcionário:** `GET /pessoas/{id}` (RF-001) passou a devolver `email` e `role` quando quem consulta é GESTOR/ADMIN; para VENDEDOR esses campos vêm `null`.
+
+---
+
+## Revisão de Segurança (Tech Lead)
+
+* **Limpeza:** os artefatos do fluxo self-service (JWT + e-mail, ADR-028) já tinham sido removidos da pasta `rf-008-auditoria-recuperacao`; foram retirados também o código comentado no `main.py` e as rotas `/recuperar-senha/*`, `/auth/esqueci-senha` e `/auth/redefinir-senha` do `swagger.json`. O rate limiter do login (`dependencies.py`) foi mantido, pois não depende de JWT/e-mail.
+* **IDOR (A01):** `AlterarSenhaRequest` usa `extra="forbid"`; qualquer `user_id`/`usuario_id`/`id` no JSON de `PUT /usuarios/minha-senha` ou `PUT/PATCH /auth/senha` é rejeitado com `422`. O alvo da troca vem só do token da sessão.
+* **RBAC:** token de VENDEDOR no reset recebe `403` e o hash/sessões do alvo não mudam.
+
+Para repetir os testes via curl (os ataques falham, então é seguro rodar contra o deploy):
+
+```bash
+API_URL=https://sistema-erp-li3-facsenac.onrender.com \
+TOKEN_VENDEDOR=<token de um VENDEDOR> \
+ID_ALVO=<users.id de outro usuário> \
+./tests/teste_seguranca_rf008.sh
+```
