@@ -1,18 +1,25 @@
 # DOCUMENTO DE ESPECIFICAÇÃO DE REQUISITOS E ARQUITETURA SEGURA (SSD)
+
 Laboratório de Inovação III — Prof. Edilberto Silva — 2026
-versão 16.3
+VERSÃO 16.3 — COM VALIDAÇÃO AGNÓSTICA DE LINGUAGEM
 
 ## 1. METADADOS DO PROJETO E DA EQUIPE
 
 ### 1.1 Identificação
-NOME_DO_PROJETO: Sistema ERP Construção
-DESCRICAO_BREVE: Módulo de gestão de recuperação de vendas, permitindo filtragem de orçamentos pendentes e contato direto via WhatsApp com registro de autoria.
+
+- **ID:** RF-007  
+- **Título:** Recuperação de Orçamentos Pendentes e Tracking de Contato  
+- **Tipo:** Requisito Funcional
+- **Prioridade:** Alta  
+- **Complexidade:** 5 story points  
 
 ### 1.2 Localização dos Artefatos (URLs Obrigatórias)
-LINK_REPOSITORIO_GITHUB: https://github.com/Jotajhones/sistema_ERP_LI3_FACSENAC
-LINK_APLICACAO_DEPLOY: https://sistema-erp-li3-facsenac.onrender.com/
-LINK_BANCO_DADOS: https://supabase.com/dashboard/project/qlfjdnljfmicjkrbrwih/editor/
-LINK_DEMONSTRAÇÃO: https://sistema-erp-li-3-facsenac.vercel.app/
+
+- **a) URL da Aplicação (Deploy Online):** https://sistema-erp-li-3-facsenac.vercel.app/ (Frontend Hospedado na Vercel)
+- **b) Link do Banco de Dados Online:** https://supabase.com/dashboard/project/qlfjdnljfmicjkrbrwih/editor/ (Leitura para prof.edilberto.silva@gmail.com)
+- **c) Link do GitHub (Repositório):** https://github.com/Jotajhones/sistema_ERP_LI3_FACSENAC (Branch: main)
+
+*(Nota de Infraestrutura: A API Backend opera sob o domínio https://sistema-erp-li3-facsenac.onrender.com).*
 
 ### 1.3 Composição da Equipe
 | ID | Nome Completo | Papel Primário | Papel Secundário | E-mail / Contato |
@@ -27,215 +34,182 @@ LINK_DEMONSTRAÇÃO: https://sistema-erp-li-3-facsenac.vercel.app/
 
 ---
 
-# RF-007: Recuperação de Orçamentos via Integração WhatsApp
+## 2. DESCRIÇÃO E ATORES  
 
-## 1. Identificação
+O requisito de Recuperação de Orçamentos permite que os vendedores do sistema ERP filtrem proativamente orçamentos que foram gerados, mas que ainda não foram convertidos em Ordens de Serviço (vendas reais). A funcionalidade atua como um mini-CRM inserido na própria listagem de orçamentos do balcão.
 
-- **ID:** RF-007  
-- **Título:** Recuperação de Orçamentos Pendentes e Tracking de Contato  
-- **Prioridade:** Alta  
-- **Complexidade:** 5 story points  
+Através de uma integração leve via link direto web, o sistema higieniza o telefone do cliente, codifica os dados mercadológicos e aciona o WhatsApp Web/Desktop do operador comercial, pré-formatando uma mensagem de resgate da venda. A abordagem dispensa a contração de APIs oficiais caras e onerosas, focando no esforço manual assistido pelo frontend.
 
-### a) URL da Aplicação (Deploy Online)  
-- **URL:** https://sistema-erp-li-3-facsenac.vercel.app/   
-- **Plataforma:** Vercel  
-- **Acesso:** Público  
-
-### b) Link do Banco de Dados Online  
-- **BD:** Supabase (PostgreSQL)  
-- **Link:** https://supabase.com/dashboard/project/qlfjdnljfmicjkrbrwih/editor/  
-- **Acesso:** Leitura para o professor (email: prof.edilberto.silva@gmail.com)  
-- **Tabela principal:** orcamentos_contatos  
-
-### c) Link do GitHub (Repositório)  
-- **Repositório:** https://github.com/Jotajhones/sistema_ERP_LI3_FACSENAC  
-- **Branch principal:** main  
-- **Estrutura:** Conforme guia (docs/, src/, database/)  
-
----
-
-## 2. Descrição e Atores  
-
-O requisito de Recuperação de Orçamentos permite que os vendedores do sistema ERP filtrem proativamente orçamentos que foram gerados, mas ainda não convertidos em Ordens de Serviço (vendas reais). Através de uma integração leve via link direto, o sistema aciona o WhatsApp Web/Desktop do operador, pré-formatando uma mensagem de resgate da venda.
-
-Para garantir a rastreabilidade sem inflar as tabelas financeiras, o sistema cria um registro em uma tabela associativa assim que o vendedor retorna à tela do ERP. Isso garante que a gestão saiba quais orçamentos foram acompanhados e qual vendedor realizou o esforço de recuperação, evitando que o cliente seja abordado múltiplas vezes pelo mesmo motivo.
+Para garantir a rastreabilidade (tracking) sem inflar ou corromper as tabelas financeiras de orçamentos, o sistema cria um registro em uma tabela associativa (`orcamentos_contatos`) de forma reativa assim que o vendedor retorna o foco para a tela do ERP. Isso garante que a gestão saiba quais orçamentos foram acompanhados e qual vendedor realizou o esforço de recuperação, evitando sobreposição de contatos.
 
 ### Benefícios para o Negócio  
 - Aumentar a taxa de conversão de orçamentos abandonados através de contato proativo estruturado.  
-- Evitar conflito comercial, impedindo que dois vendedores entrem em contato com o mesmo cliente pelo mesmo orçamento.  
-- Gerar métricas de engajamento da equipe comercial para acompanhamento gerencial.
+- Evitar conflito comercial, impedindo que dois vendedores entrem em contato com o mesmo cliente.  
+- Gerar métricas de engajamento da equipe comercial, registrando a autoria das ações sem ferir dados contábeis.
 
 ### Atores
 
 #### Vendedor
-- **Papel:** Operador comercial responsável por resgatar a venda e contatar o cliente.  
-- **Permissões:** Read (orçamentos pendentes), Create (registro de contato).  
-- **Acesso:** Tela de histórico de orçamentos.  
+- **Papel:** Operador responsável por contatar o cliente.  
+- **Permissões:** READ (orçamentos pendentes), CREATE (registro de contato).  
 
 #### Gestor / Admin
-- **Papel:** Auditoria de desempenho da equipe comercial.  
-- **Permissões:** Read, Delete (excluir registro de contato caso marcado por engano, visando liberar o cliente para novo contato).  
-- **Acesso:** Dashboard e relatórios globais.  
+- **Papel:** Auditor de desempenho.  
+- **Permissões:** READ (Auditar acompanhamentos globais).  
 
 #### Sistema (Automático)
-- **Papel:** Formatador e Registrador.  
-- **Permissões:** Validação do token do vendedor, montagem do URI E.164 e registro de timestamps na base.  
-
-### Validações Necessárias
-- O contato só pode ser registrado se o orçamento estiver com status estritamente igual a PENDENTE.  
-- O contato não pode ser registrado se o cliente do orçamento não possuir telefone cadastrado.  
-- O ID do vendedor deve ser inferido do Token de sessão (JWT/UUID), e não do corpo da requisição.  
+- **Papel:** Formatador URI e Provedor AuthZ.  
+- **Permissões:** Inferência do ID do vendedor via Token JWT e registro blindado no banco de dados.  
 
 ---
 
-## 3. Casos de Uso e Requisitos Não-Funcionais
+## 3. CASOS DE USO E REQUISITOS NÃO-FUNCIONAIS
 
 ### Fluxo Principal: Contatar Cliente e Registrar Ação
 
 **Pré-condições:**
 - Usuário autenticado com perfil VENDEDOR ou GESTOR.  
-- Cliente vinculado ao orçamento possui telefone válido.  
+- Cliente do orçamento possui telefone cadastrado.  
 - Orçamento possui status PENDENTE no banco de dados.  
 
 **Fluxo:**
-1. Vendedor acessa a página de Histórico de Orçamentos.  
-2. Vendedor seleciona o filtro "Não Contatados".  
-3. Sistema consulta o backend que realiza o cruzamento de dados, retornando apenas orçamentos sem registro na tabela de contatos.  
-4. Sistema exibe a lista filtrada na tela com ícone de WhatsApp.  
-5. Vendedor clica no ícone de contato de um orçamento específico.  
-6. Sistema extrai nome do cliente, nome do vendedor, telefone e valor.  
-7. Sistema higieniza o telefone (apenas números) e codifica a mensagem de saudação.  
-8. Sistema abre nova aba direcionando para o serviço wa.me.  
-9. Vendedor envia a mensagem e retorna o foco para a aba do sistema ERP.  
-10. Sistema detecta o retorno de foco e dispara a rota POST para registrar o contato.  
-11. Sistema salva a ação no banco de dados vinculando ao ID do vendedor.  
-12. Sistema atualiza a linha na tabela visualmente com a tag "Contatado".  
+1. Vendedor seleciona o filtro "Não Contatados" na tela de Orçamentos.  
+2. Backend realiza o cruzamento de dados, retornando apenas orçamentos sem registro na tabela de contatos.  
+3. Sistema exibe a lista filtrada com ícone de WhatsApp.  
+4. Vendedor clica no ícone de contato de um orçamento específico.  
+5. Frontend extrai nome do cliente, nome do vendedor, telefone e valor.  
+6. Frontend higieniza o telefone (apenas números) e codifica a mensagem URI.  
+7. Frontend abre nova aba direcionando para o serviço `wa.me/55...`.  
+8. Vendedor envia a mensagem e retorna o foco para a aba do sistema ERP.  
+9. Frontend detecta o retorno de foco (`window.onfocus`) e dispara POST para registrar o contato.  
+10. Backend inferi a autoria (Token JWT) e insere na tabela `orcamentos_contatos`.  
+11. Frontend atualiza a linha na tabela visualmente com a tag "Contatado".  
 
-**Pós-condições:**
-- Registro único criado na tabela orcamentos_contatos.  
-- Orçamento removido dinamicamente da visão "Não Contatados".  
-- Ação vinculada de forma inalterável ao ID do usuário autenticado.  
+**Exemplo Prático (Registro de Tracking):**
+*Request:* `POST /orcamentos/df52d942-7bef-44a9-a8e8-f38127ecd6cc/contato` (Headers: Authorization Bearer)
+*Response (200 OK):*
+```json
+{
+  "mensagem": "Contato registrado com sucesso via WhatsApp",
+  "orcamento_id": "df52d942-7bef-44a9-a8e8-f38127ecd6cc",
+  "contatado": true,
+  "vendedor_id": "11111111-1111-1111-1111-111111111111"
+}
 
-### Fluxos Alternativos
+```
 
-**Fluxo Alternativo A1: Cliente sem Telefone**
-1. No passo 6, o sistema detecta ausência de telefone.  
-2. Sistema exibe alerta: "Cliente não possui telefone cadastrado. Ação cancelada."  
-3. Fluxo é abortado e o link externo não é aberto.  
+**Pós-condições (Sucesso):**
 
-**Fluxo Alternativo A2: Orçamento já convertido**
-1. No passo 10, o backend verifica o status real do orçamento no banco.  
-2. Backend identifica status FINALIZADA ou CONVERTIDO.  
-3. Backend retorna erro HTTP 409 Conflict.  
-4. Sistema avisa o usuário que a venda já foi concretizada e atualiza a tabela.  
+* Registro único (Append-Only) inserido em `orcamentos_contatos`.
+* Orçamento filtrado para fora da visão de "Pendentes".
 
-**Fluxo Alternativo A3: Duplo Clique (Idempotência)**
-1. No passo 10, o frontend dispara duas requisições simultâneas.  
-2. Backend tenta registrar a segunda.  
-3. Constraint UNIQUE da tabela orcamentos_contatos bloqueia a segunda inserção.  
-4. Backend trata a exceção e retorna sucesso silencioso para evitar erros na interface.  
+**Pós-condições (Falha):**
 
-### Regras de Negócio
+* Bloqueio da navegação e não abertura do link URI (Erro de front-end tratado).
+* Nenhuma inserção ou mutação no banco de dados na ocorrência de HTTP 409 Conflict.
 
-- **RN-01:** Limite de Estado: O registro de contato só é aceito se a tabela orcamentos atestar status PENDENTE.  
-- **RN-02:** Formatação Internacional: O telefone repassado na URL deve obrigatoriamente possuir o DDI 55 inserido pelo frontend.  
-- **RN-03:** Auditoria Transparente: O identificador de quem fez o contato deve vir obrigatoriamente da assinatura do token de autenticação HTTP.  
-- **RN-04:** Restrição de Alteração: Vendedores não possuem autorização para utilizar o método DELETE no registro de contato.  
-- **RN-05:** Reaproveitamento de Interface: A ação ocorre nativamente na listagem existente, sem necessidade de navegação para novas páginas de CRM.  
-- **RN-06:** Prevenção de Perda de Foco: A navegação para a plataforma externa do WhatsApp deve obrigatoriamente ocorrer em uma nova aba do navegador.  
+**Fluxos Alternativos**
 
-### Requisitos Não-Funcionais
+* **A1: Cliente sem Telefone:** O sistema detecta a ausência. Fluxo abortado no navegador. Exibe alerta: "Cliente não possui telefone cadastrado."
+* **A2: Orçamento já convertido (IDOR Preventivo):** Backend verifica o status do orçamento. Se FINALIZADA, retorna 409 Conflict. Ação de tracking rejeitada pelo backend.
+* **A3: Duplo Clique de Janela:** A constraint UNIQUE da tabela protege o registro. Se o frontend disparar dois POSTs idênticos seguidos no retorno de foco, o cache estrutural absorve a chamada duplicada protegendo o banco contra falhas.
 
-- **RNF-01:** Usabilidade: O link para o WhatsApp deve abrir utilizando target="_blank".
-- **RNF-02:** Performance: O cruzamento de dados (JOIN lógico) para filtrar pendentes deve responder em menos de 800 milissegundos.
-- **RNF-03:** Segurança: Uso obrigatório da função encodeURIComponent do Javascript para prevenir injeção no parâmetro GET da URL externa.
-- **RNF-04:** Escalabilidade: O banco de dados deve possuir índices na chave estrangeira orcamento_id para suportar consultas pesadas no futuro.
+**Regras de Negócio (RN)**
+
+* **RN-01:** O registro de contato só é aceito se o orçamento possuir status PENDENTE.
+* **RN-02:** O número exportado para o `wa.me` deve obrigatoriamente possuir o DDI 55 inserido pelo frontend.
+* **RN-03:** A autoria do log de contato é inferida do Token HTTP. O payload não trafega `user_id`.
+* **RN-04:** Registros de contato são imutáveis (Append-Only Data). Não há rotas de UPDATE (PUT) ou DELETE para o rastreio comercial, a fim de garantir a irrefutabilidade das ações de auditoria.
+
+**Requisitos Não-Funcionais (RNF)**
+
+* **RNF-01:** O link para o WhatsApp deve abrir utilizando `target="_blank"`.
+* **RNF-02:** A consulta de orçamentos (`JOIN` em código Python) não deve transpor 800ms de latência.
+* **RNF-03:** É obrigatório o uso de `encodeURIComponent` no JS para blindagem XSS de URI.
 
 ---
 
-## 4. Protótipo Funcional e Integração de API
+## 4. PROTÓTIPO FUNCIONAL E INTEGRAÇÃO DE API
 
-> ** AVISO DE SEGURANÇA E PROTEÇÃO GLOBAL DE ROTAS (A01:2021)**
-> 
-> Faz-se necessário explicitar que **absolutamente todas as rotas do backend desta aplicação (incluindo as rotas deste requisito RF-007) são rigorosamente protegidas** pelo motor de identidade consolidado no MVP. 
-> 
-> Uma simples requisição GET/POST direta aos endpoints via navegador ou curl, sem o contexto de autenticação, resultará em bloqueio liminar (`401 Unauthorized` ou `403 Forbidden`). **Isso não configura falha na API, mas sim o pleno e correto funcionamento do controle de acesso.**
->
-> A aplicação utiliza tokens de Sessão Opaca (UUID) gerados localmente pela própria infraestrutura para controle e exibição de dados. Caso o avaliador necessite de credenciais ou mocks detalhados para testar o bypass, os testes práticos de injeção de sessão e os "mocks de acesso" estão centralizados e detalhados na documentação de fundação de segurança: **`/docs/requisitos/RF-001-gestao-identidade.md`** ou no script `database/seeds/rf-001-gestao-identidade-seeds.sql`.  
+> **AVISO DE SEGURANÇA E PROTEÇÃO GLOBAL DE ROTAS (A01:2021)**
+> Faz-se necessário explicitar que **absolutamente todas as rotas do backend** são protegidas pelo motor de identidade (UUID Session). Uma simples requisição direta via curl resultará em bloqueio (`401 Unauthorized` ou `403 Forbidden`). **Isto reflete a excelência do bloqueio global.** As evidências de by-pass estão descritas no documento-base RF-001.
 
-Interface com CRUD de rastreamento de contatos disponível em: https://sistema-erp-li-3-facsenac.vercel.app/
-
-**Operações Implementadas (CRUD do Módulo de Contatos):**
+**Operações Implementadas (CRUD Imutável de Contatos):**
+Conforme delimitado pela **Regra de Negócio RN-04**, o log de auditoria comercial não provê operações de mutação (UPDATE) ou destruição (DELETE), protegendo a base de dados contra adulteração de relatórios.
 
 | Operação | Método | Endpoint | Status Esperado |
-|---|---|---|---|
-| Create | POST | /api/orcamentos/{id}/contato | 200 OK / 201 Created |
-| Read | GET | /api/orcamentos/pendentes-contato | 200 OK |
-| Update | PUT | /api/orcamentos/{id}/contato | 200 OK |
-| Delete | DELETE | /api/orcamentos/{id}/contato | 204 No Content |
+| --- | --- | --- | --- |
+| Create | POST | /orcamentos/{id}/contato (ou /contatar) | 200 OK / 201 Created |
+| Read | GET | /orcamentos/pendentes-contato | 200 OK |
 
 **Documentação Obrigatória da API:**
-O arquivo de documentação técnica dos endpoints acima está disponível no repositório em:
+O OpenAPI oficializado da aplicação (Adequado ao padrão 3.0.x exigido na v16.3, detalhando parâmetros e os códigos de erro 401, 404 e 409 mapeados) está consolidado na raiz:
 `docs/api/swagger.json`
-
-O arquivo OpenAPI reflete rigorosamente os campos de requestBody e os códigos HTTP (200, 404, 409) testados em ambiente de produção, atendendo aos requisitos do Tópico 4.
 
 ---
 
-## 5. Arquitetura e Decisões
+## 5. ARQUITETURA E DECISÕES
 
-### Componentes da Arquitetura
-- **Frontend:** HTML5/CSS3/JavaScript (ES6). Manipulação de DOM para gerar deep links e detectar window focus.  
-- **Backend:** Python com FastAPI. Camadas de Service e Repository isoladas.  
-- **Banco de Dados:** PostgreSQL hospedado no Supabase, utilizando tabelas associativas e restrições de integridade (FK/UNIQUE).  
+### Diagrama de Arquitetura e Fluxo de Dados
+
+```text
+[ VENDEDOR (UI) ]
+   │
+   ▼ (1. Interage com Interface Web e Retorna Foco)
+┌────────────────────────────────────────┐
+│     Frontend (Vanilla JS / HTML)       │
+│  - Higieniza Regex de Telefone         │
+│  - Codifica XSS Payload via URI Encod. │
+└───────────────────┬────────────────────┘
+                    │ (2. Dispara API) POST /orcamentos/{id}/contato
+                    ▼
+┌────────────────────────────────────────┐
+│       Backend API (FastAPI)            │
+│  - Depends(get_current_user)           │
+│  - Confirmação de Orçamento Pendente   │
+└───────────────────┬────────────────────┘
+                    │ (3. Insert)
+                    ▼
+┌────────────────────────────────────────┐
+│   PostgreSQL / Supabase (Database)     │
+│  - Tabela: orcamentos_contatos         │
+│  - Constraints: UNIQUE e Cascades      │
+└────────────────────────────────────────┘
+
+```
+
+**Fluxo de Dados:** `Vendedor -> Frontend (Event Listener) -> API Backend (Injeção AuthZ) -> PostgreSQL`.
 
 ### Decisões Técnicas (ADRs)
 
-**ADR-024: Arquitetura de Tabela Associativa**
-- **Razão:** Em vez de poluir a tabela financeira de orçamentos com colunas de tracking comercial, optou-se por criar a tabela relacional orcamentos_contatos. Isso garante um schema limpo, separando domínios (Financeiro vs. CRM) e permitindo expansões futuras de auditoria sem travar tabelas vitais.
+**ADR-031: Supressão Intencional de UPDATE e DELETE em Logs de Rastreio**
 
-**ADR-025: Integração Deep Link (wa.me) no Client-Side**
-- **Razão:** Utilizar a API Cloud Oficial da Meta demandaria custos financeiros e configuração de webhooks fora do escopo do MVP. A montagem da URI dinamicamente no frontend resolve a necessidade de negócio com custo zero e zero latência de servidor.  
+* **Razão:** O mapeamento de orçamentos contatados atua como uma trilha de auditoria comercial (*Audit Trail*). Se houvesse implementação das operações PUT e DELETE na API, um Vendedor ou Gestor poderia fraudar métricas apagando ou modificando o tracking.
+* **Consequências:** A tabela obedece ao padrão *Append-Only*, limitando a arquitetura às operações CREATE e READ, maximizando a irrefutabilidade dos dados comerciais (Não-Repúdio).
 
-**ADR-026: Filtro Lógico no Python (Application-Level Join)**
-- **Razão:** Optou-se por realizar o cruzamento de orçamentos pendentes com orçamentos contatados diretamente na camada Service do Python, ao invés de uma view complexa no PostgREST. Isso simplifica a manutenção imediata, dadas as permissões estritas de RLS ativas no banco.
+**ADR-032: Controle de Acesso Baseado no Backend (Sem RLS no Supabase)**
 
-**ADR-027: Injeção de Identidade via Token JWT/UUID**
-- **Razão:** Para garantir integridade máxima na auditoria comercial, a rota de POST não possui o campo vendedor_id no seu Payload JSON. A arquitetura força o framework FastAPI a descompactar a identidade a partir do Header de Autorização, eliminando vulnerabilidades de falsidade ideológica.  
+* **Razão:** O DDL do banco de dados opera com *GRANT ALL* de forma intencional para identidades autenticadas. Optou-se por não engessar o banco com Row Level Security (RLS) complexas porque **100% da barreira AuthZ foi centralizada no FastAPI**. A injeção `Depends(RequireRole)` no Python atua como o porteiro absoluto (API Gateway) da aplicação.
+* **Consequências:** Agilidade no desenvolvimento e controle fino de permissões feito na linguagem de programação principal da equipe, sem duplicar regras de negócio no banco.
 
 ---
 
-## 6. Segurança OWASP
+## 6. SEGURANÇA OWASP
 
-### Controle 1: Insecure Direct Object Reference (IDOR) - A01:2021
+**1. Controle de Acesso (Broken Access Control - IDOR) - A01:2021**
 
-**Vulnerabilidade OWASP (Risco):**
-Um operador com conhecimento de ferramentas de rede poderia interceptar a requisição e forçar o envio do POST de contato para o ID de um orçamento que pertence a outro vendedor ou que já foi faturado e pago, corrompendo a integridade dos dados e do fluxo comercial.
+* **Vulnerabilidade:** Um operador poderia forçar o POST de contato em um ID de orçamento finalizado para manipular dados (IDOR vertical/estado).
+* **Implementação:** O Service realiza validação de estado. Se a resposta da base não for estritamente "PENDENTE", a operação é abortada (HTTP 409 Conflict).
+* **Teste:** POST forçado via CURL contra um ID de orçamento já finalizado. Retorno da API bloqueia a gravação com código HTTP 409 ("Operação inválida: orçamento já convertido em venda").
 
-**Implementação (Como você protege?):**
-Antes de inserir o registro, a camada Service no backend realiza uma busca obrigatória pelo estado atual do objeto no banco de dados. A lógica valida o atributo de status. Se a resposta da base não for estritamente "PENDENTE", a operação é abortada instantaneamente com o lançamento de uma exceção HTTP 409 (Conflict).
+**2. Insecure Design (Falsificação de Autoria) - A04:2021**
 
-**Teste (Como provou que funciona?):**
-Submeteu-se uma requisição POST utilizando uma ferramenta de linha de comando apontada para um ID de orçamento já convertido em Ordem de Serviço. A resposta do servidor foi 409 Conflict, com a mensagem "Operação inválida: orçamento já convertido em venda". Nenhum registro indevido foi gravado na tabela associativa.
+* **Vulnerabilidade:** O frontend poderia enviar o `user_id` no JSON, permitindo que um usuário imputasse sua ação a um colega.
+* **Implementação:** A rota de criação desconsidera IDs via payload. A identidade do vendedor é extraída estritamente da decodificação criptográfica do Token HTTP.
+* **Teste:** Envio manual via Postman de `{ "vendedor_id": "uuid-falso" }`. O sistema descarta a entrada (validação Pydantic extrínseca) e salva a auditoria usando o UUID real do Token assinante.
 
-### Controle 2: Insecure Design (Falsificação de Autoria) - A04:2021
+**3. Injection (Cross-Site Scripting / XSS no Deep Link) - A03:2021**
 
-**Vulnerabilidade OWASP (Risco):**
-Se a API confiasse cegamente nos dados enviados pelo navegador, um usuário mal intencionado poderia modificar o Payload JSON da requisição, inserindo o ID de um colega no campo vendedor_id para manipular as métricas de produtividade da equipe comercial.
-
-**Implementação (Como você protege?):**
-O schema Pydantic utilizado na rota de criação não expõe nem aceita a chave de identidade do vendedor no corpo da requisição web. A identidade é declarada como parâmetro de dependência interna do FastAPI, que extrai, decodifica e valida criptograficamente o ID do ator responsável diretamente a partir do Token de Autorização presente nos cabeçalhos HTTP.
-
-**Teste (Como provou que funciona?):**
-Ao enviar uma requisição POST forçando a presença do campo vendedor_id no corpo JSON com um UUID de terceiros, o sistema ignorou silenciosamente o dado malicioso e gravou na tabela de contatos do banco de dados o ID exato que assinou o token HTTP enviado, mantendo a auditoria 100% íntegra.
-
-### Controle 3: Cross-Site Scripting (XSS) Prevention - A07:2021
-
-**Vulnerabilidade OWASP (Risco):**
-Dados não higienizados provenientes de cadastros de terceiros (nomes de clientes ou descrições) contendo caracteres maliciosos poderiam ser interpolados na montagem do link. Ao clicar, o navegador do usuário poderia interpretar a URL formatada incorretamente ou executar carga arbitrária em ambiente web.
-
-**Implementação (Como você protege?):**
-O sistema proíbe o envio de variáveis brutas do banco diretamente para protocolos URI. Toda variável de texto inserida na montagem do link wa.me é encapsulada obrigatoriamente pela função nativa encodeURIComponent() do JavaScript, que sanitiza caracteres especiais, convertendo espaços e símbolos em códigos hexadecimais inofensivos para a barra de endereços.
-
-**Teste (Como provou que funciona?):**
-Alterou-se o nome de um cliente no banco de dados para incluir os caracteres `<script>alert(1)</script>`. Ao acionar o botão na interface, o sistema gerou a URL convertendo os caracteres de tag para suas equivalências seguras (ex: %3Cscript%3E). O navegador processou o link apenas como texto simples para o aplicativo de mensagens, sem executar nenhum comando indesejado na aba local.
+* **Vulnerabilidade:** Dados brutos do banco (nomes customizados com `<script>`) injetados diretamente na URL do WhatsApp ativariam falhas XSS baseadas em reflexão no navegador do usuário no momento do clique.
+* **Implementação:** O envio de variáveis é higienizado pela função nativa `encodeURIComponent()` no Javascript, codificando caracteres especiais para formato hexadecimal seguro para URI.
+* **Teste:** Nome de cliente modificado no banco para `Teste <script>alert(1)</script>`. O botão processou o clique transcrevendo a string para `%3Cscript%3E`, invalidando o código e forçando seu tratamento como texto inofensivo.
